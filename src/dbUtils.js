@@ -6,11 +6,7 @@ const getProjects = async () => {
 };
 
 // Adds a new project to the projects collection with a randomly generated id
-const addProject = async ({
-  projectName,
-  companyName = '',
-  description = ''
-}) => {
+const addProject = async ({ projectName, companyName, description }) => {
   const request = await fetch('http://localhost:5000/api/addProject', {
     method: 'POST',
     headers: {
@@ -24,13 +20,20 @@ const addProject = async ({
 };
 
 // Updates an existing project's information
-const updateProject = async (updatedData) => {
+const updateProject = async ({
+  projectName,
+  companyName,
+  description,
+  oldName
+}) => {
   const request = await fetch('http://localhost:5000/api/updateProject', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(updatedData)
+    body: JSON.stringify({
+      updatedData: { projectName, companyName, description, oldName }
+    })
   });
   // REMOVE THESE TWO LINES LATER, for debugging
   const results = await request.json();
