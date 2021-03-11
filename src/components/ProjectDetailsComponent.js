@@ -1,11 +1,29 @@
 import React, { useReducer } from 'react';
+import { makeStyles, TextField, Button, Snackbar } from '@material-ui/core';
 import styles from '../styles';
+import * as db from '../dbUtils';
 
-const ProjectDetailsComponent = () => {
+const useStyles = makeStyles({
+  inputContainer: {
+    marginBottom: 20
+  },
+  textField: {
+    color: 'black'
+  },
+  inputLabel: {
+    color: '#888'
+  }
+});
+
+const ProjectDetailsComponent = ({ project }) => {
+  const classes = useStyles();
+
   const initialState = {
-    projectName: null,
-    companyName: '',
-    description: ''
+    projectName: project?.projectName || '',
+    companyName: project?.companyName || '',
+    description: project?.description || '',
+    snackbarOpen: false,
+    snackbarMessage: ''
   };
 
   const [state, setState] = useReducer(
@@ -26,47 +44,102 @@ const ProjectDetailsComponent = () => {
   };
 
   const handleSubmitButton = async () => {
-    let request = await fetch(
-      `http://localhost:5000/api/projectExists?projectName=${state.projectName}`
-    );
-    let results = await request.json();
-    if (results.exists) {
-      console.log('Name already in use, could not add');
-      return;
+    try {
+      if (await db.checkProjectExists(state.projectName)) {
+        setState({
+          snackbarOpen: true,
+          snackbarMessage: 'Name already in use, could not add'
+        });
+        return;
+      }
+      await db.addProject(state);
+      setState({
+        snackbarOpen: true,
+        snackbarMessage: 'Successfully saved project information!'
+      });
+    } catch (err) {
+      setState({
+        snackbarOpen: true,
+        snackbarMessage: `Project creation failed: ${err.message}`
+      });
+      console.log(`Project creation failed: ${err}`);
     }
+  };
 
-    console.log('sending state: ', state);
-    request = await fetch(`http://localhost:5000/api/addProject`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(state)
-    });
-    results = await request.json();
-    console.log(results);
+  const handleUpdateButton = async () => {
+    try {
+      if (await db.checkProjectExists(state.projectName)) {
+        setState({
+          snackbarOpen: true,
+          snackbarMessage: 'Name already in use, could not update name'
+        });
+        return;
+      }
+      await db.updateProject(state);
+      setState({
+        snackbarOpen: true,
+        snackbarMessage: 'Successfully updated project information!'
+      });
+    } catch (err) {
+      setState({
+        snackbarOpen: true,
+        snackbarMessage: `Project update failed: ${err.message}`
+      });
+      console.log(`Project update failed: ${err}`);
+    }
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setState({ snackbarOpen: false, snackbarMessage: '' });
   };
 
   return (
     <div>
       <h1 style={styles.pageTitle}>Project Details</h1>
       <div style={styles.form}>
-        <label className='inputPrompt'>
-          Project Name<span style={{ color: 'red' }}>*</span>:
-        </label>
-        <input type='text' onChange={handleProjectNameChange} />
+        <TextField
+          className={classes.inputContainer}
+          defaultValue={state.projectName}
+          label='Project Name'
+          required={true}
+          InputLabelProps={{ className: classes.inputLabel }}
+          InputProps={{ className: classes.textField }}
+          onChange={handleProjectNameChange}
+        />
         <br />
-        <label className='inputPrompt'>Company Name:</label>
-        <input type='text' onChange={handleCompanyNameChange} />
+        <TextField
+          className={classes.inputContainer}
+          label='Company Name'
+          onChange={handleCompanyNameChange}
+          InputProps={{ className: classes.textField }}
+          InputLabelProps={{ className: classes.inputLabel }}
+        />
         <br />
-        <label className='inputPrompt'>Project Desciption:</label>
-        <input type='text' onChange={handleDescriptionChange} />
+        <TextField
+          className={classes.inputContainer}
+          label='Description'
+          onChange={handleDescriptionChange}
+          InputProps={{ className: classes.textField }}
+          InputLabelProps={{ className: classes.inputLabel }}
+        />
         <br />
-        <input
-          type='button'
-          onClick={handleSubmitButton}
-          value='Submit'
-          disabled={!state.projectName}
+        <Button
+          variant='contained'
+          color='primary'
+          onClick={project ? handleUpdateButton : handleSubmitButton}
+          disabled={state?.projectName === ''}>
+          {project ? 'Update' : 'Submit'}
+        </Button>
+        <Snackbar
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center'
+          }}
+          open={state.snackbarOpen}
+          autoHideDuration={4000}
+          onClose={handleSnackbarClose}
+          message={state.snackbarMessage}
         />
       </div>
     </div>
@@ -74,7 +147,3 @@ const ProjectDetailsComponent = () => {
 };
 
 export default ProjectDetailsComponent;
-
-// const [projectName, setProjectName] = useState(null);
-// const [companyName, setCompanyName] = useState('');
-// const [description, setDescription] = useState('');

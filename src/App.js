@@ -1,6 +1,5 @@
 import ProjectDetailsComponent from './components/ProjectDetailsComponent';
 import ProductBacklogListComponent from './ProductBacklog/ProductBacklogListComponent';
-
 import React, { useReducer } from 'react';
 import { Route, Link, Redirect } from 'react-router-dom';
 import Reorder from '@material-ui/icons/Reorder';
@@ -13,15 +12,14 @@ import {
   MenuItem,
   IconButton,
   Typography,
-  Container,
-  Snackbar,
+  Container
 } from '@material-ui/core';
 
 const App = () => {
   const initialState = {
     showMsg: false,
     snackbarMsg: '',
-    anchorEl: '',
+    anchorEl: ''
   };
   const reducer = (state, newState) => ({ ...state, ...newState });
   const [state, setState] = useReducer(reducer, initialState);
@@ -46,44 +44,41 @@ const App = () => {
   return (
     <MuiThemeProvider theme={theme}>
       <Container style={{ padding: '0px', margin: '0px' }}>
-        <AppBar position="static">
+        <AppBar position='static'>
           <Toolbar>
-            <Typography variant="h6" color="inherit">
+            <Typography variant='h6' color='inherit'>
               Sprint Compass Demo
             </Typography>
             <IconButton
               onClick={handleClick}
-              color="inherit"
-              style={{ marginLeft: 'auto', paddingRight: '1vh' }}
-            >
+              color='inherit'
+              style={{ marginLeft: 'auto', paddingRight: '1vh' }}>
               <Reorder />
             </IconButton>
             <Menu
-              id="simple-menu"
+              id='simple-menu'
               anchorEl={state.anchorEl}
               open={Boolean(state.anchorEl)}
-              onClose={handleClose}
-            >
-              <MenuItem component={Link} to="/home" onClick={handleClose}>
+              onClose={handleClose}>
+              <MenuItem component={Link} to='/home' onClick={handleClose}>
                 Add A Project
               </MenuItem>
               <MenuItem
                 component={Link}
-                to="/productbacklog"
-                onClick={handleClose}
-              >
+                to='/productbacklog'
+                onClick={handleClose}>
                 Product Backlog
               </MenuItem>
             </Menu>
           </Toolbar>
         </AppBar>
         <Container style={{ padding: '0px', paddingTop: '10px' }}>
-          <Route exact path="/" render={() => <Redirect to="/home" />} />
+          <Route exact path='/' render={() => <Redirect to='/home' />} />
           <Route
-            path="/productbacklog"
+            path='/productbacklog'
             render={() => <ProductBacklogListComponent />}
           />
-          <Route path="/home" component={ProjectDetailsComponent} />
+          <Route path='/home' component={ProjectDetailsComponent} />
         </Container>
         {/* <Snackbar
           open={state.showMsg}
