@@ -15,7 +15,7 @@ const useStyles = makeStyles({
   }
 });
 
-const ProjectDetailsComponent = ({ project, updateProjects }) => {
+const ProjectDetailsComponent = ({ project, refreshProjects }) => {
   const classes = useStyles();
 
   /* State Setup */
@@ -68,7 +68,7 @@ const ProjectDetailsComponent = ({ project, updateProjects }) => {
         snackbarOpen: true,
         snackbarMessage: 'Successfully saved project information!'
       });
-      updateProjects();
+      refreshProjects();
     } catch (err) {
       setState({
         snackbarOpen: true,
@@ -92,8 +92,9 @@ const ProjectDetailsComponent = ({ project, updateProjects }) => {
       }
 
       // Store old name if updated since DB querying is done based on project name
-      const updatedData = { ...state };
-      if (state.projectName !== project.projectName)
+      const { projectName, companyName, description } = state;
+      const updatedData = { projectName, companyName, description };
+      if (projectName !== project.projectName)
         updatedData.oldName = project.projectName;
       await db.updateProject(updatedData);
 
@@ -101,7 +102,7 @@ const ProjectDetailsComponent = ({ project, updateProjects }) => {
         snackbarOpen: true,
         snackbarMessage: 'Successfully updated project information!'
       });
-      updateProjects();
+      refreshProjects();
     } catch (err) {
       setState({
         snackbarOpen: true,

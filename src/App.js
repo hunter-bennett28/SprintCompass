@@ -119,7 +119,7 @@ const App = () => {
           <Route path='/projectdetails'>
             <ProjectDetailsComponent
               project={state.selectedProject}
-              updateProjects={getProjects}
+              refreshProjects={getProjects}
             />
           </Route>
         </Container>

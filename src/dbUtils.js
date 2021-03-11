@@ -19,21 +19,14 @@ const addProject = async ({ projectName, companyName, description }) => {
   console.log(results);
 };
 
-// Updates an existing project's information
-const updateProject = async ({
-  projectName,
-  companyName,
-  description,
-  oldName
-}) => {
+// Updates an existing project's information, requires a projectName value in updatedData
+const updateProject = async (updatedData) => {
   const request = await fetch('http://localhost:5000/api/updateProject', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      updatedData: { projectName, companyName, description, oldName }
-    })
+    body: JSON.stringify({ updatedData })
   });
   // REMOVE THESE TWO LINES LATER, for debugging
   const results = await request.json();
