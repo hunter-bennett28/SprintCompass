@@ -1,9 +1,11 @@
 import ProjectDetailsComponent from './components/ProjectDetailsComponent';
 import ProductBacklogListComponent from './ProductBacklog/ProductBacklogListComponent';
-import React, { useReducer } from 'react';
+import HomeScreenComponent from './components/HomeScreenComponent';
+import React, { useReducer, useEffect } from 'react';
 import { Route, Link, Redirect } from 'react-router-dom';
 import Reorder from '@material-ui/icons/Reorder';
 import { MuiThemeProvider } from '@material-ui/core/styles';
+import * as db from './dbUtils';
 import theme from './theme';
 import {
   Toolbar,
@@ -19,7 +21,9 @@ const App = () => {
   const initialState = {
     showMsg: false,
     snackbarMsg: '',
-    anchorEl: ''
+    anchorEl: '',
+    projects: [],
+    selectedProject: null
   };
   const reducer = (state, newState) => ({ ...state, ...newState });
   const [state, setState] = useReducer(reducer, initialState);
@@ -31,6 +35,26 @@ const App = () => {
     setState({ anchorEl: event.currentTarget });
   };
 
+  const setSelectedProject = (projectName) => {
+    setState({
+      selectedProject: state.projects.find(
+        (project) => project.projectName === projectName
+      )
+    });
+  };
+
+  const getProjects = async () => {
+    try {
+      const projects = await db.getProjects();
+      setState({ projects });
+    } catch (err) {
+      console.log(`Error could not load projects: ${err.message}`);
+    }
+  };
+
+  useEffect(() => {
+    getProjects();
+  }, []);
   // const displayPopup = (message) => {
   //   setState({
   //     showMsg: true,
@@ -61,7 +85,13 @@ const App = () => {
               open={Boolean(state.anchorEl)}
               onClose={handleClose}>
               <MenuItem component={Link} to='/home' onClick={handleClose}>
-                Add A Project
+                Home
+              </MenuItem>
+              <MenuItem
+                component={Link}
+                to='/projectdetails'
+                onClick={handleClose}>
+                Project Details
               </MenuItem>
               <MenuItem
                 component={Link}
@@ -78,7 +108,20 @@ const App = () => {
             path='/productbacklog'
             render={() => <ProductBacklogListComponent />}
           />
-          <Route path='/home' component={ProjectDetailsComponent} />
+          <Route path='/home'>
+            <HomeScreenComponent
+              projectNames={state.projects.map(
+                (project) => project.projectName
+              )}
+              selectProject={setSelectedProject}
+            />
+          </Route>
+          <Route path='/projectdetails'>
+            <ProjectDetailsComponent
+              project={state.selectedProject}
+              refreshProjects={getProjects}
+            />
+          </Route>
         </Container>
         {/* <Snackbar
           open={state.showMsg}

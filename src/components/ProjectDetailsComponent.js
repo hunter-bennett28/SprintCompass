@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { makeStyles, TextField, Button, Snackbar } from '@material-ui/core';
 import styles from '../styles';
 import * as db from '../dbUtils';
@@ -15,22 +15,32 @@ const useStyles = makeStyles({
   }
 });
 
-const ProjectDetailsComponent = ({ project }) => {
+const ProjectDetailsComponent = ({ project, refreshProjects }) => {
   const classes = useStyles();
 
+  /* State Setup */
   const initialState = {
-    projectName: project?.projectName || '',
-    companyName: project?.companyName || '',
-    description: project?.description || '',
+    projectName: '',
+    companyName: '',
+    description: '',
     snackbarOpen: false,
     snackbarMessage: ''
   };
-
   const [state, setState] = useReducer(
     (state, newState) => ({ ...state, ...newState }),
     initialState
   );
 
+  /* Effects */
+  // Extract project details if given on render
+  useEffect(() => {
+    if (project) {
+      const { projectName, companyName, description } = project;
+      setState({ projectName, companyName, description });
+    }
+  }, []);
+
+  /* Text Field handlers */
   const handleProjectNameChange = (e) => {
     setState({ projectName: e.target.value });
   };
@@ -43,6 +53,7 @@ const ProjectDetailsComponent = ({ project }) => {
     setState({ description: e.target.value });
   };
 
+  /* Button Handlers */
   const handleSubmitButton = async () => {
     try {
       if (await db.checkProjectExists(state.projectName)) {
@@ -57,6 +68,7 @@ const ProjectDetailsComponent = ({ project }) => {
         snackbarOpen: true,
         snackbarMessage: 'Successfully saved project information!'
       });
+      refreshProjects();
     } catch (err) {
       setState({
         snackbarOpen: true,
@@ -68,18 +80,29 @@ const ProjectDetailsComponent = ({ project }) => {
 
   const handleUpdateButton = async () => {
     try {
-      if (await db.checkProjectExists(state.projectName)) {
+      if (
+        state.projectName !== project?.projectName &&
+        (await db.checkProjectExists(state.projectName))
+      ) {
         setState({
           snackbarOpen: true,
           snackbarMessage: 'Name already in use, could not update name'
         });
         return;
       }
-      await db.updateProject(state);
+
+      // Store old name if updated since DB querying is done based on project name
+      const { projectName, companyName, description } = state;
+      const updatedData = { projectName, companyName, description };
+      if (projectName !== project.projectName)
+        updatedData.oldName = project.projectName;
+      await db.updateProject(updatedData);
+
       setState({
         snackbarOpen: true,
         snackbarMessage: 'Successfully updated project information!'
       });
+      refreshProjects();
     } catch (err) {
       setState({
         snackbarOpen: true,
@@ -100,7 +123,7 @@ const ProjectDetailsComponent = ({ project }) => {
       <div style={styles.form}>
         <TextField
           className={classes.inputContainer}
-          defaultValue={state.projectName}
+          defaultValue={project?.projectName}
           label='Project Name'
           required={true}
           InputLabelProps={{ className: classes.inputLabel }}
@@ -110,6 +133,7 @@ const ProjectDetailsComponent = ({ project }) => {
         <br />
         <TextField
           className={classes.inputContainer}
+          defaultValue={project?.companyName}
           label='Company Name'
           onChange={handleCompanyNameChange}
           InputProps={{ className: classes.textField }}
@@ -118,6 +142,7 @@ const ProjectDetailsComponent = ({ project }) => {
         <br />
         <TextField
           className={classes.inputContainer}
+          defaultValue={project?.description}
           label='Description'
           onChange={handleDescriptionChange}
           InputProps={{ className: classes.textField }}
