@@ -136,8 +136,7 @@ const ProductBacklogListComponent = ({
           </ListItem>
         );
     });
-  } else 
-    return;
+  }
   };
 
   const renderSubtasks = (story) => {
