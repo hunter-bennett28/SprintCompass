@@ -44,12 +44,6 @@ const App = () => {
     });
   };
 
-  const getSelectedProject = (projectName) => {
-    return state.projects.find(
-      (project) => project.projectName === projectName
-    );
-  };
-
   const getProjects = async () => {
     try {
       const projects = await db.getProjects();
