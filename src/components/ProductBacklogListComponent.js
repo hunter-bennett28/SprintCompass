@@ -205,6 +205,50 @@ const ProductBacklogListComponent = ({
     return newStory.priority === 0 || newStory.task === '';
   };
 
+  const onAddOrUpdateProduct=async () => {
+    //Make sure the story is valid first
+    if (!isInvalidStory()) {
+      if (!newStory.estimate)
+        //Default estimate to 0
+        setNewStory({ estimate: 0 });
+
+      setState({
+        addMode: false,
+        addSubtask: false,
+        newStoryError: '',
+        newSubtask:'',
+      });
+
+      //Check if it is updating
+      if(state.isEditing){
+        let productBacklog=state.productBacklog;
+        productBacklog[state.editingIndex]=newStory;
+
+        setState({
+          isEditing: false,
+          editingIndex: null,
+        });
+      }
+      else
+        //Add the new product backlog
+        await addNewStory(newStory);
+
+      //Clear its data
+      setNewStory({
+        priority: 0,
+        task: '',
+        subtasks: [],
+        estimate: 0,
+        description: '',
+        estimate: 0,
+      });
+    } else {
+      setState({
+        newStoryError: 'Ensure all required fields are filled',
+      });
+    }
+  }
+
   return (
     //Using Material-UI
 
@@ -381,49 +425,7 @@ const ProductBacklogListComponent = ({
                   color="primary"
                   variant="contained"
                   style={{ flex: 1, width: '40%' }}
-                  onClick={async () => {
-                    //Make sure the story is valid first
-                    if (!isInvalidStory()) {
-                      if (!newStory.estimate)
-                        //Default estimate to 0
-                        setNewStory({ estimate: 0 });
-
-                      setState({
-                        addMode: false,
-                        addSubtask: false,
-                        newStoryError: '',
-                        newSubtask:'',
-                      });
-
-                      //Check if it is updating
-                      if(state.isEditing){
-                        let productBacklog=state.productBacklog;
-                        productBacklog[state.editingIndex]=newStory;
-
-                        setState({
-                          isEditing: false,
-                          editingIndex: null,
-                        });
-                      }
-                      else
-                        //Add the new product backlog
-                        await addNewStory(newStory);
-
-                      //Clear its data
-                      setNewStory({
-                        priority: 0,
-                        task: '',
-                        subtasks: [],
-                        estimate: 0,
-                        description: '',
-                        estimate: 0,
-                      });
-                    } else {
-                      setState({
-                        newStoryError: 'Ensure all required fields are filled',
-                      });
-                    }
-                  }}
+                  onClick={onAddOrUpdateProduct}
                 >
                   {state.isEditing? "Update product" :"Add a new product"}
                 </Button>
