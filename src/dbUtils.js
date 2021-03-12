@@ -31,6 +31,9 @@ const updateProject = async (updatedData) => {
   // REMOVE THESE TWO LINES LATER, for debugging
   const results = await request.json();
   console.log(results);
+
+  //Display if the update was successful or not
+  return results;
 };
 
 const checkProjectExists = async (projectName) => {
