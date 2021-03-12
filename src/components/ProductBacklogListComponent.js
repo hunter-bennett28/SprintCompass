@@ -60,14 +60,11 @@ const ProductBacklogListComponent = ({
     if (project) {
       const { productBacklog } = project;
       setState({ productBacklog });
-      console.log('loaded backlog');
     } else displayPopup('Project not loaded');
   }, []);
 
   useEffect(async () => {
     if (state.productBacklog) {
-      console.log(state.productBacklog);
-      console.log(project);
       await updateProject();
     }
   }, [state.productBacklog]);
@@ -111,9 +108,6 @@ const ProductBacklogListComponent = ({
       isEditing: true,
       editingIndex: state.productBacklog.findIndex((story) => story === item),
     });
-    console.log(
-      'Now editing ' + state.productBacklog.findIndex((story) => story === item)
-    );
     setNewStory(item);
   };
 
