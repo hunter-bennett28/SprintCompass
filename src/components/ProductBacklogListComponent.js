@@ -34,7 +34,7 @@ const ProductBacklogListComponent = ({
     newSubtask: '',
     newStoryError: '',
     isEditing: false,
-    editingIndex:null,
+    editingIndex: null,
   };
 
   const [state, setState] = useReducer(
@@ -106,37 +106,45 @@ const ProductBacklogListComponent = ({
 
   const onStoryClick = (item) => {
     //Enable editing the story
-    setState({ addMode: true, isEditing:true, editingIndex:state.productBacklog.findIndex((story) => story===item) });
-    console.log("Now editing "+state.productBacklog.findIndex((story) => story===item));
+    setState({
+      addMode: true,
+      isEditing: true,
+      editingIndex: state.productBacklog.findIndex((story) => story === item),
+    });
+    console.log(
+      'Now editing ' + state.productBacklog.findIndex((story) => story === item)
+    );
     setNewStory(item);
   };
 
   const renderList = () => {
-    if(state.productBacklog){
-      let tempArray= state.productBacklog.sort((p1,p2) => p1.priority-p2.priority);
+    if (state.productBacklog) {
+      let tempArray = state.productBacklog.sort(
+        (p1, p2) => p1.priority - p2.priority
+      );
       return tempArray.map((item) => {
-      if (item)
-        //Check if there are any products
-        return (
-          <ListItem button onClick={() => onStoryClick(item)}>
-            <ListItemText
-              primary={item.priority}
-              style={{ maxWidth: '10px', marginRight: '50px' }}
-            />
-            <ListItemText primary={item.task} style={{ flex: 12 }} />
-            <ListItemSecondaryAction>
-              <IconButton
-                edge="end"
-                aria-label="delete"
-                onClick={() => onDeleteItem(item)}
-              >
-                <DeleteIcon style={{fill: "white"}}/>
-              </IconButton>
-            </ListItemSecondaryAction>
-          </ListItem>
-        );
-    });
-  }
+        if (item)
+          //Check if there are any products
+          return (
+            <ListItem button onClick={() => onStoryClick(item)}>
+              <ListItemText
+                primary={item.priority}
+                style={{ maxWidth: '10px', marginRight: '50px' }}
+              />
+              <ListItemText primary={item.task} style={{ flex: 12 }} />
+              <ListItemSecondaryAction>
+                <IconButton
+                  edge="end"
+                  aria-label="delete"
+                  onClick={() => onDeleteItem(item)}
+                >
+                  <DeleteIcon style={{ fill: 'white' }} />
+                </IconButton>
+              </ListItemSecondaryAction>
+            </ListItem>
+          );
+      });
+    }
   };
 
   const renderSubtasks = (story) => {
@@ -155,7 +163,7 @@ const ProductBacklogListComponent = ({
                   })
                 }
               >
-                <DeleteIcon style={{fill: "white"}}/>
+                <DeleteIcon style={{ fill: 'white' }} />
               </IconButton>
             </ListItemSecondaryAction>
           </ListItem>
@@ -205,7 +213,7 @@ const ProductBacklogListComponent = ({
     return newStory.priority === 0 || newStory.task === '';
   };
 
-  const onAddOrUpdateProduct=async () => {
+  const onAddOrUpdateProduct = async () => {
     //Make sure the story is valid first
     if (!isInvalidStory()) {
       if (!newStory.estimate)
@@ -216,22 +224,21 @@ const ProductBacklogListComponent = ({
         addMode: false,
         addSubtask: false,
         newStoryError: '',
-        newSubtask:'',
+        newSubtask: '',
       });
 
       //Check if it is updating
-      if(state.isEditing){
-        let productBacklog=state.productBacklog;
-        productBacklog[state.editingIndex]=newStory;
+      if (state.isEditing) {
+        let productBacklog = state.productBacklog;
+        productBacklog[state.editingIndex] = newStory;
 
         setState({
           isEditing: false,
           editingIndex: null,
         });
       }
-      else
-        //Add the new product backlog
-        await addNewStory(newStory);
+      //Add the new product backlog
+      else await addNewStory(newStory);
 
       //Clear its data
       setNewStory({
@@ -247,7 +254,7 @@ const ProductBacklogListComponent = ({
         newStoryError: 'Ensure all required fields are filled',
       });
     }
-  }
+  };
 
   return (
     //Using Material-UI
@@ -386,7 +393,7 @@ const ProductBacklogListComponent = ({
                   />
                 </Container>
               </Container>
-              <Container style={{  marginTop: '1%' }}>
+              <Container style={{ marginTop: '1%' }}>
                 <Typography variant="h6">Subtasks</Typography>
 
                 <Container style={{ width: '90%', minHeight: '280px' }}>
@@ -414,7 +421,7 @@ const ProductBacklogListComponent = ({
                       addMode: false,
                       addSubtask: false,
                       newStoryError: '',
-                      newSubtask:''
+                      newSubtask: '',
                     });
                   }}
                 >
@@ -427,7 +434,7 @@ const ProductBacklogListComponent = ({
                   style={{ flex: 1, width: '40%' }}
                   onClick={onAddOrUpdateProduct}
                 >
-                  {state.isEditing? "Update product" :"Add a new product"}
+                  {state.isEditing ? 'Update product' : 'Add a new product'}
                 </Button>
               </Container>
               <Typography variant="h6" color="secondary" align="center">
