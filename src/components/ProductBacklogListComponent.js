@@ -59,7 +59,7 @@ const ProductBacklogListComponent = ({
   useEffect(async () => {
     if (project) {
       const { productBacklog } = project;
-      await setState({ productBacklog });
+      setState({ productBacklog });
       console.log('loaded backlog');
     } else displayPopup('Project not loaded');
   }, []);
@@ -74,7 +74,6 @@ const ProductBacklogListComponent = ({
 
   const addNewStory = async (story) => {
     setState({ productBacklog: [...state.productBacklog, story] });
-    //await updateProject()
   };
 
   const updateProject = async () => {
@@ -98,11 +97,11 @@ const ProductBacklogListComponent = ({
   };
 
   const onDeleteItem = async (item) => {
-    await setState({
+    setState({
       productBacklog: state.productBacklog.filter((story) => story !== item),
     });
 
-    await updateProject();
+    //await updateProject();
   };
 
   const onStoryClick = (item) => {
