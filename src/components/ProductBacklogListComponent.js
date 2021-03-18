@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from 'react';
+import { useEffect, useReducer } from 'react';
 // import react from 'react';
 import {
   Card,
@@ -13,7 +13,7 @@ import {
   ListItemSecondaryAction,
   IconButton,
   Container,
-  TextField,
+  TextField
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/DeleteOutline';
 import AddIcon from '@material-ui/icons/Add';
@@ -23,7 +23,7 @@ import * as db from '../dbUtils';
 const ProductBacklogListComponent = ({
   refreshProjects,
   project,
-  displayPopup,
+  displayPopup
 }) => {
   const initialState = {
     rate: 1, //TODO: Implement relative estimates
@@ -34,7 +34,7 @@ const ProductBacklogListComponent = ({
     newSubtask: '',
     newStoryError: '',
     isEditing: false,
-    editingIndex: null,
+    editingIndex: null
   };
 
   const [state, setState] = useReducer(
@@ -48,7 +48,7 @@ const ProductBacklogListComponent = ({
     subtasks: [],
     estimate: 0,
     description: '',
-    estimate: 0,
+    estimate: 0
   };
 
   const [newStory, setNewStory] = useReducer(
@@ -78,7 +78,7 @@ const ProductBacklogListComponent = ({
     try {
       let result = await db.updateProject({
         projectName: project.projectName,
-        productBacklog: state.productBacklog,
+        productBacklog: state.productBacklog
       });
 
       //Check if the update worked
@@ -95,7 +95,7 @@ const ProductBacklogListComponent = ({
 
   const onDeleteItem = async (item) => {
     setState({
-      productBacklog: state.productBacklog.filter((story) => story !== item),
+      productBacklog: state.productBacklog.filter((story) => story !== item)
     });
 
     //await updateProject();
@@ -106,7 +106,7 @@ const ProductBacklogListComponent = ({
     setState({
       addMode: true,
       isEditing: true,
-      editingIndex: state.productBacklog.findIndex((story) => story === item),
+      editingIndex: state.productBacklog.findIndex((story) => story === item)
     });
     setNewStory(item);
   };
@@ -128,10 +128,9 @@ const ProductBacklogListComponent = ({
               <ListItemText primary={item.task} style={{ flex: 12 }} />
               <ListItemSecondaryAction>
                 <IconButton
-                  edge="end"
-                  aria-label="delete"
-                  onClick={() => onDeleteItem(item)}
-                >
+                  edge='end'
+                  aria-label='delete'
+                  onClick={() => onDeleteItem(item)}>
                   <DeleteIcon style={{ fill: 'white' }} />
                 </IconButton>
               </ListItemSecondaryAction>
@@ -149,14 +148,13 @@ const ProductBacklogListComponent = ({
             <ListItemText primary={item} />
             <ListItemSecondaryAction>
               <IconButton
-                edge="end"
-                aria-label="delete"
+                edge='end'
+                aria-label='delete'
                 onClick={() =>
                   setNewStory({
-                    subtasks: newStory.subtasks.filter((task) => task !== item),
+                    subtasks: newStory.subtasks.filter((task) => task !== item)
                   })
-                }
-              >
+                }>
                 <DeleteIcon style={{ fill: 'white' }} />
               </IconButton>
             </ListItemSecondaryAction>
@@ -174,7 +172,7 @@ const ProductBacklogListComponent = ({
             value={state.newSubtask}
             onChange={(e) => {
               setState({
-                newSubtask: e.target.value,
+                newSubtask: e.target.value
               });
             }}
           />
@@ -184,11 +182,10 @@ const ProductBacklogListComponent = ({
             onClick={() => {
               //Set the user story to have the new subtask
               setNewStory({
-                subtasks: [...newStory.subtasks, state.newSubtask],
+                subtasks: [...newStory.subtasks, state.newSubtask]
               });
               setState({ newSubtask: '', addSubtask: false }); //Clear the subtask from the state
-            }}
-          >
+            }}>
             <AddBoxRoundedIcon />
           </IconButton>
         </ListItem>
@@ -197,7 +194,7 @@ const ProductBacklogListComponent = ({
       return (
         <ListItem button onClick={() => setState({ addSubtask: true })}>
           <AddIcon />
-          <Typography variant="h6">Add new task</Typography>
+          <Typography variant='h6'>Add new task</Typography>
         </ListItem>
       );
   };
@@ -218,7 +215,7 @@ const ProductBacklogListComponent = ({
         addMode: false,
         addSubtask: false,
         newStoryError: '',
-        newSubtask: '',
+        newSubtask: ''
       });
 
       //Check if it is updating
@@ -228,7 +225,7 @@ const ProductBacklogListComponent = ({
 
         setState({
           isEditing: false,
-          editingIndex: null,
+          editingIndex: null
         });
       }
       //Add the new product backlog
@@ -241,11 +238,11 @@ const ProductBacklogListComponent = ({
         subtasks: [],
         estimate: 0,
         description: '',
-        estimate: 0,
+        estimate: 0
       });
     } else {
       setState({
-        newStoryError: 'Ensure all required fields are filled',
+        newStoryError: 'Ensure all required fields are filled'
       });
     }
   };
@@ -254,18 +251,17 @@ const ProductBacklogListComponent = ({
     //Using Material-UI
 
     <Card>
-      <CardHeader title="Product Backlog" style={{ textAlign: 'center' }} />
+      <CardHeader title='Product Backlog' style={{ textAlign: 'center' }} />
       <CardContent>
         {/* Display the list of products */}
-        <List subheader="Current Product Backlog">
+        <List subheader='Current Product Backlog'>
           <Button
-            color="primary"
-            variant="contained"
+            color='primary'
+            variant='contained'
             style={{ float: 'right' }}
             onClick={() => {
               setState({ addMode: true });
-            }}
-          >
+            }}>
             <AddIcon />
           </Button>
           {renderList()}
@@ -278,21 +274,20 @@ const ProductBacklogListComponent = ({
             setState({ addMode: false, addSubtask: false, newStoryError: '' });
             setNewStory(initialNewStory);
           }}
-          aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description"
+          aria-labelledby='simple-modal-title'
+          aria-describedby='simple-modal-description'
           style={{
             height: '80%',
             maxWidth: '1000px',
             minWidth: '400px',
             width: '80%',
-            margin: 'auto',
-          }}
-        >
+            margin: 'auto'
+          }}>
           <Card>
-            <CardHeader title="Add a Story" style={{ textAlign: 'center' }} />
+            <CardHeader title='Add a Story' style={{ textAlign: 'center' }} />
             <CardContent>
               <Container style={{ display: 'flex', flexDirection: 'row' }}>
-                <Typography variant="h6" style={{ flex: 1, textAlign: 'left' }}>
+                <Typography variant='h6' style={{ flex: 1, textAlign: 'left' }}>
                   Priority*
                 </Typography>
                 <Container style={{ flex: 2 }}>
@@ -304,19 +299,18 @@ const ProductBacklogListComponent = ({
                       if (parseInt(e.target.value)) {
                         if (parseInt(e.target.value) <= 9999)
                           setNewStory({
-                            priority: parseInt(e.target.value),
+                            priority: parseInt(e.target.value)
                           });
                       } else
                         setNewStory({
-                          priority: '',
+                          priority: ''
                         });
                     }}
                   />
                 </Container>
                 <Typography
-                  variant="h6"
-                  style={{ flex: 1, textAlign: 'right' }}
-                >
+                  variant='h6'
+                  style={{ flex: 1, textAlign: 'right' }}>
                   Task*
                 </Typography>
                 <Container style={{ flex: 6 }}>
@@ -324,12 +318,12 @@ const ProductBacklogListComponent = ({
                     style={{
                       maxWidth: '400px',
                       width: '100%',
-                      alignSelf: 'left',
+                      alignSelf: 'left'
                     }}
                     value={newStory.task}
                     onChange={(e) => {
                       setNewStory({
-                        task: e.target.value,
+                        task: e.target.value
                       });
                     }}
                   />
@@ -337,7 +331,7 @@ const ProductBacklogListComponent = ({
               </Container>
 
               <Container style={{ display: 'flex', flexDirection: 'row' }}>
-                <Typography variant="h6" style={{ flex: 1, textAlign: 'left' }}>
+                <Typography variant='h6' style={{ flex: 1, textAlign: 'left' }}>
                   Description
                 </Typography>
                 <Container style={{ flex: 6 }}>
@@ -345,31 +339,30 @@ const ProductBacklogListComponent = ({
                     style={{
                       width: '88%',
                       alignSelf: 'left',
-                      textAlign: 'left',
+                      textAlign: 'left'
                     }}
                     value={newStory.description}
                     onChange={(e) => {
                       setNewStory({
-                        description: e.target.value,
+                        description: e.target.value
                       });
                     }}
                   />
                 </Container>
               </Container>
               <Container style={{ display: 'flex', flexDirection: 'row' }}>
-                <Typography variant="h6" style={{ flex: 1, textAlign: 'left' }}>
+                <Typography variant='h6' style={{ flex: 1, textAlign: 'left' }}>
                   Estimate
                 </Typography>
                 <Container
-                  style={{ flex: 6, display: 'flex', flexDirection: 'row' }}
-                >
+                  style={{ flex: 6, display: 'flex', flexDirection: 'row' }}>
                   <Typography style={{ marginTop: '2%', marginRight: '1%' }}>
                     $
                   </Typography>
                   <TextField
                     style={{
                       maxWidth: '100%',
-                      alignSelf: 'left',
+                      alignSelf: 'left'
                     }}
                     value={newStory.estimate}
                     onChange={(e) => {
@@ -377,18 +370,18 @@ const ProductBacklogListComponent = ({
                         if (parseInt(e.target.value) <= 999999999)
                           //Ensure it is an int and isnt long enough to create a scientific notation number
                           setNewStory({
-                            estimate: parseInt(e.target.value),
+                            estimate: parseInt(e.target.value)
                           });
                       } else
                         setNewStory({
-                          estimate: '',
+                          estimate: ''
                         });
                     }}
                   />
                 </Container>
               </Container>
               <Container style={{ marginTop: '1%' }}>
-                <Typography variant="h6">Subtasks</Typography>
+                <Typography variant='h6'>Subtasks</Typography>
 
                 <Container style={{ width: '90%', minHeight: '280px' }}>
                   <List style={{ maxHeight: '200px', overflow: 'auto' }}>
@@ -402,12 +395,11 @@ const ProductBacklogListComponent = ({
                 style={{
                   marginTop: '10px',
                   marginBottom: '30px',
-                  display: 'flex',
-                }}
-              >
+                  display: 'flex'
+                }}>
                 <Button
-                  color="primary"
-                  variant="contained"
+                  color='primary'
+                  variant='contained'
                   style={{ flex: 1 }}
                   onClick={() => {
                     setNewStory(initialNewStory);
@@ -415,23 +407,21 @@ const ProductBacklogListComponent = ({
                       addMode: false,
                       addSubtask: false,
                       newStoryError: '',
-                      newSubtask: '',
+                      newSubtask: ''
                     });
-                  }}
-                >
+                  }}>
                   Cancel
                 </Button>
                 <Container style={{ width: '40%' }} />
                 <Button
-                  color="primary"
-                  variant="contained"
+                  color='primary'
+                  variant='contained'
                   style={{ flex: 1, width: '40%' }}
-                  onClick={onAddOrUpdateProduct}
-                >
+                  onClick={onAddOrUpdateProduct}>
                   {state.isEditing ? 'Update product' : 'Add a new product'}
                 </Button>
               </Container>
-              <Typography variant="h6" color="secondary" align="center">
+              <Typography variant='h6' color='secondary' align='center'>
                 {state.newStoryError}
               </Typography>
             </CardContent>

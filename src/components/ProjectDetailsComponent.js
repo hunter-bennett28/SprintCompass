@@ -1,21 +1,23 @@
 import React, { useEffect, useReducer } from 'react';
 import { makeStyles, TextField, Button, Snackbar } from '@material-ui/core';
-import styles from '../styles';
 import * as db from '../dbUtils';
+import '../App.css';
 
 const useStyles = makeStyles({
   inputContainer: {
-    marginBottom: 20
+    marginBottom: 20,
+    width: '50%',
+    textAlign: 'center'
   },
   textField: {
-    color: 'black'
+    color: 'white'
   },
   inputLabel: {
-    color: '#888'
+    color: '#aaa'
   }
 });
 
-const ProjectDetailsComponent = ({ project, refreshProjects }) => {
+const ProjectDetailsComponent = ({ refreshProjects }) => {
   const classes = useStyles();
 
   /* State Setup */
@@ -24,7 +26,9 @@ const ProjectDetailsComponent = ({ project, refreshProjects }) => {
     companyName: '',
     description: '',
     snackbarOpen: false,
-    snackbarMessage: ''
+    snackbarMessage: '',
+    updating: false,
+    oldName: ''
   };
   const [state, setState] = useReducer(
     (state, newState) => ({ ...state, ...newState }),
@@ -32,17 +36,29 @@ const ProjectDetailsComponent = ({ project, refreshProjects }) => {
   );
 
   /* Effects */
-  // Extract project details if given on render
+  // Extract project details if stored on render
   useEffect(() => {
-    if (project) {
-      const { projectName, companyName, description } = project;
-      setState({ projectName, companyName, description });
+    const savedProject = sessionStorage.getItem('project');
+    if (savedProject) {
+      try {
+        const { projectName, companyName, description } = JSON.parse(
+          savedProject
+        );
+        setState({ projectName, companyName, description, updating: true });
+      } catch (err) {
+        console.log(`Error parsing saved project: ${err.message}`);
+      }
     }
   }, []);
 
   /* Text Field handlers */
   const handleProjectNameChange = (e) => {
-    setState({ projectName: e.target.value });
+    const newState = { projectName: e.target.value };
+    // If the name is being changed from a saved value, retain old name for searching
+    state.updating &&
+      state.oldName === '' &&
+      (newState.oldName = state.projectName);
+    setState(newState);
   };
 
   const handleCompanyNameChange = (e) => {
@@ -81,7 +97,7 @@ const ProjectDetailsComponent = ({ project, refreshProjects }) => {
   const handleUpdateButton = async () => {
     try {
       if (
-        state.projectName !== project?.projectName &&
+        state.oldName !== '' &&
         (await db.checkProjectExists(state.projectName))
       ) {
         setState({
@@ -94,8 +110,7 @@ const ProjectDetailsComponent = ({ project, refreshProjects }) => {
       // Store old name if updated since DB querying is done based on project name
       const { projectName, companyName, description } = state;
       const updatedData = { projectName, companyName, description };
-      if (projectName !== project.projectName)
-        updatedData.oldName = project.projectName;
+      if (state.oldName !== '') updatedData.oldName = state.oldName;
       await db.updateProject(updatedData);
 
       setState({
@@ -112,20 +127,21 @@ const ProjectDetailsComponent = ({ project, refreshProjects }) => {
     }
   };
 
-  const handleSnackbarClose = (event, reason) => {
+  const handleSnackbarClose = (_, reason) => {
     if (reason === 'clickaway') return;
     setState({ snackbarOpen: false, snackbarMessage: '' });
   };
 
   return (
     <div>
-      <h1 style={styles.pageTitle}>Project Details</h1>
-      <div style={styles.form}>
+      <h1 className='ProjectDetailsHeader'>Project Details</h1>
+      <div className='ProjectDetailsContainer'>
         <TextField
           className={classes.inputContainer}
-          defaultValue={project?.projectName}
+          color='secondary'
+          value={state.projectName}
           label='Project Name'
-          required={true}
+          required={!state.updating}
           InputLabelProps={{ className: classes.inputLabel }}
           InputProps={{ className: classes.textField }}
           onChange={handleProjectNameChange}
@@ -133,7 +149,8 @@ const ProjectDetailsComponent = ({ project, refreshProjects }) => {
         <br />
         <TextField
           className={classes.inputContainer}
-          defaultValue={project?.companyName}
+          color='secondary'
+          value={state.companyName}
           label='Company Name'
           onChange={handleCompanyNameChange}
           InputProps={{ className: classes.textField }}
@@ -142,7 +159,8 @@ const ProjectDetailsComponent = ({ project, refreshProjects }) => {
         <br />
         <TextField
           className={classes.inputContainer}
-          defaultValue={project?.description}
+          color='secondary'
+          value={state.description}
           label='Description'
           onChange={handleDescriptionChange}
           InputProps={{ className: classes.textField }}
@@ -152,9 +170,9 @@ const ProjectDetailsComponent = ({ project, refreshProjects }) => {
         <Button
           variant='contained'
           color='primary'
-          onClick={project ? handleUpdateButton : handleSubmitButton}
+          onClick={state.updating ? handleUpdateButton : handleSubmitButton}
           disabled={state?.projectName === ''}>
-          {project ? 'Update' : 'Submit'}
+          {state.updating ? 'Update' : 'Submit'}
         </Button>
         <Snackbar
           anchorOrigin={{

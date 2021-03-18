@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { FormControl, InputLabel, Select, MenuItem } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import styles from '../styles';
+import '../App.css';
 
 const useStyles = makeStyles({
   formControl: {
     minWidth: '50%'
   },
   inputLabel: {
-    color: '#999'
+    color: '#bbb'
   },
   userInput: {
-    color: 'black'
+    color: 'white'
   }
 });
 
@@ -26,20 +26,16 @@ const HomeScreenComponent = ({ projectNames, selectProject }) => {
       selectProject(e.target.value);
     }
   };
+
   return (
-    <div style={styles.form}>
+    <div className='Form'>
       <FormControl variant='outlined' className={classes.formControl}>
         <InputLabel className={classes.inputLabel}>Select A Project</InputLabel>
         <Select
-          // labelId='demo-simple-select-outlined-label'
-          // id='demo-simple-select-outlined'
           className={classes.userInput}
           value={selectedProject}
           onChange={handleSelectProject}
           label='Project'>
-          {/* <MenuItem value={10}>Ten</MenuItem>
-          <MenuItem value={20}>Twenty</MenuItem>
-          <MenuItem value={30}>Thirty</MenuItem> */}
           {projectNames.map((name) => (
             <MenuItem value={name} key={name}>
               {name}
