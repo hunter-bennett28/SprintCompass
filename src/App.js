@@ -15,8 +15,9 @@ import {
   IconButton,
   Typography,
   Container,
-  Snackbar,
+  Snackbar
 } from '@material-ui/core';
+import './App.css';
 
 const App = () => {
   const initialState = {
@@ -24,7 +25,7 @@ const App = () => {
     snackbarMsg: '',
     anchorEl: '',
     projects: [],
-    selectedProject: null,
+    selectedProject: null
   };
   const reducer = (state, newState) => ({ ...state, ...newState });
   const [state, setState] = useReducer(reducer, initialState);
@@ -37,11 +38,15 @@ const App = () => {
   };
 
   const setSelectedProject = (projectName) => {
-    setState({
-      selectedProject: state.projects.find(
-        (project) => project.projectName === projectName
-      ),
-    });
+    const selectedProject = state.projects.find(
+      (project) => project.projectName === projectName
+    );
+    setState({ selectedProject });
+    try {
+      sessionStorage.setItem('project', JSON.stringify(selectedProject));
+    } catch (err) {
+      console.log(`Could not save project to session storage: ${err.message}`);
+    }
   };
 
   const getProjects = async () => {
@@ -60,7 +65,7 @@ const App = () => {
   const displayPopup = (message) => {
     setState({
       showMsg: true,
-      snackbarMsg: message,
+      snackbarMsg: message
     });
   };
 
@@ -69,49 +74,45 @@ const App = () => {
   };
   return (
     <MuiThemeProvider theme={theme}>
-      <Container>
-        <AppBar position="static">
-          <Toolbar>
-            <Typography variant="h6" color="inherit">
-              Sprint Compass Demo
-            </Typography>
-            <IconButton
-              onClick={handleClick}
-              color="inherit"
-              style={{ marginLeft: 'auto', paddingRight: '1vh' }}
-            >
-              <Reorder />
-            </IconButton>
-            <Menu
-              id="simple-menu"
-              anchorEl={state.anchorEl}
-              open={Boolean(state.anchorEl)}
-              onClose={handleClose}
-            >
-              <MenuItem component={Link} to="/home" onClick={handleClose}>
-                Home
-              </MenuItem>
-              <MenuItem
-                component={Link}
-                to="/projectdetails"
-                onClick={handleClose}
-              >
-                Project Details
-              </MenuItem>
-              <MenuItem
-                component={Link}
-                to="/productbacklog"
-                onClick={handleClose}
-              >
-                Product Backlog
-              </MenuItem>
-            </Menu>
-          </Toolbar>
-        </AppBar>
+      <AppBar position='static'>
+        <Toolbar>
+          <Typography variant='h6' color='inherit'>
+            Sprint Compass
+          </Typography>
+          <IconButton
+            onClick={handleClick}
+            color='inherit'
+            style={{ marginLeft: 'auto', paddingRight: '1vh' }}>
+            <Reorder />
+          </IconButton>
+          <Menu
+            id='simple-menu'
+            anchorEl={state.anchorEl}
+            open={Boolean(state.anchorEl)}
+            onClose={handleClose}>
+            <MenuItem component={Link} to='/home' onClick={handleClose}>
+              Home
+            </MenuItem>
+            <MenuItem
+              component={Link}
+              to='/projectdetails'
+              onClick={handleClose}>
+              Project Details
+            </MenuItem>
+            <MenuItem
+              component={Link}
+              to='/productbacklog'
+              onClick={handleClose}>
+              Product Backlog
+            </MenuItem>
+          </Menu>
+        </Toolbar>
+      </AppBar>
+      <div className='Form'>
         <Container style={{ padding: '0px', paddingTop: '10px' }}>
-          <Route exact path="/" render={() => <Redirect to="/home" />} />
+          <Route exact path='/' render={() => <Redirect to='/home' />} />
           <Route
-            path="/productbacklog"
+            path='/productbacklog'
             render={() => (
               <ProductBacklogListComponent
                 project={state.selectedProject}
@@ -120,7 +121,7 @@ const App = () => {
               />
             )}
           />
-          <Route path="/home">
+          <Route path='/home'>
             <HomeScreenComponent
               projectNames={state.projects.map(
                 (project) => project.projectName
@@ -128,7 +129,7 @@ const App = () => {
               selectProject={setSelectedProject}
             />
           </Route>
-          <Route path="/projectdetails">
+          <Route path='/projectdetails'>
             <ProjectDetailsComponent
               project={state.selectedProject}
               refreshProjects={getProjects}
@@ -141,7 +142,7 @@ const App = () => {
           autoHideDuration={4000}
           onClose={snackbarClose}
         />
-      </Container>
+      </div>
     </MuiThemeProvider>
   );
 };
