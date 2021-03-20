@@ -15,7 +15,7 @@ import {
   IconButton,
   Typography,
   Container,
-  Snackbar
+  Snackbar,
 } from '@material-ui/core';
 import './App.css';
 
@@ -25,7 +25,7 @@ const App = () => {
     snackbarMsg: '',
     anchorEl: '',
     projects: [],
-    selectedProject: null
+    selectedProject: null,
   };
   const reducer = (state, newState) => ({ ...state, ...newState });
   const [state, setState] = useReducer(reducer, initialState);
@@ -49,6 +49,22 @@ const App = () => {
     }
   };
 
+  //Refresh the currently stored project in session storage
+  const refreshSelectedProject = async () => {
+    const savedProject = sessionStorage.getItem('project');
+    if (savedProject) {
+      try {
+        const { projectName } = JSON.parse(savedProject);
+
+        await getProjects();
+        await setSelectedProject(projectName);
+
+      } catch (err) {
+        console.log(`Error parsing saved project: ${err.message}`);
+      }
+    }
+  };
+
   const getProjects = async () => {
     try {
       const projects = await db.getProjects();
@@ -65,7 +81,7 @@ const App = () => {
   const displayPopup = (message) => {
     setState({
       showMsg: true,
-      snackbarMsg: message
+      snackbarMsg: message,
     });
   };
 
@@ -74,54 +90,57 @@ const App = () => {
   };
   return (
     <MuiThemeProvider theme={theme}>
-      <AppBar position='static'>
+      <AppBar position="static">
         <Toolbar>
-          <Typography variant='h6' color='inherit'>
+          <Typography variant="h6" color="inherit">
             Sprint Compass
           </Typography>
           <IconButton
             onClick={handleClick}
-            color='inherit'
-            style={{ marginLeft: 'auto', paddingRight: '1vh' }}>
+            color="inherit"
+            style={{ marginLeft: 'auto', paddingRight: '1vh' }}
+          >
             <Reorder />
           </IconButton>
           <Menu
-            id='simple-menu'
+            id="simple-menu"
             anchorEl={state.anchorEl}
             open={Boolean(state.anchorEl)}
-            onClose={handleClose}>
-            <MenuItem component={Link} to='/home' onClick={handleClose}>
+            onClose={handleClose}
+          >
+            <MenuItem component={Link} to="/home" onClick={handleClose}>
               Home
             </MenuItem>
             <MenuItem
               component={Link}
-              to='/projectdetails'
-              onClick={handleClose}>
+              to="/projectdetails"
+              onClick={handleClose}
+            >
               Project Details
             </MenuItem>
             <MenuItem
               component={Link}
-              to='/productbacklog'
-              onClick={handleClose}>
+              to="/productbacklog"
+              onClick={handleClose}
+            >
               Product Backlog
             </MenuItem>
           </Menu>
         </Toolbar>
       </AppBar>
-      <div className='Form'>
+      <div className="Form">
         <Container style={{ padding: '0px', paddingTop: '10px' }}>
-          <Route exact path='/' render={() => <Redirect to='/home' />} />
+          <Route exact path="/" render={() => <Redirect to="/home" />} />
           <Route
-            path='/productbacklog'
+            path="/productbacklog"
             render={() => (
               <ProductBacklogListComponent
-                project={state.selectedProject}
+                refreshProjects={refreshSelectedProject}
                 displayPopup={displayPopup}
-                refreshProjects={getProjects}
               />
             )}
           />
-          <Route path='/home'>
+          <Route path="/home">
             <HomeScreenComponent
               projectNames={state.projects.map(
                 (project) => project.projectName
@@ -129,7 +148,7 @@ const App = () => {
               selectProject={setSelectedProject}
             />
           </Route>
-          <Route path='/projectdetails'>
+          <Route path="/projectdetails">
             <ProjectDetailsComponent
               project={state.selectedProject}
               refreshProjects={getProjects}
