@@ -121,7 +121,7 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
       const { productBacklog, projectName } = JSON.parse(savedProject);
       setState({ productBacklog: productBacklog, projectName: projectName });
 
-      //Throws a warning (disabled using eslint...) to use useCallback, using it will create an infinite loop
+      //Throws a warning (disabled using eslint... below) to use useCallback, using it will create an infinite loop
       displayPopup('Project loaded');
     } else {
       displayPopup('Project not loaded');
@@ -131,7 +131,8 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
   useEffect(() => {
     (async () => {
       if (state.productBacklog) {
-        await updateProject(); //Throws a warning (disabled using eslint...) to use useCallback, using it will create an infinite loop
+        await updateProject(); 
+        //Throws a warning (disabled using eslint... below) to use useCallback, using it will create an infinite loop
       }
     })();
   }, [state.productBacklog]); // eslint-disable-line react-hooks/exhaustive-deps
