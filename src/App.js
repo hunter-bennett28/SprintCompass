@@ -18,6 +18,7 @@ import {
   Snackbar,
 } from '@material-ui/core';
 import './App.css';
+import SprintSelectionComponent from './components/Sprints/SprintSelectionComponent';
 
 const App = () => {
   const initialState = {
@@ -125,6 +126,13 @@ const App = () => {
             >
               Product Backlog
             </MenuItem>
+            <MenuItem
+              component={Link}
+              to="/sprintselection"
+              onClick={handleClose}
+            >
+              Sprints
+            </MenuItem>
           </Menu>
         </Toolbar>
       </AppBar>
@@ -153,6 +161,9 @@ const App = () => {
               project={state.selectedProject}
               refreshProjects={getProjects}
             />
+          </Route>
+          <Route path="/sprintselection">
+            <SprintSelectionComponent/>
           </Route>
         </Container>
         <Snackbar
