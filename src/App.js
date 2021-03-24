@@ -1,6 +1,7 @@
 import ProjectDetailsComponent from './components/ProjectDetailsComponent';
 import ProductBacklogListComponent from './components/ProductBacklogListComponent';
 import HomeScreenComponent from './components/HomeScreenComponent';
+import MemberComponent from './components/MemberComponent';
 import React, { useReducer, useEffect } from 'react';
 import { Route, Link, Redirect } from 'react-router-dom';
 import Reorder from '@material-ui/icons/Reorder';
@@ -105,6 +106,13 @@ const App = () => {
               onClick={handleClose}>
               Product Backlog
             </MenuItem>
+            <MenuItem
+                component={Link}
+                to="/members"
+                onClick={handleClose}
+              >
+                Users
+              </MenuItem>
           </Menu>
         </Toolbar>
       </AppBar>
@@ -133,6 +141,13 @@ const App = () => {
             <ProjectDetailsComponent
               project={state.selectedProject}
               refreshProjects={getProjects}
+            />
+          </Route>
+          <Route path="/members">
+            <MemberComponent
+              project={state.selectedProject}
+              refreshProjects={getProjects}
+              
             />
           </Route>
         </Container>

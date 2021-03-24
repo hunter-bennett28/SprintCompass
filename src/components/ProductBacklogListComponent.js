@@ -201,7 +201,7 @@ const ProductBacklogListComponent = ({
 
   //Only required fields are priority and the task
   const isInvalidStory = () => {
-    return newStory.priority === 0 || newStory.task === '';
+    return newStory.priority === 0 || newStory.task === '' || state.addSubtask === false;
   };
 
   const onAddOrUpdateProduct = async () => {
@@ -249,7 +249,6 @@ const ProductBacklogListComponent = ({
 
   return (
     //Using Material-UI
-
     <Card>
       <CardHeader title='Product Backlog' style={{ textAlign: 'center' }} />
       <CardContent>
@@ -329,7 +328,6 @@ const ProductBacklogListComponent = ({
                   />
                 </Container>
               </Container>
-
               <Container style={{ display: 'flex', flexDirection: 'row' }}>
                 <Typography variant='h6' style={{ flex: 1, textAlign: 'left' }}>
                   Description
