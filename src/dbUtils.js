@@ -56,10 +56,43 @@ const getSprintsByProjectName = async (projectName) => {
   return result;
 };
 
+const addSprintByProjectName = async (projectName, sprint)=>{
+  const request = await fetch(`${URL}/api/addSprintByProjectName`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ projectName, sprint }),
+  });
+
+  const results = await request.json();
+  //console.log(results);
+  return results;
+}
+
+const updateSprint = async (updatedData) => {
+  const request = await fetch(`${URL}/api/updateSprint`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ updatedData }),
+  });
+  console.log(JSON.stringify({ updatedData }));
+  // REMOVE THESE TWO LINES LATER, for debugging
+  const results = await request.json();
+  //console.log(results);
+
+  //Display if the update was successful or not
+  return results;
+};
+
 module.exports = {
   getProjects,
   addProject,
   updateProject,
   checkProjectExists,
   getSprintsByProjectName,
+  addSprintByProjectName,
+  updateSprint,
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer } from 'react';
-import { FormControl, InputLabel, Select, MenuItem } from '@material-ui/core';
+import { FormControl, InputLabel, Select, MenuItem, Container } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import '../../App.css';
 import SelectedSprintComponent from './SelectedSprintComonent';
@@ -23,7 +23,7 @@ const SprintSelectionComponent = () => {
   const initialState = {
     sprintList: [],
     selectedSprint: null,
-    MenuSelection:0,
+    MenuSelection:'',
   };
   const [state, setState] = useReducer(
     (state, newState) => ({ ...state, ...newState }),
@@ -44,10 +44,20 @@ const SprintSelectionComponent = () => {
       sprintList: result,
     });
   };
-  const handleSelectSprint = (e) => {
-    setState({ selectedSprint: e.target.value, MenuSelection: e.target.value });
-    if (e.target.value === 'Add a new Sprint')
-      sessionStorage.setItem('sprint', null);
+
+  const handleSelectSprint = async (e) => {
+    setState({ selectedSprint: e.target.value === "Add a new Sprint"? null : e.target.value, MenuSelection: e.target.value });
+    if (e.target.value === 'Add a new Sprint'){
+
+      //Create new sprint and add it
+      let newSprint = {iteration: state.sprintList.length!==0 ? state.sprintList[state.sprintList.length-1].iteration+1 : 1, userStories:[]};
+
+      const { projectName } = JSON.parse(sessionStorage.getItem('project'));
+      await dbUtils.addSprintByProjectName(projectName, newSprint);
+      await fetchSprints();
+
+      setState({MenuSelection:''});
+    }
     else
       sessionStorage.setItem(
         'sprint',
@@ -70,7 +80,7 @@ const SprintSelectionComponent = () => {
           <MenuItem value={'Add a new Sprint'} key={'add'}>
             Add a new Sprint
           </MenuItem>
-          {state.sprintList.map((sprint) => {
+          {state.sprintList && state.sprintList.map((sprint) => {
             if (sprint)
               return (
                 <MenuItem
@@ -84,8 +94,9 @@ const SprintSelectionComponent = () => {
           })}
         </Select>
       </FormControl>
-
-      {state.selectedSprint && <SelectedSprintComponent />}
+      <Container style={{padding:0, marginTop:"2%"}}>
+        {state.selectedSprint && <SelectedSprintComponent/>}
+      </Container>
     </div>
   );
 };

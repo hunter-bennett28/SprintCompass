@@ -156,6 +156,12 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
 
         await refreshProjects(); //Refresh the projects stored as they were modified
         displayPopup('Successfully updated product backlog');
+
+        //Refresh the project
+        const savedProject = JSON.parse(sessionStorage.getItem('project'));
+        savedProject.productBacklog=state.productBacklog;
+        sessionStorage.setItem('project',JSON.stringify(savedProject));
+
       } catch (err) {
         displayPopup(`Error saving user story ${err.message}`);
 
@@ -197,7 +203,7 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
             >
               <ListItemText
                 primary={item.storyPoints}
-                style={{ maxWidth: '10px', marginRight: '50px' }}
+                style={{ maxWidth: '10px', marginRight: '8%' }}
               />
               <ListItemText primary={item.task} style={{ flex: 12, width:"50px", overflow:"auto" }} />
               <ListItemSecondaryAction>
@@ -341,7 +347,9 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
           >
             <AddIcon />
           </Button>
+          <Container style={{paddingLeft:0,paddingRight:0,}}>
           {renderList()}
+          </Container>
         </List>
 
         {/* Add product modal */}
