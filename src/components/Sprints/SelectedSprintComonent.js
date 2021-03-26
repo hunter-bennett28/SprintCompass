@@ -73,7 +73,6 @@ const SprintSelectionComponent = () => {
   };
 
   const removeTask= async(story) =>{
-    console.log(story);
 
     //Update local storage
     let updatedSprint = state.sprint;
@@ -92,18 +91,13 @@ const SprintSelectionComponent = () => {
   }
 
   const updateStorage = async (updatedProject, updatedSprint)=>{
-    console.log(updatedSprint);
-    console.log(updatedProject);
-
     sessionStorage.setItem('sprint', JSON.stringify(updatedSprint));
     sessionStorage.setItem('project', JSON.stringify(updatedProject));
 
     //Add it to the sprint and update
-    let projResult = await dbUtils.updateProject(updatedProject);
-    let sprintResult = await dbUtils.updateSprint(updatedSprint);
+    await dbUtils.updateProject(updatedProject);
+    await dbUtils.updateSprint(updatedSprint);
 
-    console.log(projResult);
-    console.log(sprintResult);
   }
   return (
     <Container
