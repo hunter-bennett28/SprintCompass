@@ -45,9 +45,6 @@ const MemberComponent = (refreshProjects, project, displayPopup) => {
     initialNewMember
   );
 
-
-
-
   useEffect(() => {
     if (project) {
       const { memberList } = project;
@@ -126,10 +123,6 @@ const MemberComponent = (refreshProjects, project, displayPopup) => {
 
   const isInvalidMember = () => {
     return (
-      newMember.firstName === "" ||
-      newMember.firstName === undefined ||
-      newMember.lastName === "" ||
-      newMember.lastName === undefined ||
       newMember.email === "" ||
       newMember.email === undefined
     );
@@ -260,7 +253,7 @@ const MemberComponent = (refreshProjects, project, displayPopup) => {
                   variant="h6"
                   style={{ flex: 1, textAlign: "right" }}
                 >
-                  Email:
+                  *Email:
                 </Typography>
                 <Container style={{ flex: 6 }}>
                   <TextField
