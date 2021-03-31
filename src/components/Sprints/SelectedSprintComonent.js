@@ -48,8 +48,8 @@ const SprintSelectionComponent = () => {
 
   const loadSessionStorage = () => {
     setState({
-      sprint: JSON.parse(sessionStorage.getItem('sprint')),
-      project: JSON.parse(sessionStorage.getItem('project')),
+      sprint: JSON.parse(sessionStorage.getItem('sprint')) || {},
+      project: JSON.parse(sessionStorage.getItem('project')) || {},
     });
   };
 
