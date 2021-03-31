@@ -1,3 +1,4 @@
+import * as userAuth from './userAuth';
 const URL = 'http://localhost:5000';
 
 // TO BE REPLACED BY GETTING BY USERNAME WHEN USERS ADDED
@@ -7,7 +8,8 @@ const getProjects = async () => {
   return projects;
 };
 
-const getProjectsByUser = async (user) => {
+const getProjectsByUser = async () => {
+  const user = userAuth.getCurrentUser().email;
   const request = await fetch(
     `http://localhost:5000/api/projects?user=${user}`
   );
@@ -64,7 +66,7 @@ const getSprintsByProjectName = async (projectName) => {
   return result;
 };
 
-const addSprintByProjectName = async (projectName, sprint)=>{
+const addSprintByProjectName = async (projectName, sprint) => {
   const request = await fetch(`${URL}/api/addSprintByProjectName`, {
     method: 'POST',
     headers: {
@@ -76,7 +78,7 @@ const addSprintByProjectName = async (projectName, sprint)=>{
   const results = await request.json();
   //console.log(results);
   return results;
-}
+};
 
 const updateSprint = async (updatedData) => {
   const request = await fetch(`${URL}/api/updateSprint`, {
@@ -95,7 +97,7 @@ const updateSprint = async (updatedData) => {
   return results;
 };
 
-module.exports = {
+export {
   getProjects,
   getProjectsByUser,
   addProject,

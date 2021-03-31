@@ -4,39 +4,39 @@ import {
   Button,
   makeStyles,
   InputAdornment,
-  IconButton
+  IconButton,
 } from '@material-ui/core';
 import { Visibility, VisibilityOff, Email } from '@material-ui/icons';
 import '../App.css';
-import { getCurrentUser, registerUser, signInUser } from '../utils/userAuth';
-import { useHistory } from 'react-router-dom';
+import { registerUser, signInUser } from '../utils/userAuth';
+import { useHistory, Redirect } from 'react-router-dom';
 
 const useStyles = makeStyles({
   inputContainer: {
     marginBottom: 20,
     width: '80%',
-    textAlign: 'center'
+    textAlign: 'center',
   },
   textField: {
-    color: 'white'
+    color: 'white',
   },
   inputLabel: {
-    color: '#aaa'
+    color: '#aaa',
   },
   icon: {
     color: 'white',
     marginRight: 10,
-    padding: 0
+    padding: 0,
   },
   iconContainer: {
-    marginRight: 10
+    marginRight: 10,
   },
   zeroMargin: {
-    margin: 0
-  }
+    margin: 0,
+  },
 });
 
-const LoginComponent = ({ notifyUserLoggedIn, displayPopup }) => {
+const LoginComponent = ({ notifyLogIn, displayPopup, loggedIn, route }) => {
   const classes = useStyles();
   const history = useHistory();
 
@@ -45,7 +45,7 @@ const LoginComponent = ({ notifyUserLoggedIn, displayPopup }) => {
     pass: '',
     showPass: false,
     passTwo: '',
-    login: true
+    login: true,
   };
   const [state, setState] = useReducer(
     (state, newState) => ({ ...state, ...newState }),
@@ -54,12 +54,11 @@ const LoginComponent = ({ notifyUserLoggedIn, displayPopup }) => {
 
   const handleRegisterButton = async () => {
     try {
-      const results = await (state.login
+      const result = await (state.login
         ? signInUser(state.email, state.pass)
         : registerUser(state.email, state.pass));
-      console.log('Login succeeded: ', results);
-      notifyUserLoggedIn();
-      console.log('logged in, currentUser: ', getCurrentUser());
+      notifyLogIn();
+      sessionStorage.setItem('user', JSON.stringify(result));
       history.push('/home');
     } catch (err) {
       console.log('Authentification failed: ', err);
@@ -77,6 +76,15 @@ const LoginComponent = ({ notifyUserLoggedIn, displayPopup }) => {
     setState({ login: !state.login, email: '', pass: '', passTwo: '' });
   };
 
+  // If user is logged in already and logout did not redirect here, redirect
+  if (
+    process.env.REACT_APP_USE_AUTH &&
+    route.location.search !== '?logout=true' &&
+    loggedIn
+  ) {
+    return <Redirect to='/home' />;
+  }
+
   return (
     <div className='LoginContainer'>
       <TextField
@@ -92,7 +100,7 @@ const LoginComponent = ({ notifyUserLoggedIn, displayPopup }) => {
             <InputAdornment className={classes.iconContainer} position='end'>
               <Email />
             </InputAdornment>
-          )
+          ),
         }}
         onChange={(e) => setState({ email: e.target.value })}
       />
@@ -116,7 +124,7 @@ const LoginComponent = ({ notifyUserLoggedIn, displayPopup }) => {
                 {state.showPass ? <Visibility /> : <VisibilityOff />}
               </IconButton>
             </InputAdornment>
-          )
+          ),
         }}
         onChange={(e) => setState({ pass: e.target.value })}
       />
@@ -139,16 +147,6 @@ const LoginComponent = ({ notifyUserLoggedIn, displayPopup }) => {
             InputProps={{
               className: classes.textField,
               endAdornment: (
-                // <InputAdornment className={classes.zeroMargin} position='end'>
-                //   <IconButton className={classes.icon}>
-                //     {state.passTwo !== '' && state.pass === state.passTwo && (
-                //       <CheckCircle />
-                //     )}
-                //     {state.passTwo !== '' && state.pass !== state.passTwo && (
-                //       <Error />
-                //     )}
-                //   </IconButton>
-                // </InputAdornment>
                 <InputAdornment className={classes.zeroMargin} position='end'>
                   <IconButton
                     aria-label='toggle password visibility'
@@ -157,7 +155,7 @@ const LoginComponent = ({ notifyUserLoggedIn, displayPopup }) => {
                     {state.showPass ? <Visibility /> : <VisibilityOff />}
                   </IconButton>
                 </InputAdornment>
-              )
+              ),
             }}
             onChange={handlePasswordTwoChange}
           />

@@ -13,58 +13,58 @@ import {
   IconButton,
   Container,
   TextField,
-  makeStyles
+  makeStyles,
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/DeleteOutline';
 import AddIcon from '@material-ui/icons/Add';
 import AddBoxRoundedIcon from '@material-ui/icons/AddBoxRounded';
 import * as db from '../utils/dbUtils';
-import * as db from '../dbUtils';
 import '../App.css';
+import { Redirect } from 'react-router-dom';
 
 const useStyles = makeStyles({
   storyPromptText: {
     flex: 2,
     textAlign: 'left',
-    height: '40%'
+    height: '40%',
   },
   smallTextFieldContainer: {
     flex: 2,
     padding: 0,
-    marginLeft: '4%'
+    marginLeft: '4%',
   },
   mediumTextFieldContainer: {
     flex: 6,
     padding: 0,
-    marginLeft: '4%'
+    marginLeft: '4%',
   },
   largeTextFieldContainer: {
     flex: 10,
     padding: 0,
-    marginLeft: '4%'
+    marginLeft: '4%',
   },
   modalButton: {
     flex: 1,
-    width: '40%'
+    width: '40%',
   },
   buttonContainer: {
     display: 'flex',
-    paddingBottom: '1%'
+    paddingBottom: '1%',
   },
   subtaskList: {
     maxHeight: '200px',
-    overflow: 'auto'
+    overflow: 'auto',
   },
   addStoryPromptContainer: {
     display: 'flex',
     flexDirection: 'row',
-    padding: 0
+    padding: 0,
   },
   modalCardContent: {
     display: 'flex',
     flexDirection: 'column',
     paddingTop: 0,
-    paddingBottom: 0
+    paddingBottom: 0,
   },
   modal: {
     maxWidth: '1000px',
@@ -73,15 +73,19 @@ const useStyles = makeStyles({
     margin: 'auto',
     marginTop: '30px',
     marginBottom: '30px',
-    overflow: 'auto'
+    overflow: 'auto',
   },
   subtaskListPrompt: {
     maxWidth: '500px',
-    alignSelf: 'left'
-  }
+    alignSelf: 'left',
+  },
 });
 
-const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
+const ProductBacklogListComponent = ({
+  refreshProjects,
+  displayPopup,
+  loggedIn,
+}) => {
   const classes = useStyles();
   const initialState = {
     productBacklog: [],
@@ -93,7 +97,7 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
     isEditing: false,
     editingIndex: null,
     isLoading: true,
-    projectName: ''
+    projectName: '',
   };
 
   const [state, setState] = useReducer(
@@ -106,7 +110,7 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
     task: '',
     subtasks: [],
     estimate: 0,
-    description: ''
+    description: '',
   };
 
   const [newStory, setNewStory] = useReducer(
@@ -148,7 +152,7 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
       try {
         let result = await db.updateProject({
           projectName: state.projectName,
-          productBacklog: state.productBacklog
+          productBacklog: state.productBacklog,
         });
 
         //Check if the update worked
@@ -171,7 +175,7 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
 
   const onDeleteItem = async (item) => {
     setState({
-      productBacklog: state.productBacklog.filter((story) => story !== item)
+      productBacklog: state.productBacklog.filter((story) => story !== item),
     });
   };
 
@@ -180,7 +184,7 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
     setState({
       addMode: true,
       isEditing: true,
-      editingIndex: state.productBacklog.findIndex((story) => story === item)
+      editingIndex: state.productBacklog.findIndex((story) => story === item),
     });
     setNewStory(item);
   };
@@ -234,7 +238,7 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
                 aria-label='delete'
                 onClick={() =>
                   setNewStory({
-                    subtasks: newStory.subtasks.filter((task) => task !== item)
+                    subtasks: newStory.subtasks.filter((task) => task !== item),
                   })
                 }>
                 <DeleteIcon style={{ fill: 'white' }} />
@@ -255,7 +259,7 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
             value={state.newSubtask}
             onChange={(e) => {
               setState({
-                newSubtask: e.target.value
+                newSubtask: e.target.value,
               });
             }}
           />
@@ -265,7 +269,7 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
             onClick={() => {
               //Set the user story to have the new subtask
               setNewStory({
-                subtasks: [...newStory.subtasks, state.newSubtask]
+                subtasks: [...newStory.subtasks, state.newSubtask],
               });
               setState({ newSubtask: '', addSubtask: false }); //Clear the subtask from the state
             }}>
@@ -298,7 +302,7 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
         addMode: false,
         addSubtask: false,
         newStoryError: '',
-        newSubtask: ''
+        newSubtask: '',
       });
 
       //Check if it is updating
@@ -308,7 +312,7 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
 
         setState({
           isEditing: false,
-          editingIndex: null
+          editingIndex: null,
         });
       }
       //Add the new product backlog
@@ -320,14 +324,24 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
         task: '',
         subtasks: [],
         estimate: 0,
-        description: ''
+        description: '',
       });
     } else {
       setState({
-        newStoryError: 'Ensure all required fields are filled'
+        newStoryError: 'Ensure all required fields are filled',
       });
     }
   };
+
+  // Only allow access if logged in
+  if (
+    process.env.REACT_APP_USE_AUTH &&
+    !loggedIn &&
+    !sessionStorage.getItem('user')
+  ) {
+    console.log('no user found');
+    return <Redirect to='/login' />;
+  }
 
   return (
     <Card>
@@ -357,7 +371,7 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
               addMode: false,
               addSubtask: false,
               newStoryError: '',
-              newSubtask: ''
+              newSubtask: '',
             });
             setNewStory(initialNewStory);
           }}
@@ -378,11 +392,11 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
                       if (parseInt(e.target.value)) {
                         if (parseInt(e.target.value) <= 9999)
                           setNewStory({
-                            storyPoints: parseInt(e.target.value)
+                            storyPoints: parseInt(e.target.value),
                           });
                       } else
                         setNewStory({
-                          storyPoints: ''
+                          storyPoints: '',
                         });
                     }}
                   />
@@ -396,12 +410,12 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
                 <Container className={classes.mediumTextFieldContainer}>
                   <TextField
                     style={{
-                      maxWidth: '100%'
+                      maxWidth: '100%',
                     }}
                     value={newStory.task}
                     onChange={(e) => {
                       setNewStory({
-                        task: e.target.value
+                        task: e.target.value,
                       });
                     }}
                   />
@@ -420,7 +434,7 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
                     value={newStory.description}
                     onChange={(e) => {
                       setNewStory({
-                        description: e.target.value
+                        description: e.target.value,
                       });
                     }}
                   />
@@ -438,7 +452,7 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
                   </Typography>
                   <TextField
                     style={{
-                      maxWidth: '50%'
+                      maxWidth: '50%',
                     }}
                     value={newStory.estimate}
                     onChange={(e) => {
@@ -446,11 +460,11 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
                         if (parseInt(e.target.value) <= 999999999)
                           //Ensure it is an int and isnt long enough to create a scientific notation number
                           setNewStory({
-                            estimate: parseInt(e.target.value)
+                            estimate: parseInt(e.target.value),
                           });
                       } else
                         setNewStory({
-                          estimate: ''
+                          estimate: '',
                         });
                     }}
                   />
@@ -479,7 +493,7 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
                         addMode: false,
                         addSubtask: false,
                         newStoryError: '',
-                        newSubtask: ''
+                        newSubtask: '',
                       });
                     }}>
                     Cancel
