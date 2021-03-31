@@ -20,6 +20,7 @@ import {
 } from '@material-ui/core';
 import './App.css';
 import { getCurrentUser, signOutUser } from './utils/userAuth';
+import SprintSelectionComponent from './components/Sprints/SprintSelectionComponent';
 
 const App = () => {
   const initialState = {
@@ -63,6 +64,21 @@ const App = () => {
       sessionStorage.setItem('project', JSON.stringify(selectedProject));
     } catch (err) {
       console.log(`Could not save project to session storage: ${err.message}`);
+    }
+  };
+
+  //Refresh the currently stored project in session storage
+  const refreshSelectedProject = async () => {
+    const savedProject = sessionStorage.getItem('project');
+    if (savedProject) {
+      try {
+        const { projectName } = JSON.parse(savedProject);
+
+        await getProjects();
+        await setSelectedProject(projectName);
+      } catch (err) {
+        console.log(`Error parsing saved project: ${err.message}`);
+      }
     }
   };
 
@@ -126,6 +142,12 @@ const App = () => {
               onClick={handleClose}>
               Product Backlog
             </MenuItem>
+            <MenuItem
+              component={Link}
+              to='/sprintselection'
+              onClick={handleClose}>
+              Sprints
+            </MenuItem>
             <MenuItem component={Link} to='/login' onClick={handleLogOut}>
               Log Out
             </MenuItem>
@@ -148,9 +170,8 @@ const App = () => {
             path='/productbacklog'
             render={() => (
               <ProductBacklogListComponent
-                project={state.selectedProject}
+                refreshProjects={refreshSelectedProject}
                 displayPopup={displayPopup}
-                refreshProjects={getProjects}
               />
             )}
           />
@@ -163,7 +184,13 @@ const App = () => {
             />
           </Route>
           <Route path='/projectdetails'>
-            <ProjectDetailsComponent refreshProjects={getProjects} />
+            <ProjectDetailsComponent
+              project={state.selectedProject}
+              refreshProjects={getProjects}
+            />
+          </Route>
+          <Route path='/sprintselection'>
+            <SprintSelectionComponent />
           </Route>
         </Container>
         <Snackbar
