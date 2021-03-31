@@ -273,7 +273,7 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
           <IconButton
             style={{ float: 'right' }}
             onClick={() => {
-              //Set the user story to have the new subtask if it is valid
+              //Check if user story is unique
               if (
                 newStory.subtasks.find(
                   (subtask) => subtask.task === state.newSubtask
@@ -283,7 +283,7 @@ const ProductBacklogListComponent = ({ refreshProjects, displayPopup }) => {
                   newSubtask: '',
                   newStoryError: 'Subtask already present',
                 });
-                else if (state.newSubtask==='')
+              else if (state.newSubtask==='') //Check if it contains any data
                 setState({
                   newStoryError: 'Please enter a value for the subtask',
                 });
