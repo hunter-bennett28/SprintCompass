@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer } from 'react';
 import { makeStyles, TextField, Button, Snackbar } from '@material-ui/core';
-import * as db from '../dbUtils';
+import * as db from '../utils/dbUtils';
 import '../App.css';
 
 const useStyles = makeStyles({

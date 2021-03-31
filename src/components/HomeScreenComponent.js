@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FormControl, InputLabel, Select, MenuItem } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { getCurrentUser } from '../utils/userAuth';
+import { getProjects, getProjectsByUser } from '../utils/dbUtils';
+import LoginComponent from './LoginComponent';
+import { Redirect } from 'react-router-dom';
 import '../App.css';
 
 const useStyles = makeStyles({
@@ -15,10 +19,22 @@ const useStyles = makeStyles({
   }
 });
 
-const HomeScreenComponent = ({ projectNames, selectProject }) => {
+const HomeScreenComponent = ({ selectProject }) => {
   const classes = useStyles();
 
   const [selectedProject, setSelectedProject] = useState('');
+  const [projectNames, setProjectNames] = useState([]);
+
+  useEffect(() => {
+    const currentUser = getCurrentUser();
+    if (!currentUser) return;
+    getProjectsList(currentUser);
+  });
+
+  const getProjectsList = async (user) => {
+    const projects = await getProjectsByUser(user.email);
+    setProjectNames(projects.map((project) => project.projectName));
+  };
 
   const handleSelectProject = (e) => {
     setSelectedProject(e.target.value);
@@ -27,9 +43,17 @@ const HomeScreenComponent = ({ projectNames, selectProject }) => {
     }
   };
 
+  if (!getCurrentUser()) {
+    console.log('no user found');
+    return <Redirect to='/login' />;
+  }
+
   return (
     <div className='Form'>
-      <FormControl variant='outlined' className={classes.formControl}>
+      <FormControl
+        variant='outlined'
+        color='secondary'
+        className={classes.formControl}>
         <InputLabel className={classes.inputLabel}>Select A Project</InputLabel>
         <Select
           className={classes.userInput}

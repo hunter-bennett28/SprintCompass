@@ -18,7 +18,7 @@ import {
 import DeleteIcon from '@material-ui/icons/DeleteOutline';
 import AddIcon from '@material-ui/icons/Add';
 import AddBoxRoundedIcon from '@material-ui/icons/AddBoxRounded';
-import * as db from '../dbUtils';
+import * as db from '../utils/dbUtils';
 
 const ProductBacklogListComponent = ({
   refreshProjects,

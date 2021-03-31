@@ -5,6 +5,14 @@ const getProjects = async () => {
   return projects;
 };
 
+const getProjectsByUser = async (user) => {
+  const request = await fetch(
+    `http://localhost:5000/api/projects?user=${user}`
+  );
+  const { projects } = await request.json();
+  return projects;
+};
+
 // Adds a new project to the projects collection with a randomly generated id
 const addProject = async ({ projectName, companyName, description }) => {
   const request = await fetch('http://localhost:5000/api/addProject', {
@@ -46,6 +54,7 @@ const checkProjectExists = async (projectName) => {
 
 module.exports = {
   getProjects,
+  getProjectsByUser,
   addProject,
   updateProject,
   checkProjectExists

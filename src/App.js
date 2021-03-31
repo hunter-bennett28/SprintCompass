@@ -1,3 +1,4 @@
+import LoginComponent from './components/LoginComponent';
 import ProjectDetailsComponent from './components/ProjectDetailsComponent';
 import ProductBacklogListComponent from './components/ProductBacklogListComponent';
 import HomeScreenComponent from './components/HomeScreenComponent';
@@ -5,7 +6,7 @@ import React, { useReducer, useEffect } from 'react';
 import { Route, Link, Redirect } from 'react-router-dom';
 import Reorder from '@material-ui/icons/Reorder';
 import { MuiThemeProvider } from '@material-ui/core/styles';
-import * as db from './dbUtils';
+import * as db from './utils/dbUtils';
 import theme from './theme';
 import {
   Toolbar,
@@ -18,6 +19,7 @@ import {
   Snackbar
 } from '@material-ui/core';
 import './App.css';
+import { getCurrentUser, signOutUser } from './utils/userAuth';
 
 const App = () => {
   const initialState = {
@@ -25,16 +27,31 @@ const App = () => {
     snackbarMsg: '',
     anchorEl: '',
     projects: [],
-    selectedProject: null
+    selectedProject: null,
+    user: null
   };
   const reducer = (state, newState) => ({ ...state, ...newState });
   const [state, setState] = useReducer(reducer, initialState);
 
+  useEffect(() => {
+    getProjects();
+    setState({ user: getCurrentUser() });
+  }, []);
+
   const handleClose = () => {
     setState({ anchorEl: null });
   };
+
   const handleClick = (event) => {
     setState({ anchorEl: event.currentTarget });
+  };
+
+  const handleLogOut = async () => {
+    if (state.user) {
+      await signOutUser();
+      setState({ user: null });
+    }
+    handleClose();
   };
 
   const setSelectedProject = (projectName) => {
@@ -52,15 +69,12 @@ const App = () => {
   const getProjects = async () => {
     try {
       const projects = await db.getProjects();
+      console.log('got projects: ', projects);
       setState({ projects });
     } catch (err) {
       console.log(`Error could not load projects: ${err.message}`);
     }
   };
-
-  useEffect(() => {
-    getProjects();
-  }, []);
 
   const displayPopup = (message) => {
     setState({
@@ -69,9 +83,14 @@ const App = () => {
     });
   };
 
+  const handleUserLoggedIn = () => {
+    setState({ user: getCurrentUser() });
+  };
+
   const snackbarClose = () => {
     setState({ showMsg: false });
   };
+
   return (
     <MuiThemeProvider theme={theme}>
       <AppBar position='static'>
@@ -79,12 +98,14 @@ const App = () => {
           <Typography variant='h6' color='inherit'>
             Sprint Compass
           </Typography>
-          <IconButton
-            onClick={handleClick}
-            color='inherit'
-            style={{ marginLeft: 'auto', paddingRight: '1vh' }}>
-            <Reorder />
-          </IconButton>
+          {state.user && ( // Only show dropdown menu once logged in
+            <IconButton
+              onClick={handleClick}
+              color='inherit'
+              style={{ marginLeft: 'auto', paddingRight: '1vh' }}>
+              <Reorder />
+            </IconButton>
+          )}
           <Menu
             id='simple-menu'
             anchorEl={state.anchorEl}
@@ -105,12 +126,24 @@ const App = () => {
               onClick={handleClose}>
               Product Backlog
             </MenuItem>
+            <MenuItem component={Link} to='/login' onClick={handleLogOut}>
+              Log Out
+            </MenuItem>
           </Menu>
         </Toolbar>
       </AppBar>
       <div className='Form'>
         <Container style={{ padding: '0px', paddingTop: '10px' }}>
           <Route exact path='/' render={() => <Redirect to='/home' />} />
+          <Route
+            path='/login'
+            render={() => (
+              <LoginComponent
+                notifyUserLoggedIn={handleUserLoggedIn}
+                displayPopup={displayPopup}
+              />
+            )}
+          />
           <Route
             path='/productbacklog'
             render={() => (
@@ -130,16 +163,13 @@ const App = () => {
             />
           </Route>
           <Route path='/projectdetails'>
-            <ProjectDetailsComponent
-              project={state.selectedProject}
-              refreshProjects={getProjects}
-            />
+            <ProjectDetailsComponent refreshProjects={getProjects} />
           </Route>
         </Container>
         <Snackbar
           open={state.showMsg}
           message={state.snackbarMsg}
-          autoHideDuration={4000}
+          autoHideDuration={5000}
           onClose={snackbarClose}
         />
       </div>
