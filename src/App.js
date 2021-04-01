@@ -1,3 +1,4 @@
+import LoginComponent from './components/LoginComponent';
 import ProjectDetailsComponent from './components/ProjectDetailsComponent';
 import ProductBacklogListComponent from './components/ProductBacklogListComponent';
 import HomeScreenComponent from './components/HomeScreenComponent';
@@ -5,7 +6,6 @@ import React, { useReducer, useEffect } from 'react';
 import { Route, Link, Redirect } from 'react-router-dom';
 import Reorder from '@material-ui/icons/Reorder';
 import { MuiThemeProvider } from '@material-ui/core/styles';
-import * as db from './dbUtils';
 import theme from './theme';
 import {
   Toolbar,
@@ -18,66 +18,35 @@ import {
   Snackbar,
 } from '@material-ui/core';
 import './App.css';
+import { signOutUser } from './utils/userAuth';
 import SprintSelectionComponent from './components/Sprints/SprintSelectionComponent';
+
+const useAuth = process.env.REACT_APP_USE_AUTH === 'true';
 
 const App = () => {
   const initialState = {
     showMsg: false,
     snackbarMsg: '',
     anchorEl: '',
-    projects: [],
-    selectedProject: null,
+    loggedIn: false,
   };
   const reducer = (state, newState) => ({ ...state, ...newState });
   const [state, setState] = useReducer(reducer, initialState);
 
+  useEffect(() => {
+    useAuth &&
+      setState({
+        loggedIn: Boolean(sessionStorage.getItem('user')),
+      });
+  }, []);
+
   const handleClose = () => {
     setState({ anchorEl: null });
   };
+
   const handleClick = (event) => {
     setState({ anchorEl: event.currentTarget });
   };
-
-  const setSelectedProject = (projectName) => {
-    const selectedProject = state.projects.find(
-      (project) => project.projectName === projectName
-    );
-    setState({ selectedProject });
-    try {
-      sessionStorage.setItem('project', JSON.stringify(selectedProject));
-    } catch (err) {
-      console.log(`Could not save project to session storage: ${err.message}`);
-    }
-  };
-
-  //Refresh the currently stored project in session storage
-  const refreshSelectedProject = async () => {
-    const savedProject = sessionStorage.getItem('project');
-    if (savedProject) {
-      try {
-        const { projectName } = JSON.parse(savedProject);
-
-        await getProjects();
-        await setSelectedProject(projectName);
-
-      } catch (err) {
-        console.log(`Error parsing saved project: ${err.message}`);
-      }
-    }
-  };
-
-  const getProjects = async () => {
-    try {
-      const projects = await db.getProjects();
-      setState({ projects });
-    } catch (err) {
-      console.log(`Error could not load projects: ${err.message}`);
-    }
-  };
-
-  useEffect(() => {
-    getProjects();
-  }, []);
 
   const displayPopup = (message) => {
     setState({
@@ -86,90 +55,116 @@ const App = () => {
     });
   };
 
+  const handleUserLoggedIn = () => {
+    setState({ loggedIn: true });
+  };
+
+  const handleLogOut = async () => {
+    await signOutUser();
+    sessionStorage.clear();
+    setState({ loggedIn: false });
+    handleClose();
+  };
+
   const snackbarClose = () => {
     setState({ showMsg: false });
   };
+
   return (
     <MuiThemeProvider theme={theme}>
-      <AppBar position="static">
+      <AppBar position='static'>
         <Toolbar>
-          <Typography variant="h6" color="inherit">
+          <Typography variant='h6' color='inherit'>
             Sprint Compass
           </Typography>
-          <IconButton
-            onClick={handleClick}
-            color="inherit"
-            style={{ marginLeft: 'auto', paddingRight: '1vh' }}
-          >
-            <Reorder />
-          </IconButton>
+          {(useAuth && !state.loggedIn) || ( // Only show dropdown menu once logged in
+            <IconButton
+              onClick={handleClick}
+              color='inherit'
+              style={{ marginLeft: 'auto', paddingRight: '1vh' }}>
+              <Reorder />
+            </IconButton>
+          )}
           <Menu
-            id="simple-menu"
+            id='simple-menu'
             anchorEl={state.anchorEl}
             open={Boolean(state.anchorEl)}
-            onClose={handleClose}
-          >
-            <MenuItem component={Link} to="/home" onClick={handleClose}>
+            onClose={handleClose}>
+            <MenuItem component={Link} to='/home' onClick={handleClose}>
               Home
             </MenuItem>
             <MenuItem
               component={Link}
-              to="/projectdetails"
-              onClick={handleClose}
-            >
+              to='/projectdetails'
+              onClick={handleClose}>
               Project Details
             </MenuItem>
             <MenuItem
               component={Link}
-              to="/productbacklog"
-              onClick={handleClose}
-            >
+              to='/productbacklog'
+              onClick={handleClose}>
               Product Backlog
             </MenuItem>
             <MenuItem
               component={Link}
-              to="/sprintselection"
-              onClick={handleClose}
-            >
+              to='/sprintselection'
+              onClick={handleClose}>
               Sprints
             </MenuItem>
+            {useAuth && (
+              <MenuItem
+                component={Link}
+                to='/login?logout=true'
+                onClick={handleLogOut}>
+                Log Out
+              </MenuItem>
+            )}
           </Menu>
         </Toolbar>
       </AppBar>
-      <div className="Form">
+      <div className='Form'>
         <Container style={{ padding: '0px', paddingTop: '10px' }}>
-          <Route exact path="/" render={() => <Redirect to="/home" />} />
           <Route
-            path="/productbacklog"
+            exact
+            path='/'
+            render={() => (
+              <Redirect to={useAuth && !state.loggedIn ? '/login' : '/home'} />
+            )}
+          />
+          <Route
+            path='/login'
+            render={(routeInfo) => (
+              <LoginComponent
+                displayPopup={displayPopup}
+                notifyLogIn={handleUserLoggedIn}
+                loggedIn={state.loggedIn}
+                route={routeInfo}
+              />
+            )}
+          />
+          <Route
+            path='/productbacklog'
             render={() => (
               <ProductBacklogListComponent
-                refreshProjects={refreshSelectedProject}
+                loggedIn={state.loggedIn}
                 displayPopup={displayPopup}
               />
             )}
           />
-          <Route path="/home">
-            <HomeScreenComponent
-              projectNames={state.projects.map(
-                (project) => project.projectName
-              )}
-              selectProject={setSelectedProject}
-            />
+          <Route path='/home'>
+            <HomeScreenComponent loggedIn={state.loggedIn} />
           </Route>
-          <Route path="/projectdetails">
-            <ProjectDetailsComponent
-              project={state.selectedProject}
-              refreshProjects={getProjects}
-            />
+          <Route path='/projectdetails'>
+            <ProjectDetailsComponent loggedIn={state.loggedIn} />
           </Route>
-          <Route path="/sprintselection">
-            <SprintSelectionComponent/>
+          <Route path='/sprintselection'>
+            <SprintSelectionComponent loggedIn={state.loggedIn} />
           </Route>
         </Container>
         <Snackbar
           open={state.showMsg}
           message={state.snackbarMsg}
-          autoHideDuration={4000}
+          autoHideDuration={5000}
           onClose={snackbarClose}
         />
       </div>

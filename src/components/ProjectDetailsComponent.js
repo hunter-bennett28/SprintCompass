@@ -1,23 +1,26 @@
 import React, { useEffect, useReducer } from 'react';
 import { makeStyles, TextField, Button, Snackbar } from '@material-ui/core';
-import * as db from '../dbUtils';
+import * as db from '../utils/dbUtils';
 import '../App.css';
+import { Redirect } from 'react-router-dom';
 
 const useStyles = makeStyles({
   inputContainer: {
     marginBottom: 20,
     width: '50%',
-    textAlign: 'center'
+    textAlign: 'center',
   },
   textField: {
-    color: 'white'
+    color: 'white',
   },
   inputLabel: {
-    color: '#aaa'
-  }
+    color: '#aaa',
+  },
 });
 
-const ProjectDetailsComponent = ({ refreshProjects }) => {
+const useAuth = process.env.REACT_APP_USE_AUTH === 'true';
+
+const ProjectDetailsComponent = ({ loggedIn }) => {
   const classes = useStyles();
 
   /* State Setup */
@@ -28,7 +31,7 @@ const ProjectDetailsComponent = ({ refreshProjects }) => {
     snackbarOpen: false,
     snackbarMessage: '',
     updating: false,
-    oldName: ''
+    oldName: '',
   };
   const [state, setState] = useReducer(
     (state, newState) => ({ ...state, ...newState }),
@@ -75,20 +78,29 @@ const ProjectDetailsComponent = ({ refreshProjects }) => {
       if (await db.checkProjectExists(state.projectName)) {
         setState({
           snackbarOpen: true,
-          snackbarMessage: 'Name already in use, could not add'
+          snackbarMessage: 'Name already in use, could not add',
         });
         return;
       }
       await db.addProject(state);
+      const projects = useAuth
+        ? await db.getProjectsByUser()
+        : await db.getProjects();
+      sessionStorage.setItem(
+        'project',
+        JSON.stringify(
+          projects.find((project) => project.projectName === state.projectName)
+        )
+      );
       setState({
         snackbarOpen: true,
-        snackbarMessage: 'Successfully saved project information!'
+        snackbarMessage: 'Successfully saved project information!',
       });
-      refreshProjects();
+      //refreshProjects();
     } catch (err) {
       setState({
         snackbarOpen: true,
-        snackbarMessage: `Project creation failed: ${err.message}`
+        snackbarMessage: `Project creation failed: ${err.message}`,
       });
       console.log(`Project creation failed: ${err}`);
     }
@@ -102,7 +114,7 @@ const ProjectDetailsComponent = ({ refreshProjects }) => {
       ) {
         setState({
           snackbarOpen: true,
-          snackbarMessage: 'Name already in use, could not update name'
+          snackbarMessage: 'Name already in use, could not update name',
         });
         return;
       }
@@ -115,13 +127,13 @@ const ProjectDetailsComponent = ({ refreshProjects }) => {
 
       setState({
         snackbarOpen: true,
-        snackbarMessage: 'Successfully updated project information!'
+        snackbarMessage: 'Successfully updated project information!',
       });
-      refreshProjects();
+      //refreshProjects();
     } catch (err) {
       setState({
         snackbarOpen: true,
-        snackbarMessage: `Project update failed: ${err.message}`
+        snackbarMessage: `Project update failed: ${err.message}`,
       });
       console.log(`Project update failed: ${err}`);
     }
@@ -131,6 +143,12 @@ const ProjectDetailsComponent = ({ refreshProjects }) => {
     if (reason === 'clickaway') return;
     setState({ snackbarOpen: false, snackbarMessage: '' });
   };
+
+  // Only allow access if logged in
+  if (useAuth && !loggedIn && !sessionStorage.getItem('user')) {
+    console.log('no user found');
+    return <Redirect to='/login' />;
+  }
 
   return (
     <div>
@@ -177,7 +195,7 @@ const ProjectDetailsComponent = ({ refreshProjects }) => {
         <Snackbar
           anchorOrigin={{
             vertical: 'bottom',
-            horizontal: 'center'
+            horizontal: 'center',
           }}
           open={state.snackbarOpen}
           autoHideDuration={4000}
