@@ -36,7 +36,7 @@ const SprintSelectionComponent = () => {
 
   const fetchSprints = async () => {
     //get the list of sprints for a selected project
-    const { projectName } = JSON.parse(sessionStorage.getItem('project'));
+    const { projectName } = JSON.parse(sessionStorage.getItem('project')) || {}; //If the getItem fails, it will throw in an empty object
     const result = await dbUtils.getSprintsByProjectName(projectName);
     result.sort((sprint1, sprint2) => sprint1.iteration - sprint2.iteration);
 
@@ -52,7 +52,7 @@ const SprintSelectionComponent = () => {
       //Create new sprint and add it
       let newSprint = {iteration: state.sprintList.length!==0 ? state.sprintList[state.sprintList.length-1].iteration+1 : 1, userStories:[]};
 
-      const { projectName } = JSON.parse(sessionStorage.getItem('project'));
+      const { projectName } = JSON.parse(sessionStorage.getItem('project')) || {};
       await dbUtils.addSprintByProjectName(projectName, newSprint);
       await fetchSprints();
 
