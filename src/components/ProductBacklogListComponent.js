@@ -34,9 +34,9 @@ const useStyles = makeStyles({
     marginLeft: '4%',
   },
   mediumTextFieldContainer: {
-    flex: 6,
+    flex: 20,
     padding: 0,
-    marginLeft: '4%',
+    marginLeft: '2%',
   },
   largeTextFieldContainer: {
     flex: 10,
@@ -52,7 +52,7 @@ const useStyles = makeStyles({
     paddingBottom: '1%',
   },
   subtaskList: {
-    maxHeight: '200px',
+    maxHeight: '150px',
     overflow: 'auto',
   },
   addStoryPromptContainer: {
@@ -164,7 +164,9 @@ const ProductBacklogListComponent = ({
         //Refresh the project
         const savedProject = JSON.parse(sessionStorage.getItem('project'));
         savedProject.productBacklog = state.productBacklog;
-        sessionStorage.setItem('project', JSON.stringify(savedProject));
+        if (savedProject)
+          //Check if a valid project
+          sessionStorage.setItem('project', JSON.stringify(savedProject));
       } catch (err) {
         displayPopup(`Error saving user story ${err.message}`);
 
@@ -201,7 +203,7 @@ const ProductBacklogListComponent = ({
             <ListItem
               button
               onClick={() => onStoryClick(item)}
-              key={`${item.storyPoints}${item.task}${item.description}`}
+              key={`${item.storyPoints}${item.task}`}
               style={{ marginTop: '3%' }}>
               <ListItemText
                 primary={item.storyPoints}
@@ -230,15 +232,20 @@ const ProductBacklogListComponent = ({
     return story.subtasks.map((item) => {
       if (item)
         return (
-          <ListItem button onClick={() => onStoryClick(item)} key={`${item}`}>
-            <ListItemText primary={item} />
+          <ListItem
+            button
+            onClick={() => onStoryClick(item)}
+            key={`${item.task}`}>
+            <ListItemText primary={item.task} />
             <ListItemSecondaryAction>
               <IconButton
                 edge='end'
                 aria-label='delete'
                 onClick={() =>
                   setNewStory({
-                    subtasks: newStory.subtasks.filter((task) => task !== item),
+                    subtasks: newStory.subtasks.filter(
+                      (task) => task.task !== item.task
+                    ),
                   })
                 }>
                 <DeleteIcon style={{ fill: 'white' }} />
@@ -267,11 +274,31 @@ const ProductBacklogListComponent = ({
           <IconButton
             style={{ float: 'right' }}
             onClick={() => {
-              //Set the user story to have the new subtask
-              setNewStory({
-                subtasks: [...newStory.subtasks, state.newSubtask],
-              });
-              setState({ newSubtask: '', addSubtask: false }); //Clear the subtask from the state
+              //Check if user story is unique
+              if (
+                newStory.subtasks.find(
+                  (subtask) => subtask.task === state.newSubtask
+                )
+              )
+                setState({
+                  newSubtask: '',
+                  newStoryError: 'Subtask already present',
+                });
+              else if (state.newSubtask === '')
+                //Check if it contains any data
+                setState({
+                  newStoryError: 'Please enter a value for the subtask',
+                });
+              else {
+                setNewStory({
+                  subtasks: [...newStory.subtasks, { task: state.newSubtask }],
+                });
+                setState({
+                  newSubtask: '',
+                  addSubtask: false,
+                  newStoryError: '',
+                }); //Clear the subtask from the state
+              }
             }}>
             <AddBoxRoundedIcon />
           </IconButton>
@@ -281,14 +308,14 @@ const ProductBacklogListComponent = ({
       return (
         <ListItem button onClick={() => setState({ addSubtask: true })}>
           <AddIcon />
-          <Typography variant='h6'>Add new task</Typography>
+          <Typography variant='h6'>Add new subtask</Typography>
         </ListItem>
       );
   };
 
   //Only required fields are storyPoints and the task
   const isInvalidStory = () => {
-    return newStory.storyPoints === 0 || newStory.task === '';
+    return newStory.task === '';
   };
 
   const onAddOrUpdateProduct = async () => {
@@ -372,45 +399,28 @@ const ProductBacklogListComponent = ({
               addSubtask: false,
               newStoryError: '',
               newSubtask: '',
+              isEditing: false,
             });
             setNewStory(initialNewStory);
           }}
           className={classes.modal}>
           <Card style={{ height: '100%' }}>
-            <CardHeader title='Add a Story' style={{ textAlign: 'center' }} />
+            <CardHeader
+              title={state.isEditing ? 'Update a Task' : 'Add a Task'}
+              style={{ textAlign: 'center' }}
+            />
             <CardContent className={classes.modalCardContent}>
               <Container className={classes.addStoryPromptContainer}>
-                <Typography variant='h6' className={classes.storyPromptText}>
-                  Story Points*
-                </Typography>
-                <Container className={classes.smallTextFieldContainer}>
-                  <TextField
-                    style={{ maxWidth: '100%' }}
-                    value={newStory.storyPoints}
-                    onChange={(e) => {
-                      //Add only numbers and up to 4 digits
-                      if (parseInt(e.target.value)) {
-                        if (parseInt(e.target.value) <= 9999)
-                          setNewStory({
-                            storyPoints: parseInt(e.target.value),
-                          });
-                      } else
-                        setNewStory({
-                          storyPoints: '',
-                        });
-                    }}
-                  />
-                </Container>
                 <Typography
                   variant='h6'
                   className={classes.storyPromptText}
-                  style={{ textAlign: 'right' }}>
+                  style={{ textAlign: 'left', marginTop: '1%' }}>
                   Task*
                 </Typography>
                 <Container className={classes.mediumTextFieldContainer}>
                   <TextField
                     style={{
-                      maxWidth: '100%',
+                      maxWidth: '80%',
                     }}
                     value={newStory.task}
                     onChange={(e) => {
@@ -418,6 +428,8 @@ const ProductBacklogListComponent = ({
                         task: e.target.value,
                       });
                     }}
+                    fullWidth
+                    variant='outlined'
                   />
                 </Container>
               </Container>
@@ -426,19 +438,20 @@ const ProductBacklogListComponent = ({
                 <Typography variant='h6' className={classes.storyPromptText}>
                   Description
                 </Typography>
-                <Container
-                  style={{ flex: 10 }}
-                  className={classes.largeTextFieldContainer}>
-                  <TextField
-                    style={{ width: '100%' }}
-                    value={newStory.description}
-                    onChange={(e) => {
-                      setNewStory({
-                        description: e.target.value,
-                      });
-                    }}
-                  />
-                </Container>
+              </Container>
+              <Container style={{ paddingTop: '1%', paddingBottom: '1%' }}>
+                <TextField
+                  style={{ width: '100%' }}
+                  multiline
+                  rows={5}
+                  value={newStory.description}
+                  onChange={(e) => {
+                    setNewStory({
+                      description: e.target.value,
+                    });
+                  }}
+                  variant='filled'
+                />
               </Container>
               <Container className={classes.addStoryPromptContainer}>
                 <Typography variant='h6' className={classes.storyPromptText}>
@@ -469,11 +482,32 @@ const ProductBacklogListComponent = ({
                     }}
                   />
                 </Container>
+                <Typography variant='h6' className={classes.storyPromptText}>
+                  Story Points
+                </Typography>
+                <Container className={classes.smallTextFieldContainer}>
+                  <TextField
+                    style={{ maxWidth: '100%' }}
+                    value={newStory.storyPoints}
+                    onChange={(e) => {
+                      //Add only numbers and up to 4 digits
+                      if (parseInt(e.target.value)) {
+                        if (parseInt(e.target.value) <= 9999)
+                          setNewStory({
+                            storyPoints: parseInt(e.target.value),
+                          });
+                      } else
+                        setNewStory({
+                          storyPoints: '',
+                        });
+                    }}
+                  />
+                </Container>
               </Container>
               <Container style={{ marginTop: '1%', padding: 0 }}>
                 <Typography variant='h6'>Subtasks</Typography>
 
-                <Container style={{ width: '90%', minHeight: '280px' }}>
+                <Container style={{ width: '90%', padding: 0 }}>
                   <List className={classes.subtaskList}>
                     {renderSubtasks(newStory)}
                   </List>
@@ -482,35 +516,36 @@ const ProductBacklogListComponent = ({
               </Container>
 
               <Container style={{ padding: 0 }}>
-                <Container className={classes.buttonContainer}>
-                  <Button
-                    color='primary'
-                    variant='contained'
-                    className={classes.modalButton}
-                    onClick={() => {
-                      setNewStory(initialNewStory);
-                      setState({
-                        addMode: false,
-                        addSubtask: false,
-                        newStoryError: '',
-                        newSubtask: '',
-                      });
-                    }}>
-                    Cancel
-                  </Button>
-                  <Container style={{ width: '40%' }} />
-                  <Button
-                    color='primary'
-                    variant='contained'
-                    className={classes.modalButton}
-                    onClick={onAddOrUpdateProduct}>
-                    {state.isEditing ? 'Update story' : 'Add a new story'}
-                  </Button>
-                </Container>
-                <Typography variant='h6' color='secondary' align='center'>
-                  {state.newStoryError}
-                </Typography>
+                <Button
+                  color='primary'
+                  variant='contained'
+                  className={classes.modalButton}
+                  onClick={() => {
+                    setNewStory(initialNewStory);
+                    setState({
+                      addMode: false,
+                      addSubtask: false,
+                      newStoryError: '',
+                      newSubtask: '',
+                      isEditing: false,
+                    });
+                  }}
+                  style={{ height: '40%', float: 'left' }}>
+                  Cancel
+                </Button>
+                <Typography></Typography>
+                <Button
+                  color='primary'
+                  variant='contained'
+                  className={classes.modalButton}
+                  onClick={onAddOrUpdateProduct}
+                  style={{ height: '40%', float: 'right' }}>
+                  {state.isEditing ? 'Update task' : 'Add a new task'}
+                </Button>
               </Container>
+              <Typography variant='h6' color='secondary' align='center'>
+                {state.newStoryError}
+              </Typography>
             </CardContent>
           </Card>
         </Modal>
