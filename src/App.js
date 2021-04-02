@@ -20,6 +20,7 @@ import {
 import './App.css';
 import { signOutUser } from './utils/userAuth';
 import SprintSelectionComponent from './components/Sprints/SprintSelectionComponent';
+import SprintRetrospectiveComponent from './components/SprintRetrospectiveComponent';
 
 const useAuth = process.env.REACT_APP_USE_AUTH === 'true';
 
@@ -111,6 +112,12 @@ const App = () => {
               onClick={handleClose}>
               Sprints
             </MenuItem>
+            <MenuItem
+              component={Link}
+              to='/sprintretrospective'
+              onClick={handleClose}>
+              Sprint Retrospective
+            </MenuItem>
             {useAuth && (
               <MenuItem
                 component={Link}
@@ -159,6 +166,9 @@ const App = () => {
           </Route>
           <Route path='/sprintselection'>
             <SprintSelectionComponent loggedIn={state.loggedIn} />
+          </Route>
+          <Route path='/sprintretrospective'>
+            <SprintRetrospectiveComponent loggedIn={state.loggedIn} />
           </Route>
         </Container>
         <Snackbar

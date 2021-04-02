@@ -123,7 +123,7 @@ const SprintSelectionComponent = () => {
                     <MenuItem
                       value={product}
                       key={`${product.storyPoints}${product.task}`}>
-                      {`${product.storyPoints ? product.storyPoints : '?'} - ${
+                      {`${product.storyPoints ? product.storyPoints : '0'} - ${
                         product.task
                       }`}
                     </MenuItem>

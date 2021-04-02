@@ -81,11 +81,7 @@ const useStyles = makeStyles({
   },
 });
 
-const ProductBacklogListComponent = ({
-  refreshProjects,
-  displayPopup,
-  loggedIn,
-}) => {
+const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
   const classes = useStyles();
   const initialState = {
     productBacklog: [],
@@ -141,38 +137,49 @@ const ProductBacklogListComponent = ({
     })();
   }, [state.productBacklog]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const addNewStory = async (story) => {
+  const addNewStory = (story) => {
     setState({ productBacklog: [...state.productBacklog, story] });
   };
 
   const updateProject = async () => {
     //Update the db
-    if (!state.isLoading) {
-      // Prevents message from showing up while the site is still loading
-      try {
-        let result = await db.updateProject({
-          projectName: state.projectName,
-          productBacklog: state.productBacklog,
-        });
+    if (state.productBacklog) {
+      if (!state.isLoading) {
+        // Prevents message from showing up while the site is still loading
+        try {
+          let result = await db.updateProject({
+            projectName: state.projectName,
+            productBacklog: state.productBacklog,
+          });
 
-        //Check if the update worked
-        if (!result.success) throw result.message;
+          //Check if the update worked
+          if (!result.success) throw result.message;
 
-        await refreshProjects(); //Refresh the projects stored as they were modified
-        displayPopup('Successfully updated product backlog');
+          //Fetch the project - might be better to implement a getProjectByName
+          const projects = await db.getProjects();
 
-        //Refresh the project
-        const savedProject = JSON.parse(sessionStorage.getItem('project'));
-        savedProject.productBacklog = state.productBacklog;
-        if (savedProject)
-          //Check if a valid project
-          sessionStorage.setItem('project', JSON.stringify(savedProject));
-      } catch (err) {
-        displayPopup(`Error saving user story ${err.message}`);
+          let currProject = projects.find(
+            (project) => project.ProjectName === state.projectName
+          );
 
-        console.log(`Project update failed: ${err}`);
-      }
-    } else setState({ isLoading: false });
+          if(currProject)
+            sessionStorage.setItem('project', JSON.stringify(currProject));
+
+          displayPopup('Successfully updated product backlog');
+
+          //Refresh the project
+          const savedProject = JSON.parse(sessionStorage.getItem('project'));
+          savedProject.productBacklog = state.productBacklog;
+          if (savedProject)
+            //Check if a valid project
+            sessionStorage.setItem('project', JSON.stringify(savedProject));
+        } catch (err) {
+          displayPopup(`Error saving user story ${err.message}`);
+
+          console.log(`Project update failed: ${err.message}`);
+        }
+      } else setState({ isLoading: false });
+    }
   };
 
   const onDeleteItem = async (item) => {
@@ -204,7 +211,8 @@ const ProductBacklogListComponent = ({
               button
               onClick={() => onStoryClick(item)}
               key={`${item.storyPoints}${item.task}`}
-              style={{ marginTop: '3%' }}>
+              style={{ marginTop: '3%' }}
+            >
               <ListItemText
                 primary={item.storyPoints}
                 style={{ maxWidth: '10px', marginRight: '8%' }}
@@ -215,9 +223,10 @@ const ProductBacklogListComponent = ({
               />
               <ListItemSecondaryAction>
                 <IconButton
-                  edge='end'
-                  aria-label='delete'
-                  onClick={() => onDeleteItem(item)}>
+                  edge="end"
+                  aria-label="delete"
+                  onClick={() => onDeleteItem(item)}
+                >
                   <DeleteIcon style={{ fill: 'white' }} />
                 </IconButton>
               </ListItemSecondaryAction>
@@ -235,19 +244,21 @@ const ProductBacklogListComponent = ({
           <ListItem
             button
             onClick={() => onStoryClick(item)}
-            key={`${item.task}`}>
+            key={`${item.task}`}
+          >
             <ListItemText primary={item.task} />
             <ListItemSecondaryAction>
               <IconButton
-                edge='end'
-                aria-label='delete'
+                edge="end"
+                aria-label="delete"
                 onClick={() =>
                   setNewStory({
                     subtasks: newStory.subtasks.filter(
                       (task) => task.task !== item.task
                     ),
                   })
-                }>
+                }
+              >
                 <DeleteIcon style={{ fill: 'white' }} />
               </IconButton>
             </ListItemSecondaryAction>
@@ -299,7 +310,8 @@ const ProductBacklogListComponent = ({
                   newStoryError: '',
                 }); //Clear the subtask from the state
               }
-            }}>
+            }}
+          >
             <AddBoxRoundedIcon />
           </IconButton>
         </ListItem>
@@ -308,7 +320,7 @@ const ProductBacklogListComponent = ({
       return (
         <ListItem button onClick={() => setState({ addSubtask: true })}>
           <AddIcon />
-          <Typography variant='h6'>Add new subtask</Typography>
+          <Typography variant="h6">Add new subtask</Typography>
         </ListItem>
       );
   };
@@ -338,12 +350,13 @@ const ProductBacklogListComponent = ({
         productBacklog[state.editingIndex] = newStory;
 
         setState({
+          productBacklog:productBacklog,
           isEditing: false,
           editingIndex: null,
         });
       }
       //Add the new product backlog
-      else await addNewStory(newStory);
+      else addNewStory(newStory);
 
       //Clear its data
       setNewStory({
@@ -367,22 +380,23 @@ const ProductBacklogListComponent = ({
     !sessionStorage.getItem('user')
   ) {
     console.log('no user found');
-    return <Redirect to='/login' />;
+    return <Redirect to="/login" />;
   }
 
   return (
     <Card>
-      <CardHeader title='Product Backlog' style={{ textAlign: 'center' }} />
+      <CardHeader title="Product Backlog" style={{ textAlign: 'center' }} />
       <CardContent>
         {/* Display the list of products */}
-        <List subheader='Current Product Backlog'>
+        <List subheader="Current Product Backlog">
           <Button
-            color='primary'
-            variant='contained'
+            color="primary"
+            variant="contained"
             style={{ float: 'right' }}
             onClick={() => {
               setState({ addMode: true });
-            }}>
+            }}
+          >
             <AddIcon />
           </Button>
           <Container style={{ paddingLeft: 0, paddingRight: 0 }}>
@@ -403,7 +417,8 @@ const ProductBacklogListComponent = ({
             });
             setNewStory(initialNewStory);
           }}
-          className={classes.modal}>
+          className={classes.modal}
+        >
           <Card style={{ height: '100%' }}>
             <CardHeader
               title={state.isEditing ? 'Update a Task' : 'Add a Task'}
@@ -412,9 +427,10 @@ const ProductBacklogListComponent = ({
             <CardContent className={classes.modalCardContent}>
               <Container className={classes.addStoryPromptContainer}>
                 <Typography
-                  variant='h6'
+                  variant="h6"
                   className={classes.storyPromptText}
-                  style={{ textAlign: 'left', marginTop: '1%' }}>
+                  style={{ textAlign: 'left', marginTop: '1%' }}
+                >
                   Task*
                 </Typography>
                 <Container className={classes.mediumTextFieldContainer}>
@@ -429,13 +445,13 @@ const ProductBacklogListComponent = ({
                       });
                     }}
                     fullWidth
-                    variant='outlined'
+                    variant="outlined"
                   />
                 </Container>
               </Container>
 
               <Container className={classes.addStoryPromptContainer}>
-                <Typography variant='h6' className={classes.storyPromptText}>
+                <Typography variant="h6" className={classes.storyPromptText}>
                   Description
                 </Typography>
               </Container>
@@ -450,16 +466,17 @@ const ProductBacklogListComponent = ({
                       description: e.target.value,
                     });
                   }}
-                  variant='filled'
+                  variant="filled"
                 />
               </Container>
               <Container className={classes.addStoryPromptContainer}>
-                <Typography variant='h6' className={classes.storyPromptText}>
+                <Typography variant="h6" className={classes.storyPromptText}>
                   Estimate
                 </Typography>
                 <Container
                   className={classes.largeTextFieldContainer}
-                  style={{ flex: 6, display: 'flex', flexDirection: 'row' }}>
+                  style={{ flex: 6, display: 'flex', flexDirection: 'row' }}
+                >
                   <Typography style={{ marginTop: '1%', marginRight: '1%' }}>
                     $
                   </Typography>
@@ -482,7 +499,7 @@ const ProductBacklogListComponent = ({
                     }}
                   />
                 </Container>
-                <Typography variant='h6' className={classes.storyPromptText}>
+                <Typography variant="h6" className={classes.storyPromptText}>
                   Story Points
                 </Typography>
                 <Container className={classes.smallTextFieldContainer}>
@@ -505,7 +522,7 @@ const ProductBacklogListComponent = ({
                 </Container>
               </Container>
               <Container style={{ marginTop: '1%', padding: 0 }}>
-                <Typography variant='h6'>Subtasks</Typography>
+                <Typography variant="h6">Subtasks</Typography>
 
                 <Container style={{ width: '90%', padding: 0 }}>
                   <List className={classes.subtaskList}>
@@ -517,8 +534,8 @@ const ProductBacklogListComponent = ({
 
               <Container style={{ padding: 0 }}>
                 <Button
-                  color='primary'
-                  variant='contained'
+                  color="primary"
+                  variant="contained"
                   className={classes.modalButton}
                   onClick={() => {
                     setNewStory(initialNewStory);
@@ -530,20 +547,22 @@ const ProductBacklogListComponent = ({
                       isEditing: false,
                     });
                   }}
-                  style={{ height: '40%', float: 'left' }}>
+                  style={{ height: '40%', float: 'left' }}
+                >
                   Cancel
                 </Button>
                 <Typography></Typography>
                 <Button
-                  color='primary'
-                  variant='contained'
+                  color="primary"
+                  variant="contained"
                   className={classes.modalButton}
                   onClick={onAddOrUpdateProduct}
-                  style={{ height: '40%', float: 'right' }}>
+                  style={{ height: '40%', float: 'right' }}
+                >
                   {state.isEditing ? 'Update task' : 'Add a new task'}
                 </Button>
               </Container>
-              <Typography variant='h6' color='secondary' align='center'>
+              <Typography variant="h6" color="secondary" align="center">
                 {state.newStoryError}
               </Typography>
             </CardContent>
