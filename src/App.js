@@ -22,9 +22,6 @@ import './App.css';
 import { signOutUser } from './utils/userAuth';
 import SprintSelectionComponent from './components/Sprints/SprintSelectionComponent';
 import SprintRetrospectiveComponent from './components/Retrospective/SprintRetrospectiveComponent';
-import "./App.css";
-import { signOutUser } from "./utils/userAuth";
-import SprintSelectionComponent from "./components/Sprints/SprintSelectionComponent";
 
 const useAuth = process.env.REACT_APP_USE_AUTH === "true";
 
