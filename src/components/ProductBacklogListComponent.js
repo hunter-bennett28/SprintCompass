@@ -130,6 +130,8 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
 
   useEffect(() => {
     (async () => {
+      console.log(`updating pb`);
+      console.log(state.productBacklog);
       if (state.productBacklog) {
         await updateProject();
         //Throws a warning (disabled using eslint... below) to use useCallback, using it will create an infinite loop
@@ -162,7 +164,7 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
             (project) => project.ProjectName === state.projectName
           );
 
-          if(currProject)
+          if (currProject)
             sessionStorage.setItem('project', JSON.stringify(currProject));
 
           displayPopup('Successfully updated product backlog');
@@ -302,7 +304,15 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
                 });
               else {
                 setNewStory({
-                  subtasks: [...newStory.subtasks, { task: state.newSubtask, assigned:'', hoursWorked:0, hoursEstimated:-1 }],
+                  subtasks: [
+                    ...newStory.subtasks,
+                    {
+                      task: state.newSubtask,
+                      assigned: '',
+                      hoursWorked: 0,
+                      hoursEstimated: -1,
+                    },
+                  ],
                 });
                 setState({
                   newSubtask: '',
@@ -333,6 +343,7 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
   const onAddOrUpdateProduct = async () => {
     //Make sure the story is valid first
     if (!isInvalidStory()) {
+      console.log('adding or updating');
       if (!newStory.estimate)
         //Default estimate to 0
         setNewStory({ estimate: 0 });
@@ -346,14 +357,20 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
 
       //Check if it is updating
       if (state.isEditing) {
-        let productBacklog = state.productBacklog;
-        productBacklog[state.editingIndex] = newStory;
+        //This code can be a bit wonky to debug due to the amount of async calls going on
+        //but does currently work
+        let updatedPB = state.productBacklog;
+        updatedPB[state.editingIndex] = newStory;
 
+        //This line doesnt hit the useEffect on state.productBacklog
         setState({
-          productBacklog:productBacklog,
+          productBacklog: updatedPB,
           isEditing: false,
           editingIndex: null,
         });
+
+        //doesnt call the use effect so we have to manually
+        updateProject();
       }
       //Add the new product backlog
       else addNewStory(newStory);
@@ -366,6 +383,8 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
         estimate: 0,
         description: '',
       });
+
+      console.log('is editing ' + state.isEditing);
     } else {
       setState({
         newStoryError: 'Ensure all required fields are filled',
