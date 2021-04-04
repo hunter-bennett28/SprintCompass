@@ -20,7 +20,7 @@ import {
 import './App.css';
 import { signOutUser } from './utils/userAuth';
 import SprintSelectionComponent from './components/Sprints/SprintSelectionComponent';
-import SprintRetrospectiveComponent from './components/SprintRetrospectiveComponent';
+import SprintRetrospectiveComponent from './components/Retrospective/SprintRetrospectiveComponent';
 
 const useAuth = process.env.REACT_APP_USE_AUTH === 'true';
 
@@ -168,7 +168,7 @@ const App = () => {
             <SprintSelectionComponent loggedIn={state.loggedIn} />
           </Route>
           <Route path='/sprintretrospective'>
-            <SprintRetrospectiveComponent loggedIn={state.loggedIn} />
+            <SprintRetrospectiveComponent loggedIn={state.loggedIn} displayPopup={displayPopup}/>
           </Route>
         </Container>
         <Snackbar

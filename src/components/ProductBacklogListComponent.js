@@ -302,7 +302,7 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
                 });
               else {
                 setNewStory({
-                  subtasks: [...newStory.subtasks, { task: state.newSubtask }],
+                  subtasks: [...newStory.subtasks, { task: state.newSubtask, assigned:'', hoursWorked:0, hoursEstimated:-1 }],
                 });
                 setState({
                   newSubtask: '',
