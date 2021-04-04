@@ -17,7 +17,11 @@ import {
   Typography,
   Container,
   Snackbar,
-} from "@material-ui/core";
+} from '@material-ui/core';
+import './App.css';
+import { signOutUser } from './utils/userAuth';
+import SprintSelectionComponent from './components/Sprints/SprintSelectionComponent';
+import SprintRetrospectiveComponent from './components/Retrospective/SprintRetrospectiveComponent';
 import "./App.css";
 import { signOutUser } from "./utils/userAuth";
 import SprintSelectionComponent from "./components/Sprints/SprintSelectionComponent";
@@ -120,6 +124,12 @@ const App = () => {
             >
               Sprints
             </MenuItem>
+            <MenuItem
+              component={Link}
+              to='/sprintretrospective'
+              onClick={handleClose}>
+              Sprint Retrospective
+            </MenuItem>
             {useAuth && (
               <MenuItem
                 component={Link}
@@ -178,6 +188,9 @@ const App = () => {
           </Route>
           <Route path="/sprintselection">
             <SprintSelectionComponent loggedIn={state.loggedIn} />
+          </Route>
+          <Route path='/sprintretrospective'>
+            <SprintRetrospectiveComponent loggedIn={state.loggedIn} displayPopup={displayPopup}/>
           </Route>
         </Container>
         <Snackbar
