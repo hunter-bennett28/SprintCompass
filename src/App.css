@@ -48,3 +48,8 @@ Body {
   text-decoration: underline;
   cursor: pointer;
 }
+
+.headerLogo {
+  height: 10%;
+  width: 10;
+}

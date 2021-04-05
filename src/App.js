@@ -16,6 +16,8 @@ import {
   Typography,
   Container,
   Snackbar,
+  makeStyles,
+  Select,
 } from '@material-ui/core';
 import './App.css';
 import { signOutUser } from './utils/userAuth';
@@ -23,7 +25,19 @@ import SprintSelectionComponent from './components/Sprints/SprintSelectionCompon
 
 const useAuth = process.env.REACT_APP_USE_AUTH === 'true';
 
+const useStyles = makeStyles({
+  headerLogo: {
+    width: '10%',
+    marginRight: '2%',
+  },
+  projectChoice: {
+    width: '30%',
+    marginLeft: '5%',
+  },
+});
+
 const App = () => {
+  const classes = useStyles();
   const initialState = {
     showMsg: false,
     snackbarMsg: '',
@@ -74,9 +88,18 @@ const App = () => {
     <MuiThemeProvider theme={theme}>
       <AppBar position='static'>
         <Toolbar>
+          <img src='sprintcompass_logo.png' className={classes.headerLogo} />
           <Typography variant='h6' color='inherit'>
             Sprint Compass
           </Typography>
+          {(useAuth && !state.loggedIn) || (
+            <Select
+              className={classes.projectChoice}
+              value='test'
+              color='secondary'
+              //onChange={handleSelectSprint}
+              label='Selected Project'></Select>
+          )}
           {(useAuth && !state.loggedIn) || ( // Only show dropdown menu once logged in
             <IconButton
               onClick={handleClick}

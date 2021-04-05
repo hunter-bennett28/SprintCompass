@@ -81,11 +81,7 @@ const useStyles = makeStyles({
   },
 });
 
-const ProductBacklogListComponent = ({
-  refreshProjects,
-  displayPopup,
-  loggedIn,
-}) => {
+const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
   const classes = useStyles();
   const initialState = {
     productBacklog: [],
@@ -158,7 +154,6 @@ const ProductBacklogListComponent = ({
         //Check if the update worked
         if (!result.success) throw result.message;
 
-        await refreshProjects(); //Refresh the projects stored as they were modified
         displayPopup('Successfully updated product backlog');
 
         //Refresh the project

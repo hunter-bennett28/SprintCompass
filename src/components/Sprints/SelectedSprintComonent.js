@@ -10,11 +10,13 @@ import {
   ListItem,
   ListItemText,
   ListItemSecondaryAction,
+  Button,
 } from '@material-ui/core';
 import RemoveIcon from '@material-ui/icons/Remove';
 import { makeStyles } from '@material-ui/core/styles';
 import '../../App.css';
 import * as dbUtils from '../../utils/dbUtils';
+import generateSprintPDF from '../../utils/pdfUtils';
 
 const useStyles = makeStyles({
   formControl: {
@@ -33,7 +35,7 @@ const SprintSelectionComponent = () => {
   const classes = useStyles();
 
   const initialState = {
-    sprint: [],
+    sprint: {},
     project: {},
     MenuSelection: '',
   };
@@ -98,6 +100,7 @@ const SprintSelectionComponent = () => {
     await dbUtils.updateProject(updatedProject);
     await dbUtils.updateSprint(updatedSprint);
   };
+
   return (
     <Container
       style={{ backgroundColor: '#777', color: 'white', borderRadius: '25px' }}>
@@ -163,6 +166,15 @@ const SprintSelectionComponent = () => {
             ))}
         </List>
       </Container>
+      <div style={{ textAlign: 'center' }}>
+        <Button
+          variant='contained'
+          color='primary'
+          onClick={() => generateSprintPDF(state.sprint)}
+          style={{ textAlign: 'center' }}>
+          DOWNLOAD PDF
+        </Button>
+      </div>
     </Container>
   );
 };
