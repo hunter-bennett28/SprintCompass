@@ -15,7 +15,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import '../../App.css';
 import * as dbUtils from '../../utils/dbUtils';
 import { Redirect } from 'react-router-dom';
-import RetrospectiveReport from './RetrospectiveReport';
+import RetrospectiveReport from './RetrospectiveReportSubComponent';
 
 const useStyles = makeStyles({
   formControl: {
@@ -54,7 +54,7 @@ const SprintRetrospectiveComponent = ({ loggedIn, displayPopup }) => {
 
   useEffect(() => {
     fetchSprints();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchSprints = async () => {
     //get the list of sprints for a selected project
@@ -65,6 +65,8 @@ const SprintRetrospectiveComponent = ({ loggedIn, displayPopup }) => {
     setState({
       sprintList: result,
     });
+
+    return result;
   };
 
   const handleSelectSprint = async (e) => {
@@ -82,59 +84,84 @@ const SprintRetrospectiveComponent = ({ loggedIn, displayPopup }) => {
   };
 
   const saveChanges = async () => {
-    if (state.childDataFunction) {
-      //Extract the values from the modified child data
-      const { tasksModified, tableData } = state.childDataFunction();
+    try {
+      if (state.childDataFunction) {
+        //Extract the values from the modified child data
+        const { tasksModified, tableData } = state.childDataFunction();
 
-      //Get the matching sprint
-      let updatedSprint = JSON.parse(sessionStorage.getItem('sprint'));
+        //Get the matching sprint
+        let updatedSprint = JSON.parse(sessionStorage.getItem('sprint'));
 
-      updatedSprint.userStories = updatedSprint.userStories.map((task) => {
-        //Try to find the task in modified data
-        let modifiedTaskIndex = tasksModified.findIndex(
-          (modTask) => modTask.task === task.task
+        updatedSprint.userStories = updatedSprint.userStories.map((task) => {
+          //Try to find the task in modified data
+          let modifiedTaskIndex = tasksModified.findIndex(
+            (modTask) => modTask.task === task.task
+          );
+
+          if (modifiedTaskIndex >= 0) {
+            //Update all subtasks that were potentially modified
+            let combinedSubtasks = task.subtasks.map((subtask) => {
+              //Determine if this subtask will be updated
+              let modifiedSubtaskIndex = tasksModified[
+                modifiedTaskIndex
+              ].subtasks.findIndex(
+                (modSubtask) => modSubtask.task === subtask.task
+              );
+              if (modifiedSubtaskIndex >= 0) {
+                //now that we have the task and subtask index, we can use the tableData to find the input fields
+                let inputData =
+                  tableData[modifiedTaskIndex][modifiedSubtaskIndex];
+                let updatedSubtask = subtask;
+
+                if (
+                  !isNaN(inputData.hoursWorked) &&
+                  !isNaN(inputData.hoursEstimated)&&
+                  parseInt(inputData.hoursWorked)>=0 &&
+                  parseInt(inputData.hoursEstimated)>=0
+                ) {
+                  //Parse the data as it will come in as a string
+                  updatedSubtask.hoursWorked =
+                    parseInt(inputData.hoursWorked) +
+                    parseInt(updatedSubtask.hoursWorked);
+
+                  updatedSubtask.hoursEstimated = parseInt(
+                    updatedSubtask.hoursEstimated
+                  );
+                } else
+                  throw new Error('Error parsing data, ensure all fields are positive numbers');
+                return updatedSubtask;
+              } else return subtask;
+            });
+            let updatedTask = task;
+            updatedTask.subtasks = combinedSubtasks;
+
+            return updatedTask;
+          } else return task;
+        });
+
+        //Do the update on updated sprint
+        await dbUtils.updateSprint(updatedSprint);
+
+        //Now we need to update the UI
+        let sprintList = await fetchSprints();
+
+        sessionStorage.setItem(
+          'sprint',
+          JSON.stringify(
+            sprintList.find(
+              (sprint) => sprint.iteration === updatedSprint.iteration
+            )
+          )
         );
 
-        if (modifiedTaskIndex >= 0) {
-          //Update all subtasks that were potentially modified
-          let combinedSubtasks = task.subtasks.map((subtask) => {
-            
-            //Determine if this subtask will be updated
-            let modifiedSubtaskIndex = tasksModified[
-              modifiedTaskIndex
-            ].subtasks.findIndex(
-              (modSubtask) => modSubtask.task === subtask.task
-            );
-            if (modifiedSubtaskIndex >= 0) {
+        displayPopup('Updated sprint retrospective');
 
-              //now that we have the task and subtask index, we can use the tableData to find the input fields
-              let inputData =
-                tableData[modifiedTaskIndex][modifiedSubtaskIndex];
-              let updatedSubtask = subtask;
-
-              //Parse the data as it will come in as a string
-              updatedSubtask.hoursWorked =
-                parseInt(inputData.hoursWorked) +
-                parseInt(updatedSubtask.hoursWorked);
-              updatedSubtask.hoursEstimated =
-                parseInt(inputData.hoursEstimated) +
-                parseInt(updatedSubtask.hoursEstimated);
-
-              return updatedSubtask;
-            } else 
-              return subtask;
-            
-          });
-          let updatedTask = task;
-          updatedTask.subtasks = combinedSubtasks;
-
-          return updatedTask;
-        } else return task;
-      });
-
-      //Do the update on updated spring
-      //await dbUtils.updateSprint(updatedSprint);
-    } else console.log('Error: parent is not connected to the child');
+        if (state.refreshChild) state.refreshChild();
+        else throw new Error('Error refreshing retrospective');
+      } else throw new Error('Error: parent is not connected to the child');
+    } catch (err) {
+      displayPopup(`${err}`);
+    }
   };
 
   //This gives the parent a method to access the childs state for text boxes
@@ -142,6 +169,9 @@ const SprintRetrospectiveComponent = ({ loggedIn, displayPopup }) => {
     setState({ childDataFunction: functionToCall });
   };
 
+  const refreshUIConnection = (func) => {
+    setState({ refreshChild: refreshUIConnection });
+  };
   // Only allow access if logged in
   if (process.env.REACT_APP_USE_AUTH && !loggedIn) {
     console.log('no user found');
@@ -209,6 +239,7 @@ const SprintRetrospectiveComponent = ({ loggedIn, displayPopup }) => {
               //   (sprint) => sprint.iteration === state.selectedSprint
               // )}
               saveChangesConnection={saveChangestParentConnection}
+              refreshUIConnection={refreshUIConnection}
             />
           </div>
         )}

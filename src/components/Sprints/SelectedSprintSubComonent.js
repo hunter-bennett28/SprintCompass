@@ -29,7 +29,7 @@ const useStyles = makeStyles({
   },
 });
 
-const SprintSelectionComponent = () => {
+const SprintSelectionComponent = ({refreshContentsHook}) => {
   const classes = useStyles();
 
   const initialState = {
@@ -44,7 +44,8 @@ const SprintSelectionComponent = () => {
 
   useEffect(() => {
     loadSessionStorage();
-  }, []);
+    refreshContentsHook(loadSessionStorage);
+  },[]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadSessionStorage = () => {
     setState({
@@ -98,6 +99,7 @@ const SprintSelectionComponent = () => {
     await dbUtils.updateProject(updatedProject);
     await dbUtils.updateSprint(updatedSprint);
   };
+  
   return (
     <Container
       style={{ backgroundColor: '#777', color: 'white', borderRadius: '25px' }}>

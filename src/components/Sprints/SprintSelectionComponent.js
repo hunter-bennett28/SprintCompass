@@ -8,7 +8,7 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import '../../App.css';
-import SelectedSprintComponent from './SelectedSprintComonent';
+import SelectedSprintComponent from './SelectedSprintSubComonent';
 import * as dbUtils from '../../utils/dbUtils';
 import { Redirect } from 'react-router-dom';
 
@@ -29,8 +29,8 @@ const SprintSelectionComponent = ({ loggedIn }) => {
 
   const initialState = {
     sprintList: [],
-    selectedSprint: null,
     MenuSelection: '',
+    refreshChild:null,
   };
   const [state, setState] = useReducer(
     (state, newState) => ({ ...state, ...newState }),
@@ -50,14 +50,12 @@ const SprintSelectionComponent = ({ loggedIn }) => {
     setState({
       sprintList: result,
     });
+
+    return result;
   };
 
   const handleSelectSprint = async (e) => {
-    setState({
-      selectedSprint:
-        e.target.value === 'Add a new Sprint' ? null : e.target.value,
-      MenuSelection: e.target.value,
-    });
+
     if (e.target.value === 'Add a new Sprint') {
       //Create new sprint and add it
       let newSprint = {
@@ -68,35 +66,57 @@ const SprintSelectionComponent = ({ loggedIn }) => {
         userStories: [],
       };
 
-      const { projectName } = JSON.parse(sessionStorage.getItem('project')) || {};
+      const { projectName } =
+        JSON.parse(sessionStorage.getItem('project')) || {};
       await dbUtils.addSprintByProjectName(projectName, newSprint);
-      await fetchSprints();
 
-      setState({ MenuSelection: '' });
-    } else
+      //Return the updated list as the state might not have loaded the updated sprintList
+      let updatedList = await fetchSprints();
+
+      //set it in the selection menu
+      let newSprintIteration = updatedList[updatedList.length - 1].iteration;
+
+      sessionStorage.setItem(
+        'sprint',
+        JSON.stringify(
+          updatedList.find((sprint) => sprint.iteration === newSprintIteration)
+        )
+      );
+
+      setState({ MenuSelection: newSprintIteration});
+    } else {
       sessionStorage.setItem(
         'sprint',
         JSON.stringify(
           state.sprintList.find((sprint) => sprint.iteration === e.target.value)
         )
       );
+      setState({ MenuSelection: e.target.value });
+    }
+    if(state.refreshChild)
+      state.refreshChild();
   };
+
+  const refreshContentsHook = (func) =>{
+    setState({refreshChild:func});
+  }
 
   // Only allow access if logged in
   if (process.env.REACT_APP_USE_AUTH && !loggedIn) {
     console.log('no user found');
-    return <Redirect to='/login' />;
+    return <Redirect to="/login" />;
   }
 
   return (
     <div>
-      <FormControl variant='outlined' className={classes.formControl}>
+      <FormControl variant="outlined" className={classes.formControl}>
         <InputLabel className={classes.inputLabel}>Select A Sprint</InputLabel>
         <Select
           className={classes.userInput}
           value={state.MenuSelection}
           onChange={handleSelectSprint}
-          label='Sprint'>
+          label="Sprint"
+        >
           <MenuItem value={'Add a new Sprint'} key={'add'}>
             Add a new Sprint
           </MenuItem>
@@ -106,7 +126,8 @@ const SprintSelectionComponent = ({ loggedIn }) => {
                 return (
                   <MenuItem
                     value={sprint.iteration}
-                    key={`Sprint ${sprint.iteration}`}>
+                    key={`Sprint ${sprint.iteration}`}
+                  >
                     {`Sprint ${sprint.iteration}`}
                   </MenuItem>
                 );
@@ -114,9 +135,11 @@ const SprintSelectionComponent = ({ loggedIn }) => {
             })}
         </Select>
       </FormControl>
-      <Container style={{ padding: 0, marginTop: '2%' }}>
-        {state.selectedSprint && <SelectedSprintComponent />}
-      </Container>
+      {state.MenuSelection!=='' && (
+        <Container style={{ padding: 0, marginTop: '2%' }}>
+          <SelectedSprintComponent refreshContentsHook={refreshContentsHook}/>
+        </Container>
+      )}
     </div>
   );
 };
