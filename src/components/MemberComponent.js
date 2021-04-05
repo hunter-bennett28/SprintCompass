@@ -54,13 +54,14 @@ const MemberComponent = ({ displayPopup }) => {
       const { members, projectName } = JSON.parse(savedProject);
       setState({ memberList: members ? members : [], projectName });
     } else displayPopup("Project not loaded");
-  }, []);
+  }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(async () => {
-    if (state.memberList) {
+  useEffect(() => {
+   ( async () =>{
+    if (state.memberList) 
       await updateProject();
-    }
-  }, [state.memberList]);
+    })();
+  }, [state.memberList]);// eslint-disable-line react-hooks/exhaustive-deps
 
   const addNewMember = (member) => {
     setState({ memberList: [...state.memberList, member] });
@@ -95,7 +96,7 @@ const MemberComponent = ({ displayPopup }) => {
           });
 
           //Check if the update worked
-          if (!result.success) throw { message: result.message };
+          if (!result.success) throw result.message;
 
           const projects = await db.getProjects();
 
@@ -163,6 +164,9 @@ const MemberComponent = ({ displayPopup }) => {
           isEditing: false,
           editingIndex: null,
         });
+
+        //Set it so it updates on each modification (it might not detect that it was modified)
+        updateProject();
       } else addNewMember(newMember);
       setNewMember({
         email: "",

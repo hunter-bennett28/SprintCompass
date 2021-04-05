@@ -130,8 +130,6 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
 
   useEffect(() => {
     (async () => {
-      console.log(`updating pb`);
-      console.log(state.productBacklog);
       if (state.productBacklog) {
         await updateProject();
         //Throws a warning (disabled using eslint... below) to use useCallback, using it will create an infinite loop
