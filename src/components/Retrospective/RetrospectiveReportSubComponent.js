@@ -117,14 +117,14 @@ const RetrospectiveReport = ({
   };
 
   const displayTasks = () => {
-    let sprint = JSON.parse(sessionStorage.getItem('sprint'));
+    const sprint = JSON.parse(sessionStorage.getItem('sprint'));
 
     let userTasks = filterTasks(sprint);
 
     //Check if the 2D input array has been set up
     if (!state.tableData) {
       //Create the initial array
-      let initialArray = userTasks.map((task) =>
+      const initialArray = userTasks.map((task) =>
         task.subtasks.map((subtask) => {
           return {
             hoursWorked: 0,
