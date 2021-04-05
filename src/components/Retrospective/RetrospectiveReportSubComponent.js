@@ -99,7 +99,7 @@ const RetrospectiveReport = ({
   };
 
   const filterTasks = (sprint) => {
-    return sprint.userStories
+    return sprint?.userStories
       .map((task) => {
         //Find the appropriate subtasks for that user and store it
         let userTask = task.subtasks.filter(
