@@ -29,11 +29,11 @@ const useStyles = makeStyles({
   },
 });
 
-const SprintSelectionComponent = ({refreshContentsHook}) => {
+const SprintSelectionComponent = ({ refreshContentsHook }) => {
   const classes = useStyles();
 
   const initialState = {
-    sprint: [],
+    sprint: {},
     project: {},
     MenuSelection: '',
   };
@@ -45,7 +45,7 @@ const SprintSelectionComponent = ({refreshContentsHook}) => {
   useEffect(() => {
     loadSessionStorage();
     refreshContentsHook(loadSessionStorage);
-  },[]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadSessionStorage = () => {
     setState({
@@ -56,11 +56,11 @@ const SprintSelectionComponent = ({refreshContentsHook}) => {
 
   const handleSelection = async (e) => {
     //update the local project to not contain the user story
-    let updatedSprint = state.sprint;
+    const updatedSprint = state.sprint;
 
     updatedSprint.userStories = [...updatedSprint.userStories, e.target.value];
 
-    let updatedProject = state.project;
+    const updatedProject = state.project;
     updatedProject.productBacklog = updatedProject.productBacklog.filter(
       (item) => item !== e.target.value
     );
@@ -75,8 +75,8 @@ const SprintSelectionComponent = ({refreshContentsHook}) => {
 
   const removeTask = async (story) => {
     //Update local storage
-    let updatedSprint = state.sprint;
-    let updatedProject = state.project;
+    const updatedSprint = state.sprint;
+    const updatedProject = state.project;
 
     updatedSprint.userStories = updatedSprint.userStories.filter(
       (item) => item !== story
@@ -99,7 +99,7 @@ const SprintSelectionComponent = ({refreshContentsHook}) => {
     await dbUtils.updateProject(updatedProject);
     await dbUtils.updateSprint(updatedSprint);
   };
-  
+
   return (
     <Container
       style={{ backgroundColor: '#777', color: 'white', borderRadius: '25px' }}>
@@ -134,7 +134,6 @@ const SprintSelectionComponent = ({refreshContentsHook}) => {
               })}
           </Select>
         </FormControl>
-        {/* <List></List> */}
         <List>
           {state.sprint.userStories &&
             state.sprint.userStories.map((story) => (
@@ -144,7 +143,7 @@ const SprintSelectionComponent = ({refreshContentsHook}) => {
                   () =>
                     console.log(
                       'implementation!'
-                    ) /* Implement popup method here*/
+                    ) /* TODO? Implement popup method here*/
                 }
                 key={`${story.storyPoints}${story.task}`}>
                 <ListItemText
