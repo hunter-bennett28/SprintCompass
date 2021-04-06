@@ -20,7 +20,7 @@ const useStyles = makeStyles({
 
 const useAuth = process.env.REACT_APP_USE_AUTH === 'true';
 
-const ProjectDetailsComponent = ({ loggedIn }) => {
+const ProjectDetailsComponent = ({ loggedIn, setSelectedProject }) => {
   const classes = useStyles();
 
   /* State Setup */
@@ -44,9 +44,7 @@ const ProjectDetailsComponent = ({ loggedIn }) => {
     const savedProject = sessionStorage.getItem('project');
     if (savedProject) {
       try {
-        const { projectName, companyName, description } = JSON.parse(
-          savedProject
-        );
+        const { projectName, companyName, description } = JSON.parse(savedProject);
         setState({ projectName, companyName, description, updating: true });
       } catch (err) {
         console.log(`Error parsing saved project: ${err.message}`);
@@ -58,9 +56,7 @@ const ProjectDetailsComponent = ({ loggedIn }) => {
   const handleProjectNameChange = (e) => {
     const newState = { projectName: e.target.value };
     // If the name is being changed from a saved value, retain old name for searching
-    state.updating &&
-      state.oldName === '' &&
-      (newState.oldName = state.projectName);
+    state.updating && state.oldName === '' && (newState.oldName = state.projectName);
     setState(newState);
   };
 
@@ -83,20 +79,16 @@ const ProjectDetailsComponent = ({ loggedIn }) => {
         return;
       }
       await db.addProject(state);
-      const projects = useAuth
-        ? await db.getProjectsByUser()
-        : await db.getProjects();
+      const projects = await db.getProjects();
       sessionStorage.setItem(
         'project',
-        JSON.stringify(
-          projects.find((project) => project.projectName === state.projectName)
-        )
+        JSON.stringify(projects.find((project) => project.projectName === state.projectName))
       );
       setState({
         snackbarOpen: true,
         snackbarMessage: 'Successfully saved project information!',
       });
-      //refreshProjects();
+      setSelectedProject(state.projectName);
     } catch (err) {
       setState({
         snackbarOpen: true,
@@ -108,10 +100,7 @@ const ProjectDetailsComponent = ({ loggedIn }) => {
 
   const handleUpdateButton = async () => {
     try {
-      if (
-        state.oldName !== '' &&
-        (await db.checkProjectExists(state.projectName))
-      ) {
+      if (state.oldName !== '' && (await db.checkProjectExists(state.projectName))) {
         setState({
           snackbarOpen: true,
           snackbarMessage: 'Name already in use, could not update name',
@@ -129,7 +118,6 @@ const ProjectDetailsComponent = ({ loggedIn }) => {
         snackbarOpen: true,
         snackbarMessage: 'Successfully updated project information!',
       });
-      //refreshProjects();
     } catch (err) {
       setState({
         snackbarOpen: true,

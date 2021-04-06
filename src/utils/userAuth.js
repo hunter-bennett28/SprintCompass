@@ -13,12 +13,15 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
-const registerUser = async (email, password) => {
-  const credentials = await firebase
-    .auth()
-    .createUserWithEmailAndPassword(email, password);
-  console.log('registered. user credentials: ', credentials);
-  return credentials;
+let currentUser = null;
+
+const registerUser = async (email, password, firstName, lastName) => {
+  //const credentials = await firebase.auth().createUserWithEmailAndPassword(email, password);
+  await firebase.auth().createUserWithEmailAndPassword(email, password);
+  firebase.auth().currentUser.updateProfile({
+    displayName: `${firstName}|${lastName}`,
+  });
+  return { email, firstName, lastName };
 };
 
 const signOutUser = async () => {
@@ -30,11 +33,14 @@ const signOutUser = async () => {
 };
 
 const signInUser = async (email, password) => {
-  const credentials = await firebase
-    .auth()
-    .signInWithEmailAndPassword(email, password);
-  console.log('signed in. user credentials: ', credentials);
-  return credentials;
+  const { user } = await firebase.auth().signInWithEmailAndPassword(email, password);
+  console.log('signed in. user: ', user);
+  const [firstName, lastName] = user.displayName.split('|');
+  return {
+    email: user.email,
+    firstName,
+    lastName,
+  };
 };
 
 const getCurrentUser = () => firebase.auth().currentUser;

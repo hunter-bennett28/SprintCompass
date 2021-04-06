@@ -1,11 +1,5 @@
 import React, { useReducer } from 'react';
-import {
-  TextField,
-  Button,
-  makeStyles,
-  InputAdornment,
-  IconButton,
-} from '@material-ui/core';
+import { TextField, Button, makeStyles, InputAdornment, IconButton } from '@material-ui/core';
 import { Visibility, VisibilityOff, Email } from '@material-ui/icons';
 import '../App.css';
 import { registerUser, signInUser } from '../utils/userAuth';
@@ -15,6 +9,17 @@ const useStyles = makeStyles({
   inputContainer: {
     marginBottom: 20,
     width: '80%',
+    textAlign: 'center',
+  },
+  firstNameContainer: {
+    marginBottom: 20,
+    width: '38%',
+    marginRight: '6%',
+    textAlign: 'center',
+  },
+  lastNameContainer: {
+    marginBottom: 20,
+    width: '35%',
     textAlign: 'center',
   },
   textField: {
@@ -46,6 +51,8 @@ const LoginComponent = ({ notifyLogIn, displayPopup, loggedIn, route }) => {
     showPass: false,
     passTwo: '',
     login: true,
+    lastName: '',
+    firstName: '',
   };
   const [state, setState] = useReducer(
     (state, newState) => ({ ...state, ...newState }),
@@ -56,15 +63,13 @@ const LoginComponent = ({ notifyLogIn, displayPopup, loggedIn, route }) => {
     try {
       const result = await (state.login
         ? signInUser(state.email, state.pass)
-        : registerUser(state.email, state.pass));
+        : registerUser(state.email, state.pass, state.firstName, state.lastName));
       notifyLogIn();
       sessionStorage.setItem('user', JSON.stringify(result));
       history.push('/home');
     } catch (err) {
       console.log('Authentification failed: ', err);
-      displayPopup(
-        `${state.login ? 'Log In ' : 'Registration '} Failed: ${err.message}`
-      );
+      displayPopup(`${state.login ? 'Log In ' : 'Registration '} Failed: ${err.message}`);
     }
   };
 
@@ -72,16 +77,20 @@ const LoginComponent = ({ notifyLogIn, displayPopup, loggedIn, route }) => {
     setState({ passTwo: e.target.value });
   };
 
+  const handleFirstNameChange = (e) => {
+    setState({ firstName: e.target.value });
+  };
+
+  const handleLastNameChange = (e) => {
+    setState({ lastName: e.target.value });
+  };
+
   const handleToggleType = () => {
     setState({ login: !state.login, email: '', pass: '', passTwo: '' });
   };
 
   // If user is logged in already and logout did not redirect here, redirect
-  if (
-    process.env.REACT_APP_USE_AUTH &&
-    route.location.search !== '?logout=true' &&
-    loggedIn
-  ) {
+  if (process.env.REACT_APP_USE_AUTH && route.location.search !== '?logout=true' && loggedIn) {
     return <Redirect to='/home' />;
   }
 
@@ -132,11 +141,7 @@ const LoginComponent = ({ notifyLogIn, displayPopup, loggedIn, route }) => {
       {!state.login && (
         <div>
           <TextField
-            error={
-              !state.login &&
-              state.passTwo !== '' &&
-              state.passTwo !== state.pass
-            }
+            error={!state.login && state.passTwo !== '' && state.passTwo !== state.pass}
             type={state.showPass ? 'text' : 'password'}
             className={classes.inputContainer}
             color='secondary'
@@ -160,6 +165,32 @@ const LoginComponent = ({ notifyLogIn, displayPopup, loggedIn, route }) => {
             onChange={handlePasswordTwoChange}
           />
           <br />
+          <TextField
+            type='text'
+            className={classes.firstNameContainer}
+            color='secondary'
+            value={state.firstName}
+            label='First Name'
+            required={true}
+            InputLabelProps={{ className: classes.inputLabel }}
+            InputProps={{
+              className: classes.textField,
+            }}
+            onChange={handleFirstNameChange}
+          />
+          <TextField
+            type='text'
+            className={classes.lastNameContainer}
+            color='secondary'
+            value={state.lastName}
+            label='Last Name'
+            required={true}
+            InputLabelProps={{ className: classes.inputLabel }}
+            InputProps={{
+              className: classes.textField,
+            }}
+            onChange={handleLastNameChange}
+          />
         </div>
       )}
       <Button
@@ -169,7 +200,8 @@ const LoginComponent = ({ notifyLogIn, displayPopup, loggedIn, route }) => {
         disabled={
           state.email === '' ||
           state.pass === '' ||
-          (!state.login && state.pass !== state.passTwo)
+          (!state.login &&
+            (state.pass !== state.passTwo || state.firstName === '' || state.lastName === ''))
         }>
         {state.login ? 'LOG IN' : 'REGISTER'}
       </Button>

@@ -1,11 +1,5 @@
 import React, { useEffect, useReducer } from 'react';
-import {
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Container,
-} from '@material-ui/core';
+import { FormControl, InputLabel, Select, MenuItem, Container } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import '../../App.css';
 import SelectedSprintComponent from './SelectedSprintSubComonent';
@@ -30,7 +24,7 @@ const SprintSelectionComponent = ({ loggedIn }) => {
   const initialState = {
     sprintList: [],
     MenuSelection: '',
-    refreshChild:null,
+    refreshChild: null,
   };
   const [state, setState] = useReducer(
     (state, newState) => ({ ...state, ...newState }),
@@ -45,7 +39,7 @@ const SprintSelectionComponent = ({ loggedIn }) => {
     //get the list of sprints for a selected project
     const { projectName } = JSON.parse(sessionStorage.getItem('project')) || {}; //If the getItem fails, it will throw in an empty object
     const result = await dbUtils.getSprintsByProjectName(projectName);
-    result.sort((sprint1, sprint2) => sprint1.iteration - sprint2.iteration);
+    result?.sort((sprint1, sprint2) => sprint1.iteration - sprint2.iteration);
 
     setState({
       sprintList: result,
@@ -55,7 +49,6 @@ const SprintSelectionComponent = ({ loggedIn }) => {
   };
 
   const handleSelectSprint = async (e) => {
-
     if (e.target.value === 'Add a new Sprint') {
       //Create new sprint and add it
       let newSprint = {
@@ -66,8 +59,7 @@ const SprintSelectionComponent = ({ loggedIn }) => {
         userStories: [],
       };
 
-      const { projectName } =
-        JSON.parse(sessionStorage.getItem('project')) || {};
+      const { projectName } = JSON.parse(sessionStorage.getItem('project')) || {};
       await dbUtils.addSprintByProjectName(projectName, newSprint);
 
       //Return the updated list as the state might not have loaded the updated sprintList
@@ -78,45 +70,40 @@ const SprintSelectionComponent = ({ loggedIn }) => {
 
       sessionStorage.setItem(
         'sprint',
-        JSON.stringify(
-          updatedList.find((sprint) => sprint.iteration === newSprintIteration)
-        )
+        JSON.stringify(updatedList.find((sprint) => sprint.iteration === newSprintIteration))
       );
 
-      setState({ MenuSelection: newSprintIteration});
+      setState({ MenuSelection: newSprintIteration });
     } else {
-      sessionStorage.setItem(
-        'sprint',
-        JSON.stringify(
-          state.sprintList.find((sprint) => sprint.iteration === e.target.value)
-        )
-      );
+      console.log('all sprints: ', state.sprintList);
+      const selectedSprint = state.sprintList.find((sprint) => sprint.iteration === e.target.value);
+      const isLatest =
+        state.sprintList[state.sprintList.length - 1]?.iteration === selectedSprint.iteration;
+      sessionStorage.setItem('sprint', JSON.stringify({ ...selectedSprint, isLatest }));
       setState({ MenuSelection: e.target.value });
     }
-    if(state.refreshChild)
-      state.refreshChild();
+    if (state.refreshChild) state.refreshChild();
   };
 
-  const refreshContentsHook = (func) =>{
-    setState({refreshChild:func});
-  }
+  const refreshContentsHook = (func) => {
+    setState({ refreshChild: func });
+  };
 
   // Only allow access if logged in
   if (process.env.REACT_APP_USE_AUTH && !loggedIn) {
     console.log('no user found');
-    return <Redirect to="/login" />;
+    return <Redirect to='/login' />;
   }
 
   return (
     <div>
-      <FormControl variant="outlined" className={classes.formControl}>
+      <FormControl variant='outlined' className={classes.formControl} color='secondary'>
         <InputLabel className={classes.inputLabel}>Select A Sprint</InputLabel>
         <Select
           className={classes.userInput}
           value={state.MenuSelection}
           onChange={handleSelectSprint}
-          label="Sprint"
-        >
+          label='Sprint'>
           <MenuItem value={'Add a new Sprint'} key={'add'}>
             Add a new Sprint
           </MenuItem>
@@ -124,10 +111,7 @@ const SprintSelectionComponent = ({ loggedIn }) => {
             state.sprintList.map((sprint) => {
               if (sprint)
                 return (
-                  <MenuItem
-                    value={sprint.iteration}
-                    key={`Sprint ${sprint.iteration}`}
-                  >
+                  <MenuItem value={sprint.iteration} key={`Sprint ${sprint.iteration}`}>
                     {`Sprint ${sprint.iteration}`}
                   </MenuItem>
                 );
@@ -135,9 +119,9 @@ const SprintSelectionComponent = ({ loggedIn }) => {
             })}
         </Select>
       </FormControl>
-      {state.MenuSelection!=='' && (
+      {state.MenuSelection !== '' && (
         <Container style={{ padding: 0, marginTop: '2%' }}>
-          <SelectedSprintComponent refreshContentsHook={refreshContentsHook}/>
+          <SelectedSprintComponent refreshContentsHook={refreshContentsHook} />
         </Container>
       )}
     </div>
