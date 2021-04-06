@@ -4,22 +4,9 @@ import { getCurrentUser } from '../utils/userAuth';
 import { useHistory, Redirect } from 'react-router-dom';
 import '../App.css';
 
-// const useStyles = makeStyles({
-//   formControl: {
-//     minWidth: '50%',
-//   },
-//   inputLabel: {
-//     color: '#bbb',
-//   },
-//   userInput: {
-//     color: 'white',
-//   },
-// });
-
 const useAuth = process.env.REACT_APP_USE_AUTH === 'true';
 
 const HomeScreenComponent = ({ loggedIn }) => {
-  // const classes = useStyles();
   const history = useHistory();
 
   useEffect(() => {
