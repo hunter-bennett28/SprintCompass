@@ -1,12 +1,13 @@
-import LoginComponent from './components/LoginComponent';
-import ProjectDetailsComponent from './components/ProjectDetailsComponent';
-import ProductBacklogListComponent from './components/ProductBacklogListComponent';
-import HomeScreenComponent from './components/HomeScreenComponent';
-import React, { useReducer, useEffect } from 'react';
-import { Route, Link, Redirect } from 'react-router-dom';
-import Reorder from '@material-ui/icons/Reorder';
-import { MuiThemeProvider } from '@material-ui/core/styles';
-import theme from './theme';
+import LoginComponent from "./components/LoginComponent";
+import ProjectDetailsComponent from "./components/ProjectDetailsComponent";
+import ProductBacklogListComponent from "./components/ProductBacklogListComponent";
+import HomeScreenComponent from "./components/HomeScreenComponent";
+import MemberComponent from "./components/MemberComponent";
+import React, { useReducer, useEffect } from "react";
+import { Route, Link, Redirect } from "react-router-dom";
+import Reorder from "@material-ui/icons/Reorder";
+import { MuiThemeProvider } from "@material-ui/core/styles";
+import theme from "./theme";
 import {
   Toolbar,
   AppBar,
@@ -22,8 +23,9 @@ import {
 import './App.css';
 import { signOutUser } from './utils/userAuth';
 import SprintSelectionComponent from './components/Sprints/SprintSelectionComponent';
+import SprintRetrospectiveComponent from './components/Retrospective/SprintRetrospectiveComponent';
 
-const useAuth = process.env.REACT_APP_USE_AUTH === 'true';
+const useAuth = process.env.REACT_APP_USE_AUTH === "true";
 
 const useStyles = makeStyles({
   headerLogo: {
@@ -40,8 +42,8 @@ const App = () => {
   const classes = useStyles();
   const initialState = {
     showMsg: false,
-    snackbarMsg: '',
-    anchorEl: '',
+    snackbarMsg: "",
+    anchorEl: "",
     loggedIn: false,
   };
   const reducer = (state, newState) => ({ ...state, ...newState });
@@ -50,7 +52,7 @@ const App = () => {
   useEffect(() => {
     useAuth &&
       setState({
-        loggedIn: Boolean(sessionStorage.getItem('user')),
+        loggedIn: Boolean(sessionStorage.getItem("user")),
       });
   }, []);
 
@@ -86,10 +88,14 @@ const App = () => {
 
   return (
     <MuiThemeProvider theme={theme}>
-      <AppBar position='static'>
+      <AppBar position="static">
         <Toolbar>
+<<<<<<< HEAD
           <img src='sprintcompass_logo.png' className={classes.headerLogo} />
           <Typography variant='h6' color='inherit'>
+=======
+          <Typography variant="h6" color="inherit">
+>>>>>>> master
             Sprint Compass
           </Typography>
           {(useAuth && !state.loggedIn) || (
@@ -103,59 +109,74 @@ const App = () => {
           {(useAuth && !state.loggedIn) || ( // Only show dropdown menu once logged in
             <IconButton
               onClick={handleClick}
-              color='inherit'
-              style={{ marginLeft: 'auto', paddingRight: '1vh' }}>
+              color="inherit"
+              style={{ marginLeft: "auto", paddingRight: "1vh" }}
+            >
               <Reorder />
             </IconButton>
           )}
           <Menu
-            id='simple-menu'
+            id="simple-menu"
             anchorEl={state.anchorEl}
             open={Boolean(state.anchorEl)}
-            onClose={handleClose}>
-            <MenuItem component={Link} to='/home' onClick={handleClose}>
+            onClose={handleClose}
+          >
+            <MenuItem component={Link} to="/home" onClick={handleClose}>
               Home
             </MenuItem>
             <MenuItem
               component={Link}
-              to='/projectdetails'
-              onClick={handleClose}>
+              to="/projectdetails"
+              onClick={handleClose}
+            >
               Project Details
             </MenuItem>
             <MenuItem
               component={Link}
-              to='/productbacklog'
-              onClick={handleClose}>
+              to="/productbacklog"
+              onClick={handleClose}
+            >
               Product Backlog
+            </MenuItem>
+            <MenuItem component={Link} to="/members" onClick={handleClose}>
+              Members
             </MenuItem>
             <MenuItem
               component={Link}
-              to='/sprintselection'
-              onClick={handleClose}>
+              to="/sprintselection"
+              onClick={handleClose}
+            >
               Sprints
+            </MenuItem>
+            <MenuItem
+              component={Link}
+              to='/sprintretrospective'
+              onClick={handleClose}>
+              Sprint Retrospective
             </MenuItem>
             {useAuth && (
               <MenuItem
                 component={Link}
-                to='/login?logout=true'
-                onClick={handleLogOut}>
+                to="/login?logout=true"
+                onClick={handleLogOut}
+              >
                 Log Out
               </MenuItem>
             )}
           </Menu>
         </Toolbar>
       </AppBar>
-      <div className='Form'>
-        <Container style={{ padding: '0px', paddingTop: '10px' }}>
+      <div className="Form">
+        <Container style={{ padding: "0px", paddingTop: "10px" }}>
           <Route
             exact
-            path='/'
+            path="/"
             render={() => (
-              <Redirect to={useAuth && !state.loggedIn ? '/login' : '/home'} />
+              <Redirect to={useAuth && !state.loggedIn ? "/login" : "/home"} />
             )}
           />
           <Route
-            path='/login'
+            path="/login"
             render={(routeInfo) => (
               <LoginComponent
                 displayPopup={displayPopup}
@@ -166,7 +187,7 @@ const App = () => {
             )}
           />
           <Route
-            path='/productbacklog'
+            path="/productbacklog"
             render={() => (
               <ProductBacklogListComponent
                 loggedIn={state.loggedIn}
@@ -174,14 +195,26 @@ const App = () => {
               />
             )}
           />
-          <Route path='/home'>
+          <Route
+            path="/members"
+            render={() => (
+              <MemberComponent
+                loggedIn={state.loggedIn}
+                displayPopup={displayPopup}
+              />
+            )}
+          />
+          <Route path="/home">
             <HomeScreenComponent loggedIn={state.loggedIn} />
           </Route>
-          <Route path='/projectdetails'>
+          <Route path="/projectdetails">
             <ProjectDetailsComponent loggedIn={state.loggedIn} />
           </Route>
-          <Route path='/sprintselection'>
+          <Route path="/sprintselection">
             <SprintSelectionComponent loggedIn={state.loggedIn} />
+          </Route>
+          <Route path='/sprintretrospective'>
+            <SprintRetrospectiveComponent loggedIn={state.loggedIn} displayPopup={displayPopup}/>
           </Route>
         </Container>
         <Snackbar

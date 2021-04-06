@@ -31,7 +31,7 @@ const useStyles = makeStyles({
   },
 });
 
-const SprintSelectionComponent = () => {
+const SprintSelectionComponent = ({refreshContentsHook}) => {
   const classes = useStyles();
 
   const initialState = {
@@ -46,7 +46,8 @@ const SprintSelectionComponent = () => {
 
   useEffect(() => {
     loadSessionStorage();
-  }, []);
+    refreshContentsHook(loadSessionStorage);
+  },[]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadSessionStorage = () => {
     setState({
@@ -100,7 +101,11 @@ const SprintSelectionComponent = () => {
     await dbUtils.updateProject(updatedProject);
     await dbUtils.updateSprint(updatedSprint);
   };
+<<<<<<< HEAD:src/components/Sprints/SelectedSprintComonent.js
 
+=======
+  
+>>>>>>> master:src/components/Sprints/SelectedSprintSubComonent.js
   return (
     <Container
       style={{ backgroundColor: '#777', color: 'white', borderRadius: '25px' }}>
@@ -126,7 +131,7 @@ const SprintSelectionComponent = () => {
                     <MenuItem
                       value={product}
                       key={`${product.storyPoints}${product.task}`}>
-                      {`${product.storyPoints ? product.storyPoints : '?'} - ${
+                      {`${product.storyPoints ? product.storyPoints : '0'} - ${
                         product.task
                       }`}
                     </MenuItem>

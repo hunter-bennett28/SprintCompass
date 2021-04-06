@@ -88,7 +88,7 @@ const updateSprint = async (updatedData) => {
     },
     body: JSON.stringify({ updatedData }),
   });
-  console.log(JSON.stringify({ updatedData }));
+
   // REMOVE THESE TWO LINES LATER, for debugging
   const results = await request.json();
   //console.log(results);
