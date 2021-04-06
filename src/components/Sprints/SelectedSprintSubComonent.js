@@ -13,6 +13,7 @@ import {
 } from '@material-ui/core';
 import RemoveIcon from '@material-ui/icons/Remove';
 import { makeStyles } from '@material-ui/core/styles';
+import SubtaskMemberSelectionComponent from './SubtaskMemberSelectionComponent'
 import '../../App.css';
 import * as dbUtils from '../../utils/dbUtils';
 
@@ -35,6 +36,8 @@ const SprintSelectionComponent = ({refreshContentsHook}) => {
   const initialState = {
     sprint: [],
     project: {},
+    openModal: false,
+    selectedStory: null,
     MenuSelection: '',
   };
   const [state, setState] = useReducer(
@@ -100,6 +103,10 @@ const SprintSelectionComponent = ({refreshContentsHook}) => {
     await dbUtils.updateSprint(updatedSprint);
   };
   
+  const closeModel = () =>{
+      setState({openModal:false, selectedStory: null});
+  }
+
   return (
     <Container
       style={{ backgroundColor: '#777', color: 'white', borderRadius: '25px' }}>
@@ -141,10 +148,9 @@ const SprintSelectionComponent = ({refreshContentsHook}) => {
               <ListItem
                 button
                 onClick={
-                  () =>
-                    console.log(
-                      'implementation!'
-                    ) /* Implement popup method here*/
+                  () => {
+                    setState({openModal: true, selectedStory:story}); /* Implement popup method here*/
+                  }
                 }
                 key={`${story.storyPoints}${story.task}`}>
                 <ListItemText
@@ -164,6 +170,7 @@ const SprintSelectionComponent = ({refreshContentsHook}) => {
               </ListItem>
             ))}
         </List>
+        <SubtaskMemberSelectionComponent openModal={state.openModal} selectedStory={state.selectedStory} onClose={closeModel} />
       </Container>
     </Container>
   );
