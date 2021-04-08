@@ -60,7 +60,7 @@ const SprintRetrospectiveComponent = ({ loggedIn, displayPopup }) => {
     //get the list of sprints for a selected project
     const { projectName } = JSON.parse(sessionStorage.getItem('project')) || {}; //If the getItem fails, it will throw in an empty object
     const result = await dbUtils.getSprintsByProjectName(projectName);
-    result.sort((sprint1, sprint2) => sprint1.iteration - sprint2.iteration);
+    result?.sort((sprint1, sprint2) => sprint1.iteration - sprint2.iteration);
 
     setState({
       sprintList: result,
@@ -77,9 +77,7 @@ const SprintRetrospectiveComponent = ({ loggedIn, displayPopup }) => {
 
     sessionStorage.setItem(
       'sprint',
-      JSON.stringify(
-        state.sprintList.find((sprint) => sprint.iteration === e.target.value)
-      )
+      JSON.stringify(state.sprintList.find((sprint) => sprint.iteration === e.target.value))
     );
   };
 
@@ -94,39 +92,31 @@ const SprintRetrospectiveComponent = ({ loggedIn, displayPopup }) => {
 
         updatedSprint.userStories = updatedSprint.userStories.map((task) => {
           //Try to find the task in modified data
-          let modifiedTaskIndex = tasksModified.findIndex(
-            (modTask) => modTask.task === task.task
-          );
+          let modifiedTaskIndex = tasksModified.findIndex((modTask) => modTask.task === task.task);
 
           if (modifiedTaskIndex >= 0) {
             //Update all subtasks that were potentially modified
             let combinedSubtasks = task.subtasks.map((subtask) => {
               //Determine if this subtask will be updated
-              let modifiedSubtaskIndex = tasksModified[
-                modifiedTaskIndex
-              ].subtasks.findIndex(
+              let modifiedSubtaskIndex = tasksModified[modifiedTaskIndex].subtasks.findIndex(
                 (modSubtask) => modSubtask.task === subtask.task
               );
               if (modifiedSubtaskIndex >= 0) {
                 //now that we have the task and subtask index, we can use the tableData to find the input fields
-                let inputData =
-                  tableData[modifiedTaskIndex][modifiedSubtaskIndex];
+                let inputData = tableData[modifiedTaskIndex][modifiedSubtaskIndex];
                 let updatedSubtask = subtask;
 
                 if (
                   !isNaN(inputData.hoursWorked) &&
-                  !isNaN(inputData.hoursEstimated)&&
-                  parseInt(inputData.hoursWorked)>=0 &&
-                  parseInt(inputData.hoursEstimated)>=0
+                  !isNaN(inputData.hoursEstimated) &&
+                  parseInt(inputData.hoursWorked) >= 0 &&
+                  parseInt(inputData.hoursEstimated) >= 0
                 ) {
                   //Parse the data as it will come in as a string
                   updatedSubtask.hoursWorked =
-                    parseInt(inputData.hoursWorked) +
-                    parseInt(updatedSubtask.hoursWorked);
+                    parseInt(inputData.hoursWorked) + parseInt(updatedSubtask.hoursWorked);
 
-                  updatedSubtask.hoursEstimated = parseInt(
-                    updatedSubtask.hoursEstimated
-                  );
+                  updatedSubtask.hoursEstimated = parseInt(updatedSubtask.hoursEstimated);
                 } else
                   throw new Error('Error parsing data, ensure all fields are positive numbers');
                 return updatedSubtask;
@@ -147,11 +137,7 @@ const SprintRetrospectiveComponent = ({ loggedIn, displayPopup }) => {
 
         sessionStorage.setItem(
           'sprint',
-          JSON.stringify(
-            sprintList.find(
-              (sprint) => sprint.iteration === updatedSprint.iteration
-            )
-          )
+          JSON.stringify(sprintList.find((sprint) => sprint.iteration === updatedSprint.iteration))
         );
 
         displayPopup('Updated sprint retrospective');
@@ -175,7 +161,7 @@ const SprintRetrospectiveComponent = ({ loggedIn, displayPopup }) => {
   // Only allow access if logged in
   if (process.env.REACT_APP_USE_AUTH && !loggedIn) {
     console.log('no user found');
-    return <Redirect to="/login" />;
+    return <Redirect to='/login' />;
   }
 
   return (
@@ -187,34 +173,22 @@ const SprintRetrospectiveComponent = ({ loggedIn, displayPopup }) => {
           container={() => {
             /* Hold the modal in the window, not a huge concern rn but would be cool */
           }}
-          onClose={() =>
-            setState({ isSelectingSprint: false, selectedSprint: '' })
-          }
-        >
+          onClose={() => setState({ isSelectingSprint: false, selectedSprint: '' })}>
           <Card style={{ padding: 20 }}>
-            <CardHeader
-              title={'Select a Sprint'}
-              style={{ textAlign: 'center' }}
-            />
+            <CardHeader title={'Select a Sprint'} style={{ textAlign: 'center' }} />
             <CardContent>
-              <FormControl variant="outlined" className={classes.formControl}>
-                <InputLabel className={classes.inputLabel}>
-                  Select A Sprint
-                </InputLabel>
+              <FormControl variant='outlined' className={classes.formControl}>
+                <InputLabel className={classes.inputLabel}>Select A Sprint</InputLabel>
                 <Select
                   className={classes.userInput}
                   value={state.selectedSprint}
                   onChange={handleSelectSprint}
-                  label="Sprint"
-                >
+                  label='Sprint'>
                   {state.sprintList &&
                     state.sprintList.map((sprint) => {
                       if (sprint)
                         return (
-                          <MenuItem
-                            value={sprint.iteration}
-                            key={`Sprint ${sprint.iteration}`}
-                          >
+                          <MenuItem value={sprint.iteration} key={`Sprint ${sprint.iteration}`}>
                             {`Sprint ${sprint.iteration}`}
                           </MenuItem>
                         );
@@ -227,14 +201,12 @@ const SprintRetrospectiveComponent = ({ loggedIn, displayPopup }) => {
         </Modal>
         {state.selectedSprint !== '' && (
           <div>
-            <Typography variant="h4">
-              Sprint {state.selectedSprint} Retrospective
-            </Typography>
-            <Typography variant="h5">
-              {JSON.parse(sessionStorage.getItem('user')).user.email}
+            <Typography variant='h4'>Sprint {state.selectedSprint} Retrospective</Typography>
+            <Typography variant='h5'>
+              {JSON.parse(sessionStorage.getItem('user'))?.email}
             </Typography>
             <RetrospectiveReport
-              userEmail={JSON.parse(sessionStorage.getItem('user')).user.email}
+              userEmail={JSON.parse(sessionStorage.getItem('user'))?.email}
               // sprint={state.sprintList.find(
               //   (sprint) => sprint.iteration === state.selectedSprint
               // )}
@@ -247,22 +219,18 @@ const SprintRetrospectiveComponent = ({ loggedIn, displayPopup }) => {
       {!state.isSelectingSprint && (
         <div style={{ marginTop: '3%' }}>
           <Button
-            onClick={() =>
-              setState({ isSelectingSprint: true, selectedSprint: '' })
-            }
-            variant="contained"
-            color="primary"
-            style={{ float: 'left' }}
-          >
+            onClick={() => setState({ isSelectingSprint: true, selectedSprint: '' })}
+            variant='contained'
+            color='primary'
+            style={{ float: 'left' }}>
             {state.selectedSprint === '' ? 'Select Sprint' : 'Change Sprint'}
           </Button>
           {state.selectedSprint !== '' && (
             <Button
               onClick={saveChanges}
-              variant="contained"
-              color="primary"
-              style={{ float: 'right' }}
-            >
+              variant='contained'
+              color='primary'
+              style={{ float: 'right' }}>
               Save Changes
             </Button>
           )}

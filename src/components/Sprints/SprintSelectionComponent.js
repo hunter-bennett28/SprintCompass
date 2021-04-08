@@ -41,7 +41,7 @@ const SprintSelectionComponent = ({ loggedIn }) => {
     let sprintList = [];
     if (projectName) {
       sprintList = await dbUtils.getSprintsByProjectName(projectName);
-      sprintList.sort((sprint1, sprint2) => sprint1.iteration - sprint2.iteration);
+      sprintList?.sort((sprint1, sprint2) => sprint1.iteration - sprint2.iteration);
     }
 
     setState({
@@ -71,7 +71,6 @@ const SprintSelectionComponent = ({ loggedIn }) => {
 
         //set it in the selection menu
         const newSprintIteration = updatedList[updatedList.length - 1].iteration;
-
         sessionStorage.setItem(
           'sprint',
           JSON.stringify(updatedList.find((sprint) => sprint.iteration === newSprintIteration))
@@ -80,10 +79,11 @@ const SprintSelectionComponent = ({ loggedIn }) => {
         setState({ MenuSelection: newSprintIteration });
       }
     } else {
-      sessionStorage.setItem(
-        'sprint',
-        JSON.stringify(state.sprintList.find((sprint) => sprint.iteration === e.target.value))
-      );
+      console.log('all sprints: ', state.sprintList);
+      const selectedSprint = state.sprintList.find((sprint) => sprint.iteration === e.target.value);
+      const isLatest =
+        state.sprintList[state.sprintList.length - 1]?.iteration === selectedSprint.iteration;
+      sessionStorage.setItem('sprint', JSON.stringify({ ...selectedSprint, isLatest }));
       setState({ MenuSelection: e.target.value });
     }
     if (state.refreshChild) state.refreshChild();
@@ -101,7 +101,7 @@ const SprintSelectionComponent = ({ loggedIn }) => {
 
   return (
     <div>
-      <FormControl variant='outlined' className={classes.formControl}>
+      <FormControl variant='outlined' className={classes.formControl} color='secondary'>
         <InputLabel className={classes.inputLabel}>Select A Sprint</InputLabel>
         <Select
           className={classes.userInput}
