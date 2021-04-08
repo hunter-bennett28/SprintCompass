@@ -38,20 +38,23 @@ const SprintSelectionComponent = ({ loggedIn }) => {
   const fetchSprints = async () => {
     //get the list of sprints for a selected project
     const { projectName } = JSON.parse(sessionStorage.getItem('project')) || {}; //If the getItem fails, it will throw in an empty object
-    const result = await dbUtils.getSprintsByProjectName(projectName);
-    result?.sort((sprint1, sprint2) => sprint1.iteration - sprint2.iteration);
+    let sprintList = [];
+    if (projectName) {
+      sprintList = await dbUtils.getSprintsByProjectName(projectName);
+      sprintList?.sort((sprint1, sprint2) => sprint1.iteration - sprint2.iteration);
+    }
 
     setState({
-      sprintList: result,
+      sprintList,
     });
 
-    return result;
+    return sprintList;
   };
 
   const handleSelectSprint = async (e) => {
-    if (e.target.value === 'Add a new Sprint') {
+    if (e.target.value === 'Add A New Sprint') {
       //Create new sprint and add it
-      let newSprint = {
+      const newSprint = {
         iteration:
           state.sprintList.length !== 0
             ? state.sprintList[state.sprintList.length - 1].iteration + 1
@@ -60,18 +63,19 @@ const SprintSelectionComponent = ({ loggedIn }) => {
       };
 
       const { projectName } = JSON.parse(sessionStorage.getItem('project')) || {};
-      await dbUtils.addSprintByProjectName(projectName, newSprint);
+      if (projectName) {
+        await dbUtils.addSprintByProjectName(projectName, newSprint);
 
-      //Return the updated list as the state might not have loaded the updated sprintList
-      let updatedList = await fetchSprints();
+        //Return the updated list as the state might not have loaded the updated sprintList
+        const updatedList = await fetchSprints();
 
-      //set it in the selection menu
-      let newSprintIteration = updatedList[updatedList.length - 1].iteration;
-
-      sessionStorage.setItem(
-        'sprint',
-        JSON.stringify(updatedList.find((sprint) => sprint.iteration === newSprintIteration))
-      );
+        //set it in the selection menu
+        const newSprintIteration = updatedList[updatedList.length - 1].iteration;
+        sessionStorage.setItem(
+          'sprint',
+          JSON.stringify(updatedList.find((sprint) => sprint.iteration === newSprintIteration))
+        );
+      }
 
       setState({ MenuSelection: newSprintIteration });
     } else {
@@ -104,8 +108,8 @@ const SprintSelectionComponent = ({ loggedIn }) => {
           value={state.MenuSelection}
           onChange={handleSelectSprint}
           label='Sprint'>
-          <MenuItem value={'Add a new Sprint'} key={'add'}>
-            Add a new Sprint
+          <MenuItem value={'Add A New Sprint'} key={'add'}>
+            Add A New Sprint
           </MenuItem>
           {state.sprintList &&
             state.sprintList.map((sprint) => {

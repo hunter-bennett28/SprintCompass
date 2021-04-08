@@ -58,11 +58,11 @@ const SprintSelectionComponent = ({ refreshContentsHook }) => {
 
   const handleSelection = async (e) => {
     //update the local project to not contain the user story
-    let updatedSprint = state.sprint;
+    const updatedSprint = state.sprint;
 
     updatedSprint.userStories = [...updatedSprint.userStories, e.target.value];
 
-    let updatedProject = state.project;
+    const updatedProject = state.project;
     updatedProject.productBacklog = updatedProject.productBacklog.filter(
       (item) => item !== e.target.value
     );
@@ -77,8 +77,8 @@ const SprintSelectionComponent = ({ refreshContentsHook }) => {
 
   const removeTask = async (story) => {
     //Update local storage
-    let updatedSprint = state.sprint;
-    let updatedProject = state.project;
+    const updatedSprint = state.sprint;
+    const updatedProject = state.project;
 
     updatedSprint.userStories = updatedSprint.userStories.filter((item) => item !== story);
     updatedProject.productBacklog = [...updatedProject.productBacklog, story];
@@ -127,13 +127,14 @@ const SprintSelectionComponent = ({ refreshContentsHook }) => {
               })}
           </Select>
         </FormControl>
-        {/* <List></List> */}
         <List>
           {state.sprint.userStories &&
             state.sprint.userStories.map((story) => (
               <ListItem
                 button
-                onClick={() => console.log('implementation!') /* Implement popup method here*/}
+                onClick={
+                  () => console.log('implementation!') /* TODO? Implement popup method here*/
+                }
                 key={`${story.storyPoints}${story.task}`}>
                 <ListItemText
                   primary={story.storyPoints}
