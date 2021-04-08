@@ -1,64 +1,15 @@
-import * as userAuth from './userAuth';
 const URL = 'http://localhost:5000';
 
-// TO BE REPLACED BY GETTING BY USERNAME WHEN USERS ADDED
-// const getProjects = async () => {
-//   console.log('getting projects in generic');
-//   return new Promise(async (resolve, reject) => {
-//     if (process.env.REACT_APP_USE_AUTH && !userAuth.getCurrentUser())
-//       setTimeout(fetchUserProjects(userAuth.getCurrentUser(), resolve, reject));
-//     else {
-//       const request = await fetch(`${URL}/api/projects`);
-//       const { projects } = await request.json();
-//       console.log('received projects: ', projects);
-//       resolve(projects);
-//     }
-//   });
-// };
-
-// const getProjects = async () => {
-//   console.log('getting projects in generic');
-//   if (process.env.REACT_APP_USE_AUTH)
-//     getProjectsByUser();
-//   else {
-//     const request = await fetch(`${URL}/api/projects`);
-//     const { projects } = await request.json();
-//     console.log('received projects: ', projects);
-//     resolve(projects);
-//   }
-// };
-
-// const getProjectsByUser = () => {
-//   console.log('getting projects by user');
-//   const user = userAuth.getCurrentUser();
-//   return new Promise((resolve, reject) => {
-//     // If user is still null, give Firebase a second to resolve user
-//     if (!user) setTimeout(fetchUserProjects(userAuth.getCurrentUser(), resolve, reject));
-//     else fetchUserProjects(userAuth.getCurrentUser(), resolve, reject);
-//   });
-// };
-
-// const fetchUserProjects = async (user, resolve, reject) => {
-//   try {
-//     const request = await fetch(`http://localhost:5000/api/projects?user=${user.email}`);
-//     const { projects } = await request.json();
-//     console.log('received projects: ', projects);
-//     resolve(projects);
-//   } catch (error) {
-//     console.log(`Unable to get projects for ${user}`);
-//   }
-// };
-
-const getProjects = async () => {
-  if (process.env.REACT_APP_USE_AUTH) return await getProjectsByUser();
+const getProjects = async (user = {}) => {
+  if (process.env.REACT_APP_USE_AUTH) return await getProjectsByUser(user);
   const request = await fetch(`${URL}/api/projects`);
   const { projects } = await request.json();
   return projects;
 };
 
-const getProjectsByUser = async () => {
-  const user = JSON.parse(sessionStorage.getItem('user'))?.email;
-  const request = await fetch(`http://localhost:5000/api/projects?user=${user}`);
+const getProjectsByUser = async (user) => {
+  const email = JSON.parse(sessionStorage.getItem('user'))?.email || user?.email;
+  const request = await fetch(`http://localhost:5000/api/projects?user=${email}`);
   const { projects } = await request.json();
   return projects;
 };
@@ -87,10 +38,8 @@ const addProject = async ({ projectName, companyName, description }) => {
         : [],
     }),
   });
-  // REMOVE THESE TWO LINES LATER, for debugging
-  const results = await request.json();
-  //console.log(results);
 
+  const results = await request.json();
   return results;
 };
 
@@ -103,9 +52,8 @@ const updateProject = async (updatedData) => {
     },
     body: JSON.stringify({ updatedData }),
   });
-  // REMOVE THESE TWO LINES LATER, for debugging
+
   const results = await request.json();
-  //console.log(results);
 
   //Display if the update was successful or not
   return results;
@@ -133,7 +81,6 @@ const addSprintByProjectName = async (projectName, sprint) => {
   });
 
   const results = await request.json();
-  //console.log(results);
   return results;
 };
 
@@ -146,9 +93,7 @@ const updateSprint = async (updatedData) => {
     body: JSON.stringify({ updatedData }),
   });
 
-  // REMOVE THESE TWO LINES LATER, for debugging
   const results = await request.json();
-  //console.log(results);
 
   //Display if the update was successful or not
   return results;

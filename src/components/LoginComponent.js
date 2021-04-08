@@ -64,7 +64,7 @@ const LoginComponent = ({ notifyLogIn, displayPopup, loggedIn, route }) => {
       const result = await (state.login
         ? signInUser(state.email, state.pass)
         : registerUser(state.email, state.pass, state.firstName, state.lastName));
-      notifyLogIn();
+      notifyLogIn(result);
       sessionStorage.setItem('user', JSON.stringify(result));
       history.push('/home');
     } catch (err) {

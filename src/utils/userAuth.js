@@ -13,10 +13,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
-let currentUser = null;
-
 const registerUser = async (email, password, firstName, lastName) => {
-  //const credentials = await firebase.auth().createUserWithEmailAndPassword(email, password);
   await firebase.auth().createUserWithEmailAndPassword(email, password);
   firebase.auth().currentUser.updateProfile({
     displayName: `${firstName}|${lastName}`,

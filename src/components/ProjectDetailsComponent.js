@@ -8,6 +8,7 @@ const useStyles = makeStyles({
   inputContainer: {
     marginBottom: 20,
     width: '50%',
+    minWidth: 300,
     textAlign: 'center',
   },
   textField: {
@@ -165,6 +166,9 @@ const ProjectDetailsComponent = ({ loggedIn, setSelectedProject }) => {
         <br />
         <TextField
           className={classes.inputContainer}
+          variant='filled'
+          multiline
+          rows={5}
           color='secondary'
           value={state.description}
           label='Description'

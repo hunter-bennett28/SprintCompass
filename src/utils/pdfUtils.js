@@ -23,11 +23,11 @@ const abbreviate = (string, length) =>
 
 const generateSprintPDF = (sprint) => {
   let depth = 0;
+
   // Create PDF object and get dimensions for formatting
   const doc = new jsPDF();
-  //const pageHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();
-  // Create postiion consts using doc specs
 
+  // Create postiion consts using doc specs
   const pageWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth();
   const leftIndent = 20;
   const assigneeIndent = pageWidth - 65;
@@ -67,7 +67,7 @@ const generateSprintPDF = (sprint) => {
   );
 
   // Print column headers
-  setHeaderFont(doc).text('Task', leftIndent + 50, (depth += 15));
+  setHeaderFont(doc).text('Task', leftIndent + 47, (depth += 15));
   doc.text('Assignee', assigneeIndent, depth, { align: 'center' });
   doc.text('Hours\nWorked', workedIndent - 2, depth - 3, { align: 'center' });
   doc.text('Hours\nLeft', remainingIndent - 1, depth - 3, { align: 'center' });
@@ -75,14 +75,19 @@ const generateSprintPDF = (sprint) => {
   // Print each user story and each subtask in sprint
   sprint.userStories?.forEach((story) => {
     // Print Stories
-    setTaskFont(doc).text(abbreviate(story.task, 50), 20, (depth += 10));
+    setTaskFont(doc).text(abbreviate(story.task, 43), 20, (depth += 10));
 
     // Print subtasks, work done, and work left
     let totalWorked = 0;
     let totalLeft = 0;
     story.subtasks?.forEach((subtask) => {
-      setSmallFont(doc).text(abbreviate(subtask.task, 45), leftIndent + 5, (depth += 6));
-      doc.text(subtask.assigned?.substring(0, 20), assigneeIndent, depth, { align: 'center' });
+      setSmallFont(doc).text(abbreviate(subtask.task, 50), leftIndent + 5, (depth += 6));
+      doc.text(
+        subtask.assigned?.substring(0, subtask.assigned.indexOf('@')),
+        assigneeIndent,
+        depth,
+        { align: 'center' }
+      );
       doc.text(subtask.hoursWorked?.toString(), workedIndent, depth, { align: 'right' });
       doc.text(
         subtask.hoursEstimated > -1 ? subtask.hoursEstimated?.toString() : '-',

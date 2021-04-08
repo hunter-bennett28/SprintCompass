@@ -22,8 +22,8 @@ import {
   FormControl,
 } from '@material-ui/core';
 import './App.css';
-import { signOutUser, getCurrentUser } from './utils/userAuth';
-import { getProjects, getProjectsByUser } from './utils/dbUtils';
+import { signOutUser } from './utils/userAuth';
+import { getProjects } from './utils/dbUtils';
 import SprintSelectionComponent from './components/Sprints/SprintSelectionComponent';
 import SprintRetrospectiveComponent from './components/Retrospective/SprintRetrospectiveComponent';
 
@@ -66,8 +66,8 @@ const App = () => {
     getProjectsList();
   }, []);
 
-  const getProjectsList = async () => {
-    const allProjects = useAuth ? await getProjectsByUser() : await getProjects();
+  const getProjectsList = async (user) => {
+    const allProjects = await getProjects(user);
     setState({
       projects: allProjects,
       selectedProject: JSON.parse(sessionStorage.getItem('project'))?.projectName || '',
@@ -109,8 +109,9 @@ const App = () => {
     });
   };
 
-  const handleUserLoggedIn = () => {
+  const handleUserLoggedIn = (user) => {
     setState({ loggedIn: true });
+    getProjectsList(user);
   };
 
   const handleLogOut = async () => {
