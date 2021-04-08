@@ -84,9 +84,14 @@ const generateSprintPDF = (sprint) => {
       setSmallFont(doc).text(abbreviate(subtask.task, 45), leftIndent + 5, (depth += 6));
       doc.text(subtask.assigned?.substring(0, 20), assigneeIndent, depth, { align: 'center' });
       doc.text(subtask.hoursWorked?.toString(), workedIndent, depth, { align: 'right' });
-      doc.text(subtask.hoursEstimated?.toString(), remainingIndent, depth, { align: 'right' });
+      doc.text(
+        subtask.hoursEstimated > -1 ? subtask.hoursEstimated?.toString() : '-',
+        remainingIndent,
+        depth,
+        { align: 'right' }
+      );
       totalWorked += subtask.hoursWorked;
-      totalLeft += subtask.hoursEstimated;
+      totalLeft += subtask.hoursEstimated > -1 ? subtask.hoursWorked : 0; // only increment set values
     });
     //story.subtasks.map()
 

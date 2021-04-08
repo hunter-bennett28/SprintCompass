@@ -75,9 +75,9 @@ const SprintSelectionComponent = ({ loggedIn }) => {
           'sprint',
           JSON.stringify(updatedList.find((sprint) => sprint.iteration === newSprintIteration))
         );
-      }
 
-      setState({ MenuSelection: newSprintIteration });
+        setState({ MenuSelection: newSprintIteration });
+      }
     } else {
       console.log('all sprints: ', state.sprintList);
       const selectedSprint = state.sprintList.find((sprint) => sprint.iteration === e.target.value);
