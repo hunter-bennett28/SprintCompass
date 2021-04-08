@@ -132,9 +132,7 @@ const SprintSelectionComponent = ({ refreshContentsHook }) => {
             state.sprint.userStories.map((story) => (
               <ListItem
                 button
-                onClick={
-                  () => console.log('implementation!') /* TODO? Implement popup method here*/
-                }
+                onClick={() => console.log('implementation!') /* Implement popup method here*/}
                 key={`${story.storyPoints}${story.task}`}>
                 <ListItemText
                   primary={story.storyPoints}
