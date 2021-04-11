@@ -1,4 +1,3 @@
-import { useEffect, useReducer } from "react";
 import { Modal, Button, makeStyles, Card, CardHeader, CardContent, Typography, } from "@material-ui/core";
 import SubTaskListComponent from "./SubtaskListComponent"
 import "../../App.css";
