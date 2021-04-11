@@ -57,14 +57,6 @@ const SprintSelectionComponent = ({ refreshContentsHook }) => {
       sprint: JSON.parse(sessionStorage.getItem('sprint')) || {},
       project: JSON.parse(sessionStorage.getItem('project')) || {},
     });
-
-    //Also need to update the selected story as it is what is passed to the sub components
-    if (state.selectedStory)
-      setState({
-        selectedStory: JSON.parse(
-          sessionStorage.getItem('sprint')
-        ).userStories.find((story) => story.task === state.selectedStory.task),
-      });
   };
 
   const handleSelection = async (e) => {
