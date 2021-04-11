@@ -4,24 +4,13 @@ import SubTaskListComponent from "./SubtaskListComponent"
 import "../../App.css";
 
 const useStyles = makeStyles({
-  formControl: {
-    minWidth: "50%",
-  },
   inputLabel: {
     color: "#bbb",
   },
-  userInput: {
-    color: "secodary",
-    float: "right"
-  },
-
   header:{
    textAlign:"Center",
    padding:"1vh",
    fontSize:"h2"
-  },
-  closeButton:{
-    margin:"2vh"
   },
   modal: {
     backgroundColor:"secondary",
@@ -37,28 +26,6 @@ const useStyles = makeStyles({
 
 const SubtaskMemberSelectionComponent = (props) => {
     const classes = useStyles();
-    const initialState = {
-      email: null,
-      memberList: [],
-      subtaskList: [],
-      project: {},
-      addMode: false,
-    };
-    const [state, setState] = useReducer(
-      (state, newState) => ({ ...state, ...newState }),
-      initialState
-    );
-  
-    useEffect(() => {
-      loadSessionStorage();
-    }, []);
-  
-    const loadSessionStorage = () => {
-      setState({
-        sprint: JSON.parse(sessionStorage.getItem("sprint")) || {},
-        project: JSON.parse(sessionStorage.getItem("project")) || {},
-      });
-    };
   
     let { openModal, onClose, selectedStory } = props;
     console.log(openModal);
