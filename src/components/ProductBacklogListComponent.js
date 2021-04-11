@@ -27,6 +27,7 @@ const useStyles = makeStyles({
     flex: 2,
     textAlign: 'left',
     height: '40%',
+    whiteSpace:"nowrap",
   },
   smallTextFieldContainer: {
     flex: 2,
@@ -46,10 +47,6 @@ const useStyles = makeStyles({
   modalButton: {
     flex: 1,
     width: '40%',
-  },
-  buttonContainer: {
-    display: 'flex',
-    paddingBottom: '1%',
   },
   subtaskList: {
     maxHeight: '150px',
