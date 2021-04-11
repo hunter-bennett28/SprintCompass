@@ -17,6 +17,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import '../../App.css';
 import * as dbUtils from '../../utils/dbUtils';
 import generateSprintPDF from '../../utils/pdfUtils';
+import SubtaskMemberSelectionComponent from './SubtaskMemberSelectionComponent'
 
 const useStyles = makeStyles({
   formControl: {
@@ -37,6 +38,8 @@ const SprintSelectionComponent = ({ refreshContentsHook }) => {
   const initialState = {
     sprint: {},
     project: {},
+    openModal: false,
+    selectedStory: null,
     MenuSelection: '',
   };
   const [state, setState] = useReducer(
@@ -100,6 +103,10 @@ const SprintSelectionComponent = ({ refreshContentsHook }) => {
     await dbUtils.updateSprint(updatedSprint);
   };
 
+  const closeModel = () =>{
+    setState({openModal:false, selectedStory: null});
+}
+
   return (
     <Container style={{ backgroundColor: '#777', color: 'white', borderRadius: '25px' }}>
       <Typography style={{ textAlign: 'center' }} variant='h5'>
@@ -132,7 +139,10 @@ const SprintSelectionComponent = ({ refreshContentsHook }) => {
             state.sprint.userStories.map((story) => (
               <ListItem
                 button
-                onClick={() => console.log('implementation!') /* Implement popup method here*/}
+                onClick={
+                  () =>{
+                    setState({openModal: true, selectedStory:story}); /* Implement popup method here*/
+                  }}
                 key={`${story.storyPoints}${story.task}`}>
                 <ListItemText
                   primary={story.storyPoints}
@@ -148,6 +158,7 @@ const SprintSelectionComponent = ({ refreshContentsHook }) => {
               </ListItem>
             ))}
         </List>
+        <SubtaskMemberSelectionComponent openModal={state.openModal} selectedStory={state.selectedStory} onClose={closeModel} />
       </Container>
       <div style={{ textAlign: 'center' }}>
         <Button
