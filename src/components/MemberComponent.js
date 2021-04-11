@@ -22,7 +22,7 @@ import '../App.css';
 import { Redirect } from 'react-router-dom';
 
 const useStyles = makeStyles({
-  storyPromptText: {
+  promptText: {
     flex: 2,
     textAlign: 'left',
     height: '40%',
@@ -43,11 +43,7 @@ const useStyles = makeStyles({
     flex: 1,
     width: '40%',
   },
-  subtaskList: {
-    maxHeight: '150px',
-    overflow: 'auto',
-  },
-  addStoryPromptContainer: {
+  promptContainer: {
     display: 'flex',
     flexDirection: 'row',
     padding: 0,
@@ -273,8 +269,8 @@ const MemberComponent = ({ displayPopup }) => {
               style={{ textAlign: 'center' }}
             />
             <CardContent className={classes.modalCardContent}>
-              <Container className={classes.addStoryPromptContainer}>
-                <Typography variant="h6" className={classes.storyPromptText}>
+              <Container className={classes.promptContainer}>
+                <Typography variant="h6" className={classes.promptText}>
                   First Name:
                 </Typography>
                 <Container
@@ -294,7 +290,7 @@ const MemberComponent = ({ displayPopup }) => {
                   />
                 </Container>
 
-                <Typography variant="h6" className={classes.storyPromptText}>
+                <Typography variant="h6" className={classes.promptText}>
                   Last Name:
                 </Typography>
                 <Container
@@ -316,10 +312,10 @@ const MemberComponent = ({ displayPopup }) => {
                 </Container>
               </Container>
 
-              <Container className={classes.addStoryPromptContainer}>
+              <Container className={classes.promptContainer}>
                 <Typography
                   variant="h6"
-                  className={classes.storyPromptText}
+                  className={classes.promptText}
                   style={{ textAlign: 'left', marginTop: 0, marginLeft:"20%" }}
                 >
                   *Email:
