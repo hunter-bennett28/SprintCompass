@@ -24,11 +24,9 @@ const useStyles = makeStyles({
   },
 });
 
-const SubtaskMemberSelectionComponent = (props) => {
+const SubtaskMemberSelectionComponent = ({ openModal, onClose, selectedStory, refreshParent }) => {
     const classes = useStyles();
-  
-    let { openModal, onClose, selectedStory } = props;
-    console.log(openModal);
+
     return (
       <Card>
         {selectedStory && (
@@ -48,7 +46,7 @@ const SubtaskMemberSelectionComponent = (props) => {
               >{selectedStory.description}</Typography>
               <Typography>Sub Tasks</Typography>
               {selectedStory.subtasks.map((e) => (
-                <SubTaskListComponent subTask={e} />
+                <SubTaskListComponent subTask={e} refreshParent={refreshParent} />
               ))}
   
               <Button

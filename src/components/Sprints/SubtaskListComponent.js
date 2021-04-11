@@ -19,12 +19,12 @@ const useStyles = makeStyles({
     minWidth: 160,
   },
 });
+
 const SubTaskListComponent = (props) => {
   const classes = useStyles();
   const initialState = {
     email: '',
     project: {},
-    sprint: {},
   };
   const [state, setState] = useReducer(
     (state, newState) => ({ ...state, ...newState }),
@@ -38,27 +38,39 @@ const SubTaskListComponent = (props) => {
   const loadSessionStorage = () => {
     setState({
       project: JSON.parse(sessionStorage.getItem("project")) || {},
-      sprint: JSON.parse(sessionStorage.getItem("sprint")) || {},
     });
   };
 
   const handleSelectMember = async (e) => {
-    let updatedUserStories = state.sprint.userStories.map((story) => {
+    //handle the most recent sprint only
+    const mostRecentSprint = JSON.parse(sessionStorage.getItem("sprint"));
+
+    let updatedUserStories = mostRecentSprint.userStories.map((story) => {
       story.subtasks = story.subtasks.map((subTask) => {
-        if (subTask.task === props.subTask.task) {
+        if (subTask.task === props.subTask.task)
           subTask.assigned = e.target.value;
-        }
         return subTask;
       });
       return story;
     });
-    let updatedSprint = state.sprint;
+    let updatedSprint = mostRecentSprint;
+
     updatedSprint.userStories = updatedUserStories;
-    sessionStorage.setItem("sprint", JSON.stringify(updatedSprint));
+
+    await updateStorage(updatedSprint);
+
+    //Need to refresh the parent element as they contain a sprint object that references this task
+    props.refreshParent();
+
+    setState({ email: e.target.value});
+  };
+
+  const updateStorage = async (updatedSprint) => {
+    sessionStorage.setItem('sprint', JSON.stringify(updatedSprint));
+    loadSessionStorage();
+
+    //Add it to the sprint and update
     await dbUtils.updateSprint(updatedSprint);
-    setState({ email: e.target.value, sprint: updatedSprint });
-    console.log(e.target.value);
-    console.log(state.email)
   };
 
   return (
