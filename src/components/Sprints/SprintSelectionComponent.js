@@ -79,7 +79,6 @@ const SprintSelectionComponent = ({ loggedIn }) => {
         setState({ MenuSelection: newSprintIteration });
       }
     } else {
-      console.log('all sprints: ', state.sprintList);
       const selectedSprint = state.sprintList.find((sprint) => sprint.iteration === e.target.value);
       const isLatest =
         state.sprintList[state.sprintList.length - 1]?.iteration === selectedSprint.iteration;
