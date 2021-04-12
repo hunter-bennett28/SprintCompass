@@ -13,6 +13,7 @@ import {
   IconButton,
   Container,
   TextField,
+  makeStyles,
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
@@ -20,7 +21,53 @@ import * as db from '../utils/dbUtils';
 import '../App.css';
 import { Redirect } from 'react-router-dom';
 
+const useStyles = makeStyles({
+  promptText: {
+    flex: 2,
+    textAlign: 'left',
+    height: '40%',
+    marginBottom:40,
+    whiteSpace:"nowrap"
+  },
+  mediumTextFieldContainer: {
+    flex: 20,
+    padding: 0,
+    marginLeft: '2%',
+  },
+  largeTextFieldContainer: {
+    flex: 10,
+    padding: 0,
+    marginLeft: '4%',
+  },
+  modalButton: {
+    flex: 1,
+    width: '40%',
+  },
+  promptContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    padding: 0,
+  },
+  modalCardContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    paddingTop: 10,
+    paddingBottom: 0,
+    margin:30
+  },
+  modal: {
+    maxWidth: '800px',
+    minWidth: '400px',
+    width: '90%',
+    margin: 'auto',
+    marginTop: '30px',
+    marginBottom: '30px',
+    overflow: 'auto',
+  },
+});
+
 const MemberComponent = ({ displayPopup }) => {
+  const classes = useStyles();
   const initialState = {
     memberList: null,
     addMode: false,
@@ -99,9 +146,12 @@ const MemberComponent = ({ displayPopup }) => {
 
           const projects = await db.getProjects();
 
-          let currProject = projects.find((project) => project.ProjectName === state.projectName);
+          let currProject = projects.find(
+            (project) => project.ProjectName === state.projectName
+          );
 
-          if (currProject) sessionStorage.setItem('project', JSON.stringify(currProject));
+          if (currProject)
+            sessionStorage.setItem('project', JSON.stringify(currProject));
           displayPopup('Successfully saved member');
           //Refresh the project
           const savedProject = JSON.parse(sessionStorage.getItem('project'));
@@ -121,9 +171,16 @@ const MemberComponent = ({ displayPopup }) => {
     if (state.memberList) {
       return state.memberList.map((item) => (
         <ListItem button onClick={() => onMemberClick(item)} key={item.email}>
-          <ListItemText primary={item.email} style={{ maxWidth: '10px', marginRight: '50px' }} />
+          <ListItemText
+            primary={item.email}
+            style={{ maxWidth: '10px', marginRight: '50px' }}
+          />
           <ListItemSecondaryAction>
-            <IconButton edge='end' aria-label='delete' onClick={() => onDeleteItem(item)}>
+            <IconButton
+              edge="end"
+              aria-label="delete"
+              onClick={() => onDeleteItem(item)}
+            >
               <DeleteIcon />
             </IconButton>
           </ListItemSecondaryAction>
@@ -171,25 +228,26 @@ const MemberComponent = ({ displayPopup }) => {
   // Only allow access if logged in
   if (process.env.REACT_APP_USE_AUTH && !sessionStorage.getItem('user')) {
     console.log('no user found');
-    return <Redirect to='/login' />;
+    return <Redirect to="/login" />;
   }
 
   return (
     <Card>
-      <CardHeader title='Member List' style={{ textAlign: 'center' }} />
+      <CardHeader title="Member List" style={{ textAlign: 'center' }} />
       <CardContent>
         {/* Display the list of members */}
-        <List subheader='Current Member List'>
+        <List subheader="Current Member List">
           <Button
-            color='primary'
-            variant='contained'
+            color="primary"
+            variant="contained"
             style={{ float: 'right' }}
             onClick={() => {
               setState({ addMode: true });
-            }}>
+            }}
+          >
             <AddIcon />
           </Button>
-          {renderList()}
+          <Container style={{ paddingLeft: 0, paddingRight: 0 }}>{renderList()}</Container>
         </List>
         <Modal
           open={state.addMode}
@@ -201,28 +259,27 @@ const MemberComponent = ({ displayPopup }) => {
             });
             setNewMember(initialNewMember);
           }}
-          aria-labelledby='simple-modal-title'
-          aria-describedby='simple-modal-description'
-          style={{
-            height: '80%',
-            maxWidth: '1000px',
-            minWidth: '400px',
-            width: '80%',
-            margin: 'auto',
-          }}>
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
+          className={classes.modal}
+        >
           <Card>
-            <CardHeader title='Add Member' style={{ textAlign: 'center' }} />
-            <CardContent>
-              <Container style={{ display: 'flex', flexDirection: 'row' }}>
-                <Typography variant='h6' style={{ flex: 1, textAlign: 'right' }}>
+            <CardHeader
+              title={state.isEditing ? 'Update a member' : 'Add a member'}
+              style={{ textAlign: 'center' }}
+            />
+            <CardContent className={classes.modalCardContent}>
+              <Container className={classes.promptContainer}>
+                <Typography variant="h6" className={classes.promptText}>
                   First Name:
                 </Typography>
-                <Container style={{ flex: 6 }}>
+                <Container
+                  className={classes.largeTextFieldContainer}
+                  style={{ flex: 6, display: 'flex', flexDirection: 'row' }}
+                >
                   <TextField
                     style={{
-                      maxWidth: '400px',
-                      width: '50%',
-                      alignSelf: 'left',
+                      maxWidth: '50%',
                     }}
                     value={newMember.firstName}
                     onChange={(e) => {
@@ -232,18 +289,18 @@ const MemberComponent = ({ displayPopup }) => {
                     }}
                   />
                 </Container>
-              </Container>
 
-              <Container style={{ display: 'flex', flexDirection: 'row' }}>
-                <Typography variant='h6' style={{ flex: 1, textAlign: 'right' }}>
+                <Typography variant="h6" className={classes.promptText}>
                   Last Name:
                 </Typography>
-                <Container style={{ flex: 6 }}>
+                <Container
+                  className={classes.largeTextFieldContainer}
+                  style={{ flex: 6, display: 'flex', flexDirection: 'row' }}
+                >
+                  {' '}
                   <TextField
                     style={{
-                      maxWidth: '400px',
-                      width: '50%',
-                      alignSelf: 'left',
+                      maxWidth: '50%',
                     }}
                     value={newMember.lastName}
                     onChange={(e) => {
@@ -255,16 +312,18 @@ const MemberComponent = ({ displayPopup }) => {
                 </Container>
               </Container>
 
-              <Container style={{ display: 'flex', flexDirection: 'row' }}>
-                <Typography variant='h6' style={{ flex: 1, textAlign: 'right' }}>
+              <Container className={classes.promptContainer}>
+                <Typography
+                  variant="h6"
+                  className={classes.promptText}
+                  style={{ textAlign: 'left', marginTop: 0, marginLeft:"20%" }}
+                >
                   *Email:
                 </Typography>
-                <Container style={{ flex: 6 }}>
+                <Container className={classes.mediumTextFieldContainer}>
                   <TextField
                     style={{
-                      maxWidth: '400px',
-                      width: '50%',
-                      alignSelf: 'left',
+                      maxWidth: '60%',
                     }}
                     value={newMember.email}
                     onChange={(e) => {
@@ -272,19 +331,19 @@ const MemberComponent = ({ displayPopup }) => {
                         email: e.target.value,
                       });
                     }}
+                    fullWidth
                   />
                 </Container>
               </Container>
               <Container
                 style={{
-                  marginTop: '10px',
-                  marginBottom: '30px',
-                  display: 'flex',
-                }}>
+                  padding: 0,
+                }}
+              >
                 <Button
-                  color='primary'
-                  variant='contained'
-                  style={{ flex: 1 }}
+                  color="primary"
+                  variant="contained"
+                  className={classes.modalButton}
                   onClick={() => {
                     setNewMember(initialNewMember);
                     setState({
@@ -292,19 +351,24 @@ const MemberComponent = ({ displayPopup }) => {
                       addSubtask: false,
                       newMemberError: '',
                     });
-                  }}>
+                  }}
+                  style={{ height: '40%', float: 'left' }}
+                >
                   Cancel
                 </Button>
-                <Container style={{ width: '40%' }} />
+                <Typography></Typography>
+
                 <Button
-                  color='primary'
-                  variant='contained'
-                  style={{ flex: 1, width: '40%' }}
-                  onClick={onAddOrUpdateMember}>
+                  color="primary"
+                  variant="contained"
+                  className={classes.modalButton}
+                  onClick={onAddOrUpdateMember}
+                  style={{ height: '40%', float: 'right' }}
+                >
                   {state.isEditing ? 'Update member' : 'Add new member'}
                 </Button>
               </Container>
-              <Typography variant='h6' color='secondary' align='center'>
+              <Typography variant="h6" color="secondary" align="center">
                 {state.newMemberError}
               </Typography>
             </CardContent>

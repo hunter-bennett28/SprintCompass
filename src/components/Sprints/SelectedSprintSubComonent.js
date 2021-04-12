@@ -17,6 +17,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import '../../App.css';
 import * as dbUtils from '../../utils/dbUtils';
 import generateSprintPDF from '../../utils/pdfUtils';
+import SubtaskMemberSelectionComponent from './SubtaskMemberSelectionComponent';
 
 const useStyles = makeStyles({
   formControl: {
@@ -37,6 +38,8 @@ const SprintSelectionComponent = ({ refreshContentsHook }) => {
   const initialState = {
     sprint: {},
     project: {},
+    openModal: false,
+    selectedStory: null,
     MenuSelection: '',
   };
   const [state, setState] = useReducer(
@@ -80,7 +83,9 @@ const SprintSelectionComponent = ({ refreshContentsHook }) => {
     const updatedSprint = state.sprint;
     const updatedProject = state.project;
 
-    updatedSprint.userStories = updatedSprint.userStories.filter((item) => item !== story);
+    updatedSprint.userStories = updatedSprint.userStories.filter(
+      (item) => item !== story
+    );
     updatedProject.productBacklog = [...updatedProject.productBacklog, story];
 
     setState({
@@ -100,27 +105,41 @@ const SprintSelectionComponent = ({ refreshContentsHook }) => {
     await dbUtils.updateSprint(updatedSprint);
   };
 
+  const closeModel = () => {
+    setState({ openModal: false, selectedStory: null });
+  };
+
   return (
-    <Container style={{ backgroundColor: '#777', color: 'white', borderRadius: '25px' }}>
-      <Typography style={{ textAlign: 'center' }} variant='h5'>
+    <Container
+      style={{ backgroundColor: '#777', color: 'white', borderRadius: '25px' }}
+    >
+      <Typography style={{ textAlign: 'center' }} variant="h5">
         Sprint {state.sprint.iteration}
       </Typography>
 
       {/* Show user stories and allow them to be added to the sprint*/}
       <Container>
-        <FormControl variant='outlined' className={classes.formControl}>
-          <InputLabel className={classes.inputLabel}>Add From Backlog</InputLabel>
+        <FormControl variant="outlined" className={classes.formControl}>
+          <InputLabel className={classes.inputLabel}>
+            Add From Backlog
+          </InputLabel>
           <Select
             className={classes.userInput}
             value={state.MenuSelection}
             onChange={handleSelection}
-            label='Sprint'>
+            label="Sprint"
+          >
             {state.project.productBacklog &&
               state.project.productBacklog.map((product) => {
                 if (product)
                   return (
-                    <MenuItem value={product} key={`${product.storyPoints}${product.task}`}>
-                      {`${product.storyPoints ? product.storyPoints : '0'} - ${product.task}`}
+                    <MenuItem
+                      value={product}
+                      key={`${product.storyPoints}${product.task}`}
+                    >
+                      {`${product.storyPoints ? product.storyPoints : '0'} - ${
+                        product.task
+                      }`}
                     </MenuItem>
                   );
                 else return null;
@@ -132,29 +151,47 @@ const SprintSelectionComponent = ({ refreshContentsHook }) => {
             state.sprint.userStories.map((story) => (
               <ListItem
                 button
-                onClick={() => console.log('implementation!') /* Implement popup method here*/}
-                key={`${story.storyPoints}${story.task}`}>
+                onClick={() => {
+                  setState({ openModal: true, selectedStory: story });
+                }}
+                key={`${story.storyPoints}${story.task}`}
+              >
                 <ListItemText
                   primary={story.storyPoints}
                   style={{ maxWidth: '10px', marginRight: '8%' }}
                 />
-                <ListItemText primary={story.task} style={{ width: '50px', overflow: 'auto' }} />
+                <ListItemText
+                  primary={story.task}
+                  style={{ width: '50px', overflow: 'auto' }}
+                />
                 <ListItemSecondaryAction
-                  edge='end'
-                  aria-label='delete'
-                  onClick={() => removeTask(story)}>
+                  edge="end"
+                  aria-label="delete"
+                  onClick={() => removeTask(story)}
+                >
                   <RemoveIcon style={{ fill: 'white' }} />
                 </ListItemSecondaryAction>
               </ListItem>
             ))}
         </List>
+        <SubtaskMemberSelectionComponent
+          openModal={state.openModal}
+          selectedStory={JSON.parse(
+            sessionStorage.getItem('sprint')
+          ).userStories.find(
+            (story) => story.task === state.selectedStory?.task
+          )}
+          refreshParent={loadSessionStorage}
+          onClose={closeModel}
+        />
       </Container>
       <div style={{ textAlign: 'center' }}>
         <Button
-          variant='contained'
-          color='primary'
+          variant="contained"
+          color="primary"
           onClick={() => generateSprintPDF(state.sprint)}
-          style={{ textAlign: 'center' }}>
+          style={{ textAlign: 'center' }}
+        >
           DOWNLOAD PDF
         </Button>
       </div>

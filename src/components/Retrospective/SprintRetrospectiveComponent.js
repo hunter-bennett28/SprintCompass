@@ -116,7 +116,7 @@ const SprintRetrospectiveComponent = ({ loggedIn, displayPopup }) => {
                   updatedSubtask.hoursWorked =
                     parseInt(inputData.hoursWorked) + parseInt(updatedSubtask.hoursWorked);
 
-                  updatedSubtask.hoursEstimated = parseInt(updatedSubtask.hoursEstimated);
+                  updatedSubtask.hoursEstimated = parseInt(inputData.hoursEstimated);
                 } else
                   throw new Error('Error parsing data, ensure all fields are positive numbers');
                 return updatedSubtask;
@@ -129,6 +129,7 @@ const SprintRetrospectiveComponent = ({ loggedIn, displayPopup }) => {
           } else return task;
         });
 
+        console.log(updatedSprint);
         //Do the update on updated sprint
         await dbUtils.updateSprint(updatedSprint);
 
