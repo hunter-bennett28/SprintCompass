@@ -1,15 +1,24 @@
 import React, { useEffect, useReducer } from 'react';
-import { makeStyles, TextField, Button, Snackbar } from '@material-ui/core';
+import { makeStyles, TextField, Button, Snackbar, InputAdornment } from '@material-ui/core';
 import * as db from '../utils/dbUtils';
-import '../App.css';
 import { Redirect } from 'react-router-dom';
+import { MuiPickersUtilsProvider, DatePicker } from '@material-ui/pickers';
+import MomentUtils from '@date-io/moment';
+import '../App.css';
 
 const useStyles = makeStyles({
   inputContainer: {
     marginBottom: 20,
-    width: '50%',
-    minWidth: 300,
-    textAlign: 'center',
+    width: '100%',
+  },
+  leftHalfInputContainer: {
+    marginBottom: 20,
+    width: '45%',
+    marginRight: '10%',
+  },
+  rightHalfInputContainer: {
+    marginBottom: 20,
+    width: '45%',
   },
   textField: {
     color: 'white',
@@ -17,22 +26,29 @@ const useStyles = makeStyles({
   inputLabel: {
     color: '#aaa',
   },
+  datePicker: {
+    width: '60%',
+  },
 });
 
 const useAuth = process.env.REACT_APP_USE_AUTH === 'true';
 
-const ProjectDetailsComponent = ({ loggedIn, setSelectedProject }) => {
+const ProjectDetailsComponent = ({ setSelectedProject }) => {
   const classes = useStyles();
 
   /* State Setup */
   const initialState = {
     projectName: '',
-    companyName: '',
+    teamName: '',
     description: '',
     snackbarOpen: false,
     snackbarMessage: '',
     updating: false,
     oldName: '',
+    startDate: new Date(),
+    hoursPerPoint: 0,
+    totalPoints: 0,
+    totalCost: 0,
   };
   const [state, setState] = useReducer(
     (state, newState) => ({ ...state, ...newState }),
@@ -45,8 +61,25 @@ const ProjectDetailsComponent = ({ loggedIn, setSelectedProject }) => {
     const savedProject = sessionStorage.getItem('project');
     if (savedProject) {
       try {
-        const { projectName, companyName, description } = JSON.parse(savedProject);
-        setState({ projectName, companyName, description, updating: true });
+        const {
+          projectName,
+          teamName,
+          description,
+          startDate,
+          totalPoints,
+          hoursPerPoint,
+          totalCost,
+        } = JSON.parse(savedProject);
+        setState({
+          projectName,
+          teamName,
+          description,
+          updating: true,
+          startDate,
+          totalPoints,
+          totalCost,
+          hoursPerPoint,
+        });
       } catch (err) {
         console.log(`Error parsing saved project: ${err.message}`);
       }
@@ -61,8 +94,8 @@ const ProjectDetailsComponent = ({ loggedIn, setSelectedProject }) => {
     setState(newState);
   };
 
-  const handleCompanyNameChange = (e) => {
-    setState({ companyName: e.target.value });
+  const handleTeamNameChange = (e) => {
+    setState({ teamName: e.target.value });
   };
 
   const handleDescriptionChange = (e) => {
@@ -90,6 +123,7 @@ const ProjectDetailsComponent = ({ loggedIn, setSelectedProject }) => {
         snackbarMessage: 'Successfully saved project information!',
       });
       setSelectedProject(state.projectName);
+      window.location.reload();
     } catch (err) {
       setState({
         snackbarOpen: true,
@@ -110,8 +144,15 @@ const ProjectDetailsComponent = ({ loggedIn, setSelectedProject }) => {
       }
 
       // Store old name if updated since DB querying is done based on project name
-      const { projectName, companyName, description } = state;
-      const updatedData = { projectName, companyName, description };
+      const updatedData = {
+        projectName: state.projectName,
+        teamName: state.teamName,
+        description: state.description,
+        startDate: state.startDate,
+        totalCost: state.totalCost,
+        totalPoints: state.totalPoints,
+        hoursPerPoint: state.hoursPerPoint,
+      };
       if (state.oldName !== '') updatedData.oldName = state.oldName;
       await db.updateProject(updatedData);
 
@@ -133,8 +174,26 @@ const ProjectDetailsComponent = ({ loggedIn, setSelectedProject }) => {
     setState({ snackbarOpen: false, snackbarMessage: '' });
   };
 
+  const handleSetTotalPoints = (e) => {
+    let totalPoints = parseInt(e.target.value);
+    if (isNaN(totalPoints)) totalPoints = 0;
+    setState({ totalPoints });
+  };
+
+  const handleSetHoursPerPoint = (e) => {
+    let hoursPerPoint = parseInt(e.target.value);
+    if (isNaN(hoursPerPoint)) hoursPerPoint = 0;
+    setState({ hoursPerPoint });
+  };
+
+  const handleSetCost = (e) => {
+    let totalCost = parseInt(e.target.value);
+    if (isNaN(totalCost)) totalCost = 0;
+    setState({ totalCost });
+  };
+
   // Only allow access if logged in
-  if (useAuth && !loggedIn && !sessionStorage.getItem('user')) {
+  if (useAuth && !sessionStorage.getItem('user')) {
     console.log('no user found');
     return <Redirect to='/login' />;
   }
@@ -157,10 +216,58 @@ const ProjectDetailsComponent = ({ loggedIn, setSelectedProject }) => {
         <TextField
           className={classes.inputContainer}
           color='secondary'
-          value={state.companyName}
-          label='Company Name'
-          onChange={handleCompanyNameChange}
+          value={state.teamName}
+          label='Team Name'
+          onChange={handleTeamNameChange}
           InputProps={{ className: classes.textField }}
+          InputLabelProps={{ className: classes.inputLabel }}
+        />
+        <br />
+        <div className='datePickerContainer'>
+          <p className='startDateLabel'>Start Date: </p>
+          <MuiPickersUtilsProvider utils={MomentUtils}>
+            <DatePicker
+              className={classes.datePicker}
+              value={state.startDate}
+              color='secondary'
+              onChange={(startDate) => setState({ startDate })}
+            />
+          </MuiPickersUtilsProvider>
+          <br />
+        </div>
+        <br />
+        <TextField
+          className={classes.leftHalfInputContainer}
+          color='secondary'
+          type='number'
+          value={state.totalPoints}
+          label='Est. Story Points'
+          onChange={handleSetTotalPoints}
+          InputProps={{ className: classes.textField }}
+          InputLabelProps={{ className: classes.inputLabel }}
+        />
+        <TextField
+          className={classes.rightHalfInputContainer}
+          color='secondary'
+          type='number'
+          value={state.hoursPerPoint}
+          label='Hours Per Point'
+          onChange={handleSetHoursPerPoint}
+          InputProps={{ className: classes.textField }}
+          InputLabelProps={{ className: classes.inputLabel }}
+        />
+        <br />
+        <TextField
+          className={classes.inputContainer}
+          type='number'
+          color='secondary'
+          value={state.totalCost}
+          label='Total Estimated Cost'
+          onChange={handleSetCost}
+          InputProps={{
+            className: classes.textField,
+            startAdornment: <InputAdornment position='start'>$</InputAdornment>,
+          }}
           InputLabelProps={{ className: classes.inputLabel }}
         />
         <br />

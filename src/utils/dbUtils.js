@@ -15,8 +15,15 @@ const getProjectsByUser = async (user) => {
 };
 
 // Adds a new project to the projects collection with a randomly generated id
-const addProject = async ({ projectName, companyName, description }) => {
-  // TODO make this force being logged in already
+const addProject = async ({
+  projectName,
+  teamName,
+  description,
+  startDate,
+  hoursPerPoint,
+  totalPoints,
+  totalCost,
+}) => {
   const { email, lastName, firstName } = JSON.parse(sessionStorage.getItem('user'));
   const request = await fetch(`${URL}/api/addProject`, {
     method: 'POST',
@@ -25,8 +32,12 @@ const addProject = async ({ projectName, companyName, description }) => {
     },
     body: JSON.stringify({
       projectName,
-      companyName,
+      teamName,
       description,
+      startDate,
+      hoursPerPoint,
+      totalPoints,
+      totalCost,
       members: email
         ? [
             {
