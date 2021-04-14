@@ -152,6 +152,9 @@ const RetrospectiveReport = ({
                     {/* Print each Task */}
                     <TableHead>
                       <TableCell style={{ width: 400 }}>{task.task}</TableCell>
+                      <TableCell align="center">
+                        Original Hours Estimated
+                      </TableCell>
                       <TableCell align="center">Past Hours Worked</TableCell>
                       <TableCell align="center">Hours Worked</TableCell>
                       <TableCell align="center">Hours Estimated</TableCell>
@@ -163,6 +166,9 @@ const RetrospectiveReport = ({
                           <TableRow key={`${taskIndex}${subtaskIndex}`}>
                             <TableCell scope="row" align="right">
                               {subtask.task}
+                            </TableCell>
+                            <TableCell align="center">
+                              {subtask.originalHoursEstimated}
                             </TableCell>
                             <TableCell align="center">
                               {subtask.hoursWorked}
@@ -190,7 +196,22 @@ const RetrospectiveReport = ({
                                 style={{ maxWidth: 60 }}
                                 value={
                                   state.tableData[taskIndex][subtaskIndex]
-                                    .hoursEstimated
+                                    .hoursEstimated === -1
+                                    ? (state.tableData[taskIndex][
+                                        subtaskIndex
+                                      ].hoursEstimated = 0) //Set a default as this task has never been loaded into a sprint
+                                    : state.tableData[taskIndex][subtaskIndex]
+                                        .hoursEstimated
+                                }
+                                error={
+                                  parseInt(
+                                    state.tableData[taskIndex][subtaskIndex]
+                                      .hoursEstimated
+                                  ) < 0 ||
+                                  isNaN(
+                                    state.tableData[taskIndex][subtaskIndex]
+                                      .hoursEstimated
+                                  )
                                 }
                                 onChange={(e) =>
                                   onHoursEstimatedChanged(
@@ -226,7 +247,11 @@ const RetrospectiveReport = ({
       }}
     >
       {displayTasks()}
-      {!state.tableData?.length && (<Typography variant="h4" align="center">No tasks assigned</Typography>)}
+      {!state.tableData?.length && (
+        <Typography variant="h4" align="center">
+          No tasks assigned
+        </Typography>
+      )}
     </div>
   );
 };

@@ -40,8 +40,6 @@ const SubtaskMemberSelectionComponent = ({ openModal, onClose, selectedStory, re
               <Typography
               variant="h6"
               style={{ flex: 1, textAlign: "center" }}
-              
-              
               >{selectedStory.description}</Typography>
               <Typography>Sub Tasks</Typography>
               {selectedStory.subtasks.map((e, index) => (
