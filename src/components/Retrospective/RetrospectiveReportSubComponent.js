@@ -181,6 +181,16 @@ const RetrospectiveReport = ({
                                   state.tableData[taskIndex][subtaskIndex]
                                     .hoursWorked
                                 }
+                                error={
+                                  parseInt(
+                                    state.tableData[taskIndex][subtaskIndex]
+                                      .hoursWorked
+                                  ) < 0 ||
+                                  isNaN(
+                                    state.tableData[taskIndex][subtaskIndex]
+                                      .hoursWorked
+                                  )
+                                }
                                 onChange={(e) =>
                                   onHoursWorkedChanged(
                                     taskIndex,
