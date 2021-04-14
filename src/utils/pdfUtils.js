@@ -2,13 +2,19 @@ import { jsPDF } from 'jspdf';
 
 const setHeaderFont = (doc) => {
   doc.setFontSize(14);
-  doc.setFont('Times', 'normal');
+  doc.setFont('Times', 'bold');
   return doc;
 };
 
 const setTaskFont = (doc) => {
   doc.setFontSize(14);
   doc.setFont('Times', 'italic');
+  return doc;
+};
+
+const setLargeFont = (doc) => {
+  doc.setFontSize(14);
+  doc.setFont('Times', 'normal');
   return doc;
 };
 
@@ -22,93 +28,86 @@ const abbreviate = (string, length) =>
   string?.length > length ? `${string.substring(0, length - 3)}...` : string;
 
 const generateSprintPDF = (sprint) => {
+  const project = JSON.parse(sessionStorage.getItem('project'));
   let depth = 0;
 
   // Create PDF object and get dimensions for formatting
-  const doc = new jsPDF();
+  const doc = new jsPDF('landscape');
 
   // Create postiion consts using doc specs
   const pageWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth();
   const leftIndent = 20;
-  const assigneeIndent = pageWidth - 65;
+  const rightIndent = pageWidth - 20;
   const workedIndent = pageWidth - 40;
-  const remainingIndent = pageWidth - 20;
-
-  // Print title
-  doc.setFontSize(26);
-  doc.setFont('Times', 'bold');
-  doc.text(`Sprint ${sprint.iteration} Overview`, pageWidth / 2, (depth += 30), {
-    align: 'center',
-  });
+  const originalEstimateIndent = pageWidth - 65;
+  const percentIndent = pageWidth - 90;
+  const assigneeIndent = pageWidth - 125;
 
   // Print logo
   const img = new Image();
   img.src = 'sprintcompass_logo.png';
   img.width = 417;
   img.height = 254;
-  doc.addImage(
-    img,
-    'PNG',
-    pageWidth / 2 - img.width * 0.03,
-    (depth += 5),
-    img.width * 0.06,
-    img.height * 0.06
-  );
-  depth += img.height * 0.06;
+  doc.addImage(img, 'PNG', leftIndent, (depth += 10), img.width * 0.04, img.height * 0.04);
 
-  // Print sprint status
-  setHeaderFont(doc).text(
-    `Status: ${sprint.isLatest ? 'Ongoing' : 'Complete'}`,
-    pageWidth / 2,
-    (depth += 10),
-    {
-      align: 'center',
-    }
-  );
+  // Print title
+  doc.setFontSize(24);
+  doc.setFont('Times', 'bold');
+  doc.text(`Project Team Name: ${project.teamName}`, leftIndent + img.width * 0.05, (depth += 8));
+
+  // Print Sprint iteration
+  setHeaderFont(doc).text(`Sprint ${sprint.iteration}`, rightIndent, depth, { align: 'right' });
 
   // Print column headers
-  setHeaderFont(doc).text('Task', leftIndent + 47, (depth += 15));
+  doc.text('User Stories/Subtasks', leftIndent + 47, (depth += 15));
   doc.text('Assignee', assigneeIndent, depth, { align: 'center' });
-  doc.text('Hours\nWorked', workedIndent - 2, depth - 3, { align: 'center' });
-  doc.text('Hours\nLeft', remainingIndent - 1, depth - 3, { align: 'center' });
+  doc.text('Percent\nComplete', percentIndent, depth - 3, { align: 'center' });
+  doc.text('Original\nHours Est.', originalEstimateIndent, depth - 3, { align: 'center' });
+  doc.text('Hours\nWorked', workedIndent, depth - 3, { align: 'center' });
+  doc.text('Hours\nLeft', rightIndent, depth - 3, { align: 'center' });
 
   // Print each user story and each subtask in sprint
   sprint.userStories?.forEach((story) => {
     // Print Stories
-    setTaskFont(doc).text(abbreviate(story.task, 43), 20, (depth += 10));
+    setTaskFont(doc).text(abbreviate(story.task, 63), 20, (depth += 10));
+    const userStoryDepth = depth;
 
-    // Print subtasks, work done, and work left
+    // Print subtasks
     let totalWorked = 0;
     let totalLeft = 0;
     story.subtasks?.forEach((subtask) => {
-      setSmallFont(doc).text(abbreviate(subtask.task, 50), leftIndent + 5, (depth += 6));
+      // Print subtask description
+      setSmallFont(doc).text(abbreviate(subtask.task, 70), leftIndent + 5, (depth += 6));
+
+      // Print subtask assignee
+      doc.text(subtask.assigned, assigneeIndent, depth, { align: 'center' });
+
+      // Print hours worked
+      doc.text(subtask.hoursWorked?.toString(), workedIndent, depth, { align: 'center' });
+
+      // Print hours left if given, or - if not
       doc.text(
-        subtask.assigned?.substring(0, subtask.assigned.indexOf('@')),
-        assigneeIndent,
+        subtask.hoursEstimated > -1 ? subtask.hoursEstimated?.toString() : '-',
+        rightIndent,
         depth,
         { align: 'center' }
       );
-      doc.text(subtask.hoursWorked?.toString(), workedIndent, depth, { align: 'right' });
-      doc.text(
-        subtask.hoursEstimated > -1 ? subtask.hoursEstimated?.toString() : '-',
-        remainingIndent,
-        depth,
-        { align: 'right' }
-      );
+
+      // Sum values
       totalWorked += subtask.hoursWorked;
       totalLeft += subtask.hoursEstimated > -1 ? subtask.hoursWorked : 0; // only increment set values
+      // TODO: sum original estimate and if == -1, set total left = estimate
     });
-    //story.subtasks.map()
+    let percentComplete = 100;
+    if (totalLeft !== 0)
+      percentComplete = Math.round((totalWorked / (totalWorked + totalLeft)) * 100);
 
-    // Print totals for story
-    setSmallFont(doc).text(
-      `Total Worked: ${totalWorked}\tTotal Remaining: ${totalLeft}`,
-      pageWidth - 20,
-      (depth += 10),
-      {
-        align: 'right',
-      }
-    );
+    // Print calculated totals
+    setLargeFont(doc).text(`${percentComplete}%`, percentIndent, userStoryDepth, {
+      align: 'center',
+    });
+    doc.text(totalWorked.toString(), workedIndent, userStoryDepth, { align: 'center' });
+    doc.text(totalLeft.toString(), rightIndent, userStoryDepth, { align: 'center' });
   });
   // Download the pdf
   doc.save(`${sprint.projectId}Sprint${sprint.iteration}`);

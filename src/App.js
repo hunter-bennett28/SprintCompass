@@ -76,22 +76,25 @@ const App = () => {
 
   /* Click Handlers */
 
+  // Reload page on project selection/deselection, navigate to create project on addNewProject
   const handleSelectProject = (e) => {
     const { value } = e.target;
     if (value === '') {
       sessionStorage.removeItem('project');
       setState({ selectedProject: value });
+      window.location.reload();
     } else if (value === 'addNewProject') {
       sessionStorage.removeItem('project');
       setState({ selectedProject: '' });
+      window.location.href = `${window.location.origin}/projectdetails`;
     } else {
       sessionStorage.setItem(
         'project',
         JSON.stringify(state.projects.find((proj) => proj.projectName === value))
       );
       setState({ selectedProject: value });
+      window.location.reload();
     }
-    window.location.reload();
   };
 
   const handleClose = () => {
@@ -249,10 +252,7 @@ const App = () => {
             <HomeScreenComponent loggedIn={state.loggedIn} />
           </Route>
           <Route path='/projectdetails'>
-            <ProjectDetailsComponent
-              loggedIn={state.loggedIn}
-              setSelectedProject={setSelectedProject}
-            />
+            <ProjectDetailsComponent setSelectedProject={setSelectedProject} />
           </Route>
           <Route path='/sprintselection'>
             <SprintSelectionComponent loggedIn={state.loggedIn} />

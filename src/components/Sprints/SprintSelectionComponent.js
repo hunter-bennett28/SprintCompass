@@ -80,9 +80,7 @@ const SprintSelectionComponent = ({ loggedIn }) => {
       }
     } else {
       const selectedSprint = state.sprintList.find((sprint) => sprint.iteration === e.target.value);
-      const isLatest =
-        state.sprintList[state.sprintList.length - 1]?.iteration === selectedSprint.iteration;
-      sessionStorage.setItem('sprint', JSON.stringify({ ...selectedSprint, isLatest }));
+      sessionStorage.setItem('sprint', JSON.stringify(selectedSprint));
       setState({ MenuSelection: e.target.value });
     }
     if (state.refreshChild) state.refreshChild();
