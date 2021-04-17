@@ -27,7 +27,7 @@ const useStyles = makeStyles({
     flex: 2,
     textAlign: 'left',
     height: '40%',
-    whiteSpace:"nowrap",
+    whiteSpace: 'nowrap',
   },
   smallTextFieldContainer: {
     flex: 2,
@@ -532,7 +532,7 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
                   className={classes.modalButton}
                   onClick={onAddOrUpdateProduct}
                   style={{ height: '40%', float: 'right' }}>
-                  {state.isEditing ? 'Update task' : 'Add a new task'}
+                  {state.isEditing ? 'Update task' : 'Add task'}
                 </Button>
               </Container>
               <Typography variant='h6' color='secondary' align='center'>

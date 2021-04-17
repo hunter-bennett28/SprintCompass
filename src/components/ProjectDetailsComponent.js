@@ -5,6 +5,7 @@ import { Redirect } from 'react-router-dom';
 import { MuiPickersUtilsProvider, DatePicker } from '@material-ui/pickers';
 import MomentUtils from '@date-io/moment';
 import '../App.css';
+import path from 'path';
 
 const useStyles = makeStyles({
   inputContainer: {
@@ -123,7 +124,7 @@ const ProjectDetailsComponent = ({ setSelectedProject }) => {
         snackbarMessage: 'Successfully saved project information!',
       });
       setSelectedProject(state.projectName);
-      window.location.reload();
+      window.location.assign('/productbacklog');
     } catch (err) {
       setState({
         snackbarOpen: true,
