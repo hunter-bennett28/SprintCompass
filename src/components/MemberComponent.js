@@ -125,7 +125,7 @@ const MemberComponent = ({ displayPopup }) => {
 
       sessionStorage.removeItem('project');
       sessionStorage.removeItem('sprint');
-      history.push('/home'); //Bit janky with projects still being selected in the top bar
+      history.go(0);
     }
   };
   const onMemberClick = (item) => {
