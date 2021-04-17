@@ -182,7 +182,7 @@ const RetrospectiveReport = ({
                                     .hoursWorked
                                 }
                                 error={
-                                  parseInt(
+                                  parseFloat(
                                     state.tableData[taskIndex][subtaskIndex]
                                       .hoursWorked
                                   ) < 0 ||
@@ -214,7 +214,7 @@ const RetrospectiveReport = ({
                                         .hoursEstimated
                                 }
                                 error={
-                                  parseInt(
+                                  parseFloat(
                                     state.tableData[taskIndex][subtaskIndex]
                                       .hoursEstimated
                                   ) < 0 ||

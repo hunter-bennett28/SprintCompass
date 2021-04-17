@@ -109,14 +109,14 @@ const SprintRetrospectiveComponent = ({ loggedIn, displayPopup }) => {
                 if (
                   !isNaN(inputData.hoursWorked) &&
                   !isNaN(inputData.hoursEstimated) &&
-                  parseInt(inputData.hoursWorked) >= 0 &&
-                  parseInt(inputData.hoursEstimated) >= 0
+                  parseFloat(inputData.hoursWorked) >= 0 &&
+                  parseFloat(inputData.hoursEstimated) >= 0
                 ) {
                   //Parse the data as it will come in as a string
                   updatedSubtask.hoursWorked =
-                    parseInt(inputData.hoursWorked) + parseInt(updatedSubtask.hoursWorked);
+                  parseFloat(inputData.hoursWorked) + parseFloat(updatedSubtask.hoursWorked);
 
-                  updatedSubtask.hoursEstimated = parseInt(inputData.hoursEstimated);
+                  updatedSubtask.hoursEstimated = parseFloat(inputData.hoursEstimated);
                 } else
                   throw new Error('Error parsing data, ensure all fields are positive numbers');
                 return updatedSubtask;
