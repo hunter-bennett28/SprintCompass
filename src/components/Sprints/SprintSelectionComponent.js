@@ -92,7 +92,6 @@ const SprintSelectionComponent = ({ loggedIn }) => {
 
   // Only allow access if logged in
   if (process.env.REACT_APP_USE_AUTH && !loggedIn) {
-    console.log('no user found');
     return <Redirect to='/login' />;
   }
 

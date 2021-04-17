@@ -27,7 +27,7 @@ const useStyles = makeStyles({
     flex: 2,
     textAlign: 'left',
     height: '40%',
-    whiteSpace:"nowrap",
+    whiteSpace: 'nowrap',
   },
   smallTextFieldContainer: {
     flex: 2,
@@ -71,7 +71,7 @@ const useStyles = makeStyles({
     marginTop: '30px',
     marginBottom: '30px',
     overflow: 'auto',
-    height:700
+    height: 700,
   },
   subtaskListPrompt: {
     maxWidth: '500px',
@@ -92,7 +92,7 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
     editingIndex: null,
     isLoading: true,
     projectName: '',
-    newSubtaskEstimate:''
+    newSubtaskEstimate: '',
   };
 
   const [state, setState] = useReducer(
@@ -119,7 +119,6 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
     if (savedProject) {
       const { productBacklog, projectName } = JSON.parse(savedProject);
       setState({ productBacklog: productBacklog, projectName: projectName });
-
       //Throws a warning (disabled using eslint... below) to use useCallback, using it will create an infinite loop
       console.log('Project loaded');
     } else {
@@ -252,7 +251,7 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
       return (
         <ListItem style={{ width: '100%' }}>
           <TextField
-            helperText="Task"
+            helperText='Task'
             className={classes.subtaskListPrompt}
             value={state.newSubtask}
             onChange={(e) => {
@@ -261,17 +260,22 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
               });
             }}
           />
-          <TextField 
-            helperText="Initial Estimate (hours)"
+          <TextField
+            helperText='Initial Estimate (hours)'
             className={classes.subtaskListPrompt}
-            style={{marginLeft:100, width:"20%"}}
+            style={{ marginLeft: 100, width: '20%' }}
             value={state.newSubtaskEstimate}
-            error={!Boolean(parseInt(state.newSubtaskEstimate)) && state.newSubtaskEstimate!=='' && !(`${parseInt(state.newSubtaskEstimate)}`!==state.newSubtaskEstimate)}
+            error={
+              !Boolean(parseInt(state.newSubtaskEstimate)) &&
+              state.newSubtaskEstimate !== '' &&
+              !(`${parseInt(state.newSubtaskEstimate)}` !== state.newSubtaskEstimate)
+            }
             onChange={(e) => {
               setState({
                 newSubtaskEstimate: e.target.value,
               });
-            }}/>
+            }}
+          />
           <IconButton
             style={{ float: 'right' }}
             onClick={() => {
@@ -279,10 +283,15 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
               if (newStory.subtasks.find((subtask) => subtask.task === state.newSubtask))
                 setState({
                   newSubtask: '',
-                  newSubtaskEstimate:'',
+                  newSubtaskEstimate: '',
                   newStoryError: 'Subtask already present',
                 });
-              else if (state.newSubtask === '' || state.newSubtaskEstimate==='' || !Boolean(parseInt(state.newSubtaskEstimate)) || `${parseInt(state.newSubtaskEstimate)}`!==state.newSubtaskEstimate)
+              else if (
+                state.newSubtask === '' ||
+                state.newSubtaskEstimate === '' ||
+                !Boolean(parseInt(state.newSubtaskEstimate)) ||
+                `${parseInt(state.newSubtaskEstimate)}` !== state.newSubtaskEstimate
+              )
                 //Check if it contains any data
                 setState({
                   newStoryError: 'Please enter valid values for the subtask',
@@ -293,7 +302,7 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
                     ...newStory.subtasks,
                     {
                       task: state.newSubtask,
-                      originalHoursEstimated:parseInt(state.newSubtaskEstimate),
+                      originalHoursEstimated: parseInt(state.newSubtaskEstimate),
                       assigned: '',
                       hoursWorked: 0,
                       hoursEstimated: -1,
@@ -302,7 +311,7 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
                 });
                 setState({
                   newSubtask: '',
-                  newSubtaskEstimate:'',
+                  newSubtaskEstimate: '',
                   addSubtask: false,
                   newStoryError: '',
                 }); //Clear the subtask from the state
@@ -329,7 +338,6 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
   const onAddOrUpdateProduct = async () => {
     //Make sure the story is valid first
     if (!isInvalidStory()) {
-      console.log('adding or updating');
       if (!newStory.estimate)
         //Default estimate to 0
         setNewStory({ estimate: 0 });
@@ -339,7 +347,7 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
         addSubtask: false,
         newStoryError: '',
         newSubtask: '',
-        newSubtaskEstimate:'',
+        newSubtaskEstimate: '',
       });
 
       //Check if it is updating
@@ -370,8 +378,6 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
         estimate: 0,
         description: '',
       });
-
-      console.log('is editing ' + state.isEditing);
     } else {
       setState({
         newStoryError: 'Ensure all required fields are filled',
@@ -381,7 +387,6 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
 
   // Only allow access if logged in
   if (process.env.REACT_APP_USE_AUTH && !loggedIn && !sessionStorage.getItem('user')) {
-    console.log('no user found');
     return <Redirect to='/login' />;
   }
 
@@ -412,7 +417,7 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
               addSubtask: false,
               newStoryError: '',
               newSubtask: '',
-              newSubtaskEstimate:'',
+              newSubtaskEstimate: '',
               isEditing: false,
             });
             setNewStory(initialNewStory);
@@ -516,7 +521,7 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
                   />
                 </Container>
               </Container>
-              <Container style={{ marginTop: '1%', padding: 0, height:280 }}>
+              <Container style={{ marginTop: '1%', padding: 0, height: 280 }}>
                 <Typography variant='h6'>Subtasks</Typography>
 
                 <Container style={{ width: '90%', padding: 0 }}>
@@ -537,7 +542,7 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
                       addSubtask: false,
                       newStoryError: '',
                       newSubtask: '',
-                      newSubtaskEstimate:'',
+                      newSubtaskEstimate: '',
                       isEditing: false,
                     });
                   }}
@@ -551,7 +556,7 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
                   className={classes.modalButton}
                   onClick={onAddOrUpdateProduct}
                   style={{ height: '40%', float: 'right' }}>
-                  {state.isEditing ? 'Update task' : 'Add a new task'}
+                  {state.isEditing ? 'Update task' : 'Add task'}
                 </Button>
               </Container>
               <Typography variant='h6' color='secondary' align='center'>
