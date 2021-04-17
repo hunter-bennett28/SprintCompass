@@ -129,7 +129,6 @@ const SprintRetrospectiveComponent = ({ loggedIn, displayPopup }) => {
           } else return task;
         });
 
-        console.log(updatedSprint);
         //Do the update on updated sprint
         await dbUtils.updateSprint(updatedSprint);
 
@@ -161,7 +160,6 @@ const SprintRetrospectiveComponent = ({ loggedIn, displayPopup }) => {
   };
   // Only allow access if logged in
   if (process.env.REACT_APP_USE_AUTH && !loggedIn) {
-    console.log('no user found');
     return <Redirect to='/login' />;
   }
 

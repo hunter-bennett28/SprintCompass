@@ -1,11 +1,10 @@
 import React, { useEffect, useReducer } from 'react';
 import { makeStyles, TextField, Button, Snackbar, InputAdornment } from '@material-ui/core';
 import * as db from '../utils/dbUtils';
-import { Redirect } from 'react-router-dom';
+import { Redirect, useHistory } from 'react-router-dom';
 import { MuiPickersUtilsProvider, DatePicker } from '@material-ui/pickers';
 import MomentUtils from '@date-io/moment';
 import '../App.css';
-import path from 'path';
 
 const useStyles = makeStyles({
   inputContainer: {
@@ -35,6 +34,7 @@ const useStyles = makeStyles({
 const useAuth = process.env.REACT_APP_USE_AUTH === 'true';
 
 const ProjectDetailsComponent = ({ setSelectedProject }) => {
+  const history = useHistory();
   const classes = useStyles();
 
   /* State Setup */
@@ -124,7 +124,7 @@ const ProjectDetailsComponent = ({ setSelectedProject }) => {
         snackbarMessage: 'Successfully saved project information!',
       });
       setSelectedProject(state.projectName);
-      window.location.assign('/productbacklog');
+      history.push('/productbacklog');
     } catch (err) {
       setState({
         snackbarOpen: true,
@@ -195,7 +195,6 @@ const ProjectDetailsComponent = ({ setSelectedProject }) => {
 
   // Only allow access if logged in
   if (useAuth && !sessionStorage.getItem('user')) {
-    console.log('no user found');
     return <Redirect to='/login' />;
   }
 

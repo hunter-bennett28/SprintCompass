@@ -1,4 +1,5 @@
 const URL = 'http://localhost:5000';
+//const URL = ''; // Switch URL to empty for building for heroku
 
 const getProjects = async (user = {}) => {
   if (process.env.REACT_APP_USE_AUTH) return await getProjectsByUser(user);
@@ -9,7 +10,7 @@ const getProjects = async (user = {}) => {
 
 const getProjectsByUser = async (user) => {
   const email = JSON.parse(sessionStorage.getItem('user'))?.email || user?.email;
-  const request = await fetch(`http://localhost:5000/api/projects?user=${email}`);
+  const request = await fetch(`${URL}/api/projects?user=${email}`);
   const { projects } = await request.json();
   return projects;
 };
