@@ -4,7 +4,7 @@ import ProductBacklogListComponent from './components/ProductBacklogListComponen
 import HomeScreenComponent from './components/HomeScreenComponent';
 import MemberComponent from './components/MemberComponent';
 import React, { useReducer, useEffect } from 'react';
-import { Route, Link, Redirect } from 'react-router-dom';
+import { Route, Link, Redirect, useHistory, BrowserRouter } from 'react-router-dom';
 import Reorder from '@material-ui/icons/Reorder';
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import theme from './theme';
@@ -46,6 +46,7 @@ const useStyles = makeStyles({
 
 const App = () => {
   /* Setup */
+  const history = useHistory();
   const classes = useStyles();
   const initialState = {
     showMsg: false,
@@ -82,19 +83,21 @@ const App = () => {
     if (value === '') {
       sessionStorage.removeItem('project');
       setState({ selectedProject: value });
-      window.location.reload();
     } else if (value === 'addNewProject') {
       sessionStorage.removeItem('project');
       setState({ selectedProject: '' });
-      window.location.href = `${window.location.origin}/projectdetails`;
+      window.location.pathName === '/projectdetails'
+        ? history.go(0)
+        : history.push('/projectdetails');
+      return;
     } else {
       sessionStorage.setItem(
         'project',
         JSON.stringify(state.projects.find((proj) => proj.projectName === value))
       );
       setState({ selectedProject: value });
-      window.location.reload();
     }
+    history.go(0);
   };
 
   const handleClose = () => {
@@ -138,137 +141,145 @@ const App = () => {
   };
 
   return (
-    <MuiThemeProvider theme={theme}>
-      <AppBar position='static'>
-        <Toolbar>
-          <img
-            src='sprintcompass_logo.png'
-            className={classes.headerLogo}
-            alt='fast compass logo'
-          />
-          <Typography variant='h6' color='inherit'>
-            Sprint Compass
-          </Typography>
-          {(useAuth && !state.loggedIn) || (
-            <FormControl className={classes.projectChoice} color='secondary'>
-              <Select
-                value={state.selectedProject}
-                color='secondary'
-                displayEmpty
-                onChange={handleSelectProject}
-                label='Selected Project'>
-                <MenuItem value=''>
-                  <em>Select A Project</em>
+    <BrowserRouter>
+      <MuiThemeProvider theme={theme}>
+        <AppBar position='static'>
+          <Toolbar>
+            <img
+              src='sprintcompass_logo.png'
+              className={classes.headerLogo}
+              alt='fast compass logo'
+            />
+            <Typography variant='h6' color='inherit'>
+              Sprint Compass
+            </Typography>
+            {(useAuth && !state.loggedIn) || (
+              <FormControl className={classes.projectChoice} color='secondary'>
+                <Select
+                  value={state.selectedProject}
+                  color='secondary'
+                  displayEmpty
+                  onChange={handleSelectProject}
+                  label='Selected Project'>
+                  <MenuItem value=''>
+                    <em>Select A Project</em>
+                  </MenuItem>
+                  {state.projects.map(({ projectName }) => (
+                    <MenuItem value={projectName}>{projectName}</MenuItem>
+                  ))}
+                  <MenuItem
+                    value='addNewProject'
+                    component={Link}
+                    to='/projectdetails'
+                    onClick={clearProject}>
+                    + Add A New Project
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            )}
+            {(useAuth && !state.loggedIn) || ( // Only show dropdown menu once logged in
+              <IconButton
+                onClick={handleMenuClick}
+                color='inherit'
+                style={{ marginLeft: 'auto', paddingRight: '1vh' }}>
+                <Reorder />
+              </IconButton>
+            )}
+            <Menu
+              id='simple-menu'
+              anchorEl={state.anchorEl}
+              open={Boolean(state.anchorEl)}
+              onClose={handleClose}>
+              {state.selectedProject !== '' && (
+                <MenuItem component={Link} to='/projectdetails' onClick={handleClose}>
+                  Project Details
                 </MenuItem>
-                {state.projects.map(({ projectName }) => (
-                  <MenuItem value={projectName}>{projectName}</MenuItem>
-                ))}
-                <MenuItem
-                  value='addNewProject'
-                  component={Link}
-                  to='/projectdetails'
-                  onClick={clearProject}>
-                  + Add A New Project
+              )}
+              {state.selectedProject !== '' && (
+                <MenuItem component={Link} to='/productbacklog' onClick={handleClose}>
+                  Product Backlog
                 </MenuItem>
-              </Select>
-            </FormControl>
-          )}
-          {(useAuth && !state.loggedIn) || ( // Only show dropdown menu once logged in
-            <IconButton
-              onClick={handleMenuClick}
-              color='inherit'
-              style={{ marginLeft: 'auto', paddingRight: '1vh' }}>
-              <Reorder />
-            </IconButton>
-          )}
-          <Menu
-            id='simple-menu'
-            anchorEl={state.anchorEl}
-            open={Boolean(state.anchorEl)}
-            onClose={handleClose}>
-            {state.selectedProject !== '' && (
-              <MenuItem component={Link} to='/projectdetails' onClick={handleClose}>
-                Project Details
-              </MenuItem>
-            )}
-            {state.selectedProject !== '' && (
-              <MenuItem component={Link} to='/productbacklog' onClick={handleClose}>
-                Product Backlog
-              </MenuItem>
-            )}
-            {state.selectedProject !== '' && (
-              <MenuItem component={Link} to='/members' onClick={handleClose}>
-                Members
-              </MenuItem>
-            )}
-            {state.selectedProject !== '' && (
-              <MenuItem component={Link} to='/sprintselection' onClick={handleClose}>
-                Sprints
-              </MenuItem>
-            )}
-            {state.selectedProject !== '' && (
-              <MenuItem component={Link} to='/sprintretrospective' onClick={handleClose}>
-                Sprint Retrospective
-              </MenuItem>
-            )}
-            {useAuth && (
-              <MenuItem component={Link} to='/login?logout=true' onClick={handleLogOut}>
-                Log Out
-              </MenuItem>
-            )}
-          </Menu>
-        </Toolbar>
-      </AppBar>
-      {/* Routes */}
-      <div className='Form'>
-        <Container style={{ padding: '0px', paddingTop: '10px' }}>
-          <Route
-            exact
-            path='/'
-            render={() => <Redirect to={useAuth && !state.loggedIn ? '/login' : '/home'} />}
+              )}
+              {state.selectedProject !== '' && (
+                <MenuItem component={Link} to='/members' onClick={handleClose}>
+                  Members
+                </MenuItem>
+              )}
+              {state.selectedProject !== '' && (
+                <MenuItem component={Link} to='/sprintselection' onClick={handleClose}>
+                  Sprints
+                </MenuItem>
+              )}
+              {state.selectedProject !== '' && (
+                <MenuItem component={Link} to='/sprintretrospective' onClick={handleClose}>
+                  Sprint Retrospective
+                </MenuItem>
+              )}
+              {useAuth && (
+                <MenuItem component={Link} to='/login?logout=true' onClick={handleLogOut}>
+                  Log Out
+                </MenuItem>
+              )}
+            </Menu>
+          </Toolbar>
+        </AppBar>
+        {/* Routes */}
+        <div className='Form'>
+          <Container style={{ padding: '0px', paddingTop: '10px' }}>
+            <Route
+              exact
+              path='/'
+              render={() => <Redirect to={useAuth && !state.loggedIn ? '/login' : '/home'} />}
+            />
+            <Route
+              path='/login'
+              render={(routeInfo) => (
+                <LoginComponent
+                  displayPopup={displayPopup}
+                  notifyLogIn={handleUserLoggedIn}
+                  loggedIn={state.loggedIn}
+                  route={routeInfo}
+                />
+              )}
+            />
+            <Route
+              path='/productbacklog'
+              render={() => (
+                <ProductBacklogListComponent
+                  loggedIn={state.loggedIn}
+                  displayPopup={displayPopup}
+                />
+              )}
+            />
+            <Route
+              path='/members'
+              render={() => (
+                <MemberComponent loggedIn={state.loggedIn} displayPopup={displayPopup} />
+              )}
+            />
+            <Route path='/home'>
+              <HomeScreenComponent loggedIn={state.loggedIn} />
+            </Route>
+            <Route path='/projectdetails'>
+              <ProjectDetailsComponent setSelectedProject={setSelectedProject} />
+            </Route>
+            <Route path='/sprintselection'>
+              <SprintSelectionComponent loggedIn={state.loggedIn} />
+            </Route>
+            <Route path='/sprintretrospective'>
+              <SprintRetrospectiveComponent loggedIn={state.loggedIn} displayPopup={displayPopup} />
+            </Route>
+          </Container>
+          <Snackbar
+            open={state.showMsg}
+            message={state.snackbarMsg}
+            autoHideDuration={5000}
+            onClose={snackbarClose}
           />
-          <Route
-            path='/login'
-            render={(routeInfo) => (
-              <LoginComponent
-                displayPopup={displayPopup}
-                notifyLogIn={handleUserLoggedIn}
-                loggedIn={state.loggedIn}
-                route={routeInfo}
-              />
-            )}
-          />
-          <Route
-            path='/productbacklog'
-            render={() => (
-              <ProductBacklogListComponent loggedIn={state.loggedIn} displayPopup={displayPopup} />
-            )}
-          />
-          <Route
-            path='/members'
-            render={() => <MemberComponent loggedIn={state.loggedIn} displayPopup={displayPopup} />}
-          />
-          <Route path='/home'>
-            <HomeScreenComponent loggedIn={state.loggedIn} />
-          </Route>
-          <Route path='/projectdetails'>
-            <ProjectDetailsComponent setSelectedProject={setSelectedProject} />
-          </Route>
-          <Route path='/sprintselection'>
-            <SprintSelectionComponent loggedIn={state.loggedIn} />
-          </Route>
-          <Route path='/sprintretrospective'>
-            <SprintRetrospectiveComponent loggedIn={state.loggedIn} displayPopup={displayPopup} />
-          </Route>
-        </Container>
-        <Snackbar
-          open={state.showMsg}
-          message={state.snackbarMsg}
-          autoHideDuration={5000}
-          onClose={snackbarClose}
-        />
-      </div>
-    </MuiThemeProvider>
+        </div>
+      </MuiThemeProvider>
+    </BrowserRouter>
   );
 };
+
 export default App;

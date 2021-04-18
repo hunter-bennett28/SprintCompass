@@ -26,8 +26,8 @@ const useStyles = makeStyles({
     flex: 2,
     textAlign: 'left',
     height: '40%',
-    marginBottom:40,
-    whiteSpace:"nowrap"
+    marginBottom: 40,
+    whiteSpace: 'nowrap',
   },
   mediumTextFieldContainer: {
     flex: 20,
@@ -53,7 +53,7 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     paddingTop: 10,
     paddingBottom: 0,
-    margin:30
+    margin: 30,
   },
   modal: {
     maxWidth: '800px',
@@ -155,12 +155,9 @@ const MemberComponent = ({ displayPopup }) => {
 
           const projects = await db.getProjects();
 
-          let currProject = projects.find(
-            (project) => project.ProjectName === state.projectName
-          );
+          let currProject = projects.find((project) => project.ProjectName === state.projectName);
 
-          if (currProject)
-            sessionStorage.setItem('project', JSON.stringify(currProject));
+          if (currProject) sessionStorage.setItem('project', JSON.stringify(currProject));
           displayPopup('Successfully saved member');
           //Refresh the project
           const savedProject = JSON.parse(sessionStorage.getItem('project'));
@@ -185,11 +182,7 @@ const MemberComponent = ({ displayPopup }) => {
             style={{ marginRight: '50px' }}
           />
           <ListItemSecondaryAction>
-            <IconButton
-              edge="end"
-              aria-label="delete"
-              onClick={() => onDeleteItem(item)}
-            >
+            <IconButton edge='end' aria-label='delete' onClick={() => onDeleteItem(item)}>
               <DeleteIcon />
             </IconButton>
           </ListItemSecondaryAction>
@@ -236,24 +229,22 @@ const MemberComponent = ({ displayPopup }) => {
 
   // Only allow access if logged in
   if (process.env.REACT_APP_USE_AUTH && !sessionStorage.getItem('user')) {
-    console.log('no user found');
-    return <Redirect to="/login" />;
+    return <Redirect to='/login' />;
   }
 
   return (
     <Card>
-      <CardHeader title="Member List" style={{ textAlign: 'center' }} />
+      <CardHeader title='Member List' style={{ textAlign: 'center' }} />
       <CardContent>
         {/* Display the list of members */}
         <List>
           <Button
-            color="primary"
-            variant="contained"
+            color='primary'
+            variant='contained'
             style={{ float: 'right' }}
             onClick={() => {
               setState({ addMode: true });
-            }}
-          >
+            }}>
             <AddIcon />
           </Button>
           <Container style={{ paddingLeft: 0, paddingRight: 0 }}>{renderList()}</Container>
@@ -269,10 +260,9 @@ const MemberComponent = ({ displayPopup }) => {
             });
             setNewMember(initialNewMember);
           }}
-          aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description"
-          className={classes.modal}
-        >
+          aria-labelledby='simple-modal-title'
+          aria-describedby='simple-modal-description'
+          className={classes.modal}>
           <Card>
             <CardHeader
               title={state.isEditing ? 'Update a member' : 'Add a member'}
@@ -280,13 +270,12 @@ const MemberComponent = ({ displayPopup }) => {
             />
             <CardContent className={classes.modalCardContent}>
               <Container className={classes.promptContainer}>
-                <Typography variant="h6" className={classes.promptText}>
+                <Typography variant='h6' className={classes.promptText}>
                   First Name:
                 </Typography>
                 <Container
                   className={classes.largeTextFieldContainer}
-                  style={{ flex: 6, display: 'flex', flexDirection: 'row' }}
-                >
+                  style={{ flex: 6, display: 'flex', flexDirection: 'row' }}>
                   <TextField
                     style={{
                       maxWidth: '50%',
@@ -300,7 +289,7 @@ const MemberComponent = ({ displayPopup }) => {
                   />
                 </Container>
 
-                <Typography variant="h6" className={classes.promptText}>
+                <Typography variant='h6' className={classes.promptText}>
                   Last Name:
                 </Typography>
                 <Container
@@ -323,10 +312,9 @@ const MemberComponent = ({ displayPopup }) => {
 
               <Container className={classes.promptContainer}>
                 <Typography
-                  variant="h6"
+                  variant='h6'
                   className={classes.promptText}
-                  style={{ textAlign: 'left', marginTop: 0, marginLeft:"20%" }}
-                >
+                  style={{ textAlign: 'left', marginTop: 0, marginLeft: '20%' }}>
                   *Email:
                 </Typography>
                 <Container className={classes.mediumTextFieldContainer}>
@@ -348,11 +336,10 @@ const MemberComponent = ({ displayPopup }) => {
               <Container
                 style={{
                   padding: 0,
-                }}
-              >
+                }}>
                 <Button
-                  color="primary"
-                  variant="contained"
+                  color='primary'
+                  variant='contained'
                   className={classes.modalButton}
                   onClick={() => {
                     setNewMember(initialNewMember);
@@ -363,23 +350,21 @@ const MemberComponent = ({ displayPopup }) => {
                       isEditing:false,
                     });
                   }}
-                  style={{ height: '40%', float: 'left' }}
-                >
+                  style={{ height: '40%', float: 'left' }}>
                   Cancel
                 </Button>
                 <Typography></Typography>
 
                 <Button
-                  color="primary"
-                  variant="contained"
+                  color='primary'
+                  variant='contained'
                   className={classes.modalButton}
                   onClick={onAddOrUpdateMember}
-                  style={{ height: '40%', float: 'right' }}
-                >
+                  style={{ height: '40%', float: 'right' }}>
                   {state.isEditing ? 'Update member' : 'Add new member'}
                 </Button>
               </Container>
-              <Typography variant="h6" color="secondary" align="center">
+              <Typography variant='h6' color='secondary' align='center'>
                 {state.newMemberError}
               </Typography>
             </CardContent>

@@ -20,7 +20,6 @@ const HomeScreenComponent = ({ loggedIn }) => {
 
   // If using authenification, check if parent says is logged in and double check only if false
   if (useAuth && !loggedIn && !sessionStorage.getItem('user')) {
-    console.log('no user found');
     return <Redirect to='/login' />;
   }
 

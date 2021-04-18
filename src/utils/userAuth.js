@@ -31,7 +31,6 @@ const signOutUser = async () => {
 
 const signInUser = async (email, password) => {
   const { user } = await firebase.auth().signInWithEmailAndPassword(email, password);
-  console.log('signed in. user: ', user);
   const [firstName, lastName] = user.displayName.split('|');
   return {
     email: user.email,

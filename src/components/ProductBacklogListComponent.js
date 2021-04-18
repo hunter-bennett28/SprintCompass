@@ -119,7 +119,6 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
     if (savedProject) {
       const { productBacklog, projectName } = JSON.parse(savedProject);
       setState({ productBacklog: productBacklog, projectName: projectName });
-
       //Throws a warning (disabled using eslint... below) to use useCallback, using it will create an infinite loop
       console.log('Project loaded');
     } else {
@@ -269,7 +268,7 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
       return (
         <ListItem style={{ width: '100%' }}>
           <TextField
-            helperText="Task"
+            helperText='Task'
             className={classes.subtaskListPrompt}
             value={state.newSubtask}
             onChange={(e) => {
@@ -280,7 +279,7 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
             error={state.newSubtask===''}
           />
           <TextField
-            helperText="Initial Estimate (hours)"
+            helperText='Initial Estimate (hours)'
             className={classes.subtaskListPrompt}
             style={{ marginLeft: 100, width: '20%' }}
             value={state.newSubtaskEstimate}
@@ -416,13 +415,8 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
   };
 
   // Only allow access if logged in
-  if (
-    process.env.REACT_APP_USE_AUTH &&
-    !loggedIn &&
-    !sessionStorage.getItem('user')
-  ) {
-    console.log('no user found');
-    return <Redirect to="/login" />;
+  if (process.env.REACT_APP_USE_AUTH && !loggedIn && !sessionStorage.getItem('user')) {
+    return <Redirect to='/login' />;
   }
 
   return (
@@ -565,8 +559,7 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
                 </Container>
               </Container>
               <Container style={{ marginTop: '1%', padding: 0, height: 280 }}>
-                <Typography variant="h6">Subtasks</Typography>
-
+               <Typography variant='h6'>Subtasks</Typography>
                 <Container style={{ width: '90%', padding: 0 }}>
                   <List className={classes.subtaskList}>
                     {renderSubtasks(newStory)}
@@ -601,9 +594,8 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
                   variant="contained"
                   className={classes.modalButton}
                   onClick={onAddOrUpdateProduct}
-                  style={{ height: '40%', float: 'right' }}
-                >
-                  {state.isEditing ? 'Update task' : 'Add a new task'}
+                  style={{ height: '40%', float: 'right' }}>
+                  {state.isEditing ? 'Update task' : 'Add task'}
                 </Button>
               </Container>
               <Typography variant="h6" color="secondary" align="center">
