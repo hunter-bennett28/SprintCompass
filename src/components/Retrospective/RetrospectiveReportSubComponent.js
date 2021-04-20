@@ -78,7 +78,17 @@ const RetrospectiveReport = ({
   };
   //Send a function for the parent to call to obtain the data from the child
   const saveChangesChildConnection = () => {
-    return { tableData: state.tableData, tasksModified: state.tasksModified }; // this is a 2D array
+    const tableData = state.tableData;
+
+    //Refresh the hoursWorked to 0 and add the hours worked to the past hours worked column
+    const updatedTableData = state.tableData.map(task => task.map(subtask => {
+      subtask.pastHoursWorked = subtask.pastHoursWorked + Number(subtask.hoursWorked);
+      subtask.hoursWorked=0;
+      return subtask
+    }));
+    console.log(updatedTableData);
+
+    return { tableData: tableData, tasksModified: state.tasksModified }; // this is a 2D array
   };
 
   const onHoursWorkedChanged = (taskIndex, subtaskIndex, e) => {
@@ -126,9 +136,11 @@ const RetrospectiveReport = ({
       //Create the initial array
       const initialArray = userTasks.map((task) =>
         task.subtasks.map((subtask) => {
+          console.log(subtask.hoursWorked)
           return {
             hoursWorked: 0,
             hoursEstimated: subtask.hoursEstimated,
+            pastHoursWorked: subtask.hoursWorked,
           };
         })
       );
@@ -171,7 +183,8 @@ const RetrospectiveReport = ({
                               {subtask.originalHoursEstimated}
                             </TableCell>
                             <TableCell align="center">
-                              {subtask.hoursWorked}
+                              {state.tableData[taskIndex][subtaskIndex]
+                                    .pastHoursWorked}
                             </TableCell>
                             <TableCell align="center">
                               <TextField
