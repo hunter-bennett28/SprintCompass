@@ -19,7 +19,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
 import * as db from '../utils/dbUtils';
 import '../App.css';
-import { Redirect } from 'react-router-dom';
+import { Redirect, useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles({
   promptText: {
@@ -68,6 +68,8 @@ const useStyles = makeStyles({
 
 const MemberComponent = ({ displayPopup }) => {
   const classes = useStyles();
+  const history = useHistory();
+
   const initialState = {
     memberList: null,
     addMode: false,
@@ -114,10 +116,17 @@ const MemberComponent = ({ displayPopup }) => {
     setState({ memberList: [...state.memberList, member] });
   };
 
-  const onDeleteItem = (item) => {
+  const onDeleteItem = async (item) => {
     setState({
       memberList: state.memberList.filter((member) => member !== item),
     });
+    if(sessionStorage.getItem('user') && item.email===(JSON.parse(sessionStorage.getItem('user'))).email){
+      await updateProject(state.memberList.filter((member) => member !== item)) //Force the update as setState wont act immediately
+
+      sessionStorage.removeItem('project');
+      sessionStorage.removeItem('sprint');
+      history.go(0);
+    }
   };
   const onMemberClick = (item) => {
     setNewMember({
@@ -132,13 +141,13 @@ const MemberComponent = ({ displayPopup }) => {
     });
   };
 
-  const updateProject = async () => {
+  const updateProject = async (localMemberlist) => {
     if (state.projectName !== '') {
       if (!state.isLoading) {
         try {
           let result = await db.updateProject({
             projectName: state.projectName,
-            members: state.memberList,
+            members: localMemberlist ? localMemberlist : state.memberList,
           });
 
           //Check if the update worked
@@ -168,7 +177,10 @@ const MemberComponent = ({ displayPopup }) => {
     if (state.memberList) {
       return state.memberList.map((item) => (
         <ListItem button onClick={() => onMemberClick(item)} key={item.email}>
-          <ListItemText primary={item.email} style={{ maxWidth: '10px', marginRight: '50px' }} />
+          <ListItemText
+            primary={`${item.firstName} ${item.lastName} - ${item.email}`}
+            style={{ marginRight: '50px' }}
+          />
           <ListItemSecondaryAction>
             <IconButton edge='end' aria-label='delete' onClick={() => onDeleteItem(item)}>
               <DeleteIcon />
@@ -225,7 +237,7 @@ const MemberComponent = ({ displayPopup }) => {
       <CardHeader title='Member List' style={{ textAlign: 'center' }} />
       <CardContent>
         {/* Display the list of members */}
-        <List subheader='Current Member List'>
+        <List>
           <Button
             color='primary'
             variant='contained'
@@ -244,6 +256,7 @@ const MemberComponent = ({ displayPopup }) => {
               addMode: false,
               addSubtask: false,
               newMemberError: '',
+              isEditing:false,
             });
             setNewMember(initialNewMember);
           }}
@@ -281,8 +294,8 @@ const MemberComponent = ({ displayPopup }) => {
                 </Typography>
                 <Container
                   className={classes.largeTextFieldContainer}
-                  style={{ flex: 6, display: 'flex', flexDirection: 'row' }}>
-                  {' '}
+                  style={{ flex: 6, display: 'flex', flexDirection: 'row' }}
+                >
                   <TextField
                     style={{
                       maxWidth: '50%',
@@ -315,6 +328,7 @@ const MemberComponent = ({ displayPopup }) => {
                         email: e.target.value,
                       });
                     }}
+                    error={!(newMember.email.indexOf('@') > -1 && newMember.email.lastIndexOf('.')  > newMember.email.indexOf('@'))}
                     fullWidth
                   />
                 </Container>
@@ -333,6 +347,7 @@ const MemberComponent = ({ displayPopup }) => {
                       addMode: false,
                       addSubtask: false,
                       newMemberError: '',
+                      isEditing:false,
                     });
                   }}
                   style={{ height: '40%', float: 'left' }}>

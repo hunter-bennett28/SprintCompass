@@ -156,9 +156,12 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
           //Fetch the project - might be better to implement a getProjectByName
           const projects = await db.getProjects();
 
-          let currProject = projects.find((project) => project.ProjectName === state.projectName);
+          let currProject = projects.find(
+            (project) => project.ProjectName === state.projectName
+          );
 
-          if (currProject) sessionStorage.setItem('project', JSON.stringify(currProject));
+          if (currProject)
+            sessionStorage.setItem('project', JSON.stringify(currProject));
 
           //Refresh the project
           const savedProject = JSON.parse(sessionStorage.getItem('project'));
@@ -192,7 +195,9 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
 
   const renderList = () => {
     if (state.productBacklog) {
-      let tempArray = state.productBacklog.sort((p1, p2) => p1.storyPoints - p2.storyPoints);
+      let tempArray = state.productBacklog.sort(
+        (p1, p2) => p1.storyPoints - p2.storyPoints
+      );
       return tempArray.map((item) => {
         if (item)
           //Check if there are any products
@@ -201,7 +206,8 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
               button
               onClick={() => onStoryClick(item)}
               key={`${item.storyPoints}${item.task}`}
-              style={{ marginTop: '3%' }}>
+              style={{ marginTop: '3%' }}
+            >
               <ListItemText
                 primary={item.storyPoints}
                 style={{ maxWidth: '10px', marginRight: '8%' }}
@@ -211,7 +217,11 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
                 style={{ flex: 12, width: '50px', overflow: 'auto' }}
               />
               <ListItemSecondaryAction>
-                <IconButton edge='end' aria-label='delete' onClick={() => onDeleteItem(item)}>
+                <IconButton
+                  edge="end"
+                  aria-label="delete"
+                  onClick={() => onDeleteItem(item)}
+                >
                   <DeleteIcon style={{ fill: 'white' }} />
                 </IconButton>
               </ListItemSecondaryAction>
@@ -226,17 +236,24 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
     return story.subtasks.map((item) => {
       if (item)
         return (
-          <ListItem button onClick={() => onStoryClick(item)} key={`${item.task}`}>
+          <ListItem
+            button
+            onClick={() => onStoryClick(item)}
+            key={`${item.task}`}
+          >
             <ListItemText primary={item.task} />
             <ListItemSecondaryAction>
               <IconButton
-                edge='end'
-                aria-label='delete'
+                edge="end"
+                aria-label="delete"
                 onClick={() =>
                   setNewStory({
-                    subtasks: newStory.subtasks.filter((task) => task.task !== item.task),
+                    subtasks: newStory.subtasks.filter(
+                      (task) => task.task !== item.task
+                    ),
                   })
-                }>
+                }
+              >
                 <DeleteIcon style={{ fill: 'white' }} />
               </IconButton>
             </ListItemSecondaryAction>
@@ -259,6 +276,7 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
                 newSubtask: e.target.value,
               });
             }}
+            error={state.newSubtask===''}
           />
           <TextField
             helperText='Initial Estimate (hours)'
@@ -266,9 +284,11 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
             style={{ marginLeft: 100, width: '20%' }}
             value={state.newSubtaskEstimate}
             error={
-              !Boolean(parseInt(state.newSubtaskEstimate)) &&
-              state.newSubtaskEstimate !== '' &&
-              !(`${parseInt(state.newSubtaskEstimate)}` !== state.newSubtaskEstimate)
+              state.newSubtaskEstimate === '' ||
+              isNaN(state.newSubtaskEstimate) ||
+              parseFloat(state.newSubtaskEstimate) <= 0 ||
+              `${parseFloat(state.newSubtaskEstimate)}` !==
+                state.newSubtaskEstimate
             }
             onChange={(e) => {
               setState({
@@ -280,7 +300,11 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
             style={{ float: 'right' }}
             onClick={() => {
               //Check if user story is unique
-              if (newStory.subtasks.find((subtask) => subtask.task === state.newSubtask))
+              if (
+                newStory.subtasks.find(
+                  (subtask) => subtask.task === state.newSubtask
+                )
+              )
                 setState({
                   newSubtask: '',
                   newSubtaskEstimate: '',
@@ -289,8 +313,10 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
               else if (
                 state.newSubtask === '' ||
                 state.newSubtaskEstimate === '' ||
-                !Boolean(parseInt(state.newSubtaskEstimate)) ||
-                `${parseInt(state.newSubtaskEstimate)}` !== state.newSubtaskEstimate
+                isNaN(state.newSubtaskEstimate) ||
+                parseFloat(state.newSubtaskEstimate) <= 0 ||
+                `${parseFloat(state.newSubtaskEstimate)}` !==
+                  state.newSubtaskEstimate
               )
                 //Check if it contains any data
                 setState({
@@ -302,7 +328,9 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
                     ...newStory.subtasks,
                     {
                       task: state.newSubtask,
-                      originalHoursEstimated: parseInt(state.newSubtaskEstimate),
+                      originalHoursEstimated: parseFloat(
+                        state.newSubtaskEstimate
+                      ),
                       assigned: '',
                       hoursWorked: 0,
                       hoursEstimated: -1,
@@ -316,7 +344,8 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
                   newStoryError: '',
                 }); //Clear the subtask from the state
               }
-            }}>
+            }}
+          >
             <AddBoxRoundedIcon />
           </IconButton>
         </ListItem>
@@ -325,7 +354,7 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
       return (
         <ListItem button onClick={() => setState({ addSubtask: true })}>
           <AddIcon />
-          <Typography variant='h6'>Add new subtask</Typography>
+          <Typography variant="h6">Add new subtask</Typography>
         </ListItem>
       );
   };
@@ -392,20 +421,23 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
 
   return (
     <Card>
-      <CardHeader title='Product Backlog' style={{ textAlign: 'center' }} />
+      <CardHeader title="Product Backlog" style={{ textAlign: 'center' }} />
       <CardContent>
         {/* Display the list of products */}
-        <List subheader='Current Product Backlog'>
+        <List>
           <Button
-            color='primary'
-            variant='contained'
+            color="primary"
+            variant="contained"
             style={{ float: 'right' }}
             onClick={() => {
               setState({ addMode: true });
-            }}>
+            }}
+          >
             <AddIcon />
           </Button>
-          <Container style={{ paddingLeft: 0, paddingRight: 0 }}>{renderList()}</Container>
+          <Container style={{ paddingLeft: 0, paddingRight: 0 }}>
+            {renderList()}
+          </Container>
         </List>
 
         {/* Add product modal */}
@@ -422,7 +454,8 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
             });
             setNewStory(initialNewStory);
           }}
-          className={classes.modal}>
+          className={classes.modal}
+        >
           <Card style={{ height: '100%' }}>
             <CardHeader
               title={state.isEditing ? 'Update a Task' : 'Add a Task'}
@@ -431,9 +464,10 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
             <CardContent className={classes.modalCardContent}>
               <Container className={classes.addStoryPromptContainer}>
                 <Typography
-                  variant='h6'
+                  variant="h6"
                   className={classes.storyPromptText}
-                  style={{ textAlign: 'left', marginTop: '1%' }}>
+                  style={{ textAlign: 'left', marginTop: '1%' }}
+                >
                   Task*
                 </Typography>
                 <Container className={classes.mediumTextFieldContainer}>
@@ -448,13 +482,13 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
                       });
                     }}
                     fullWidth
-                    variant='outlined'
+                    variant="outlined"
                   />
                 </Container>
               </Container>
 
               <Container className={classes.addStoryPromptContainer}>
-                <Typography variant='h6' className={classes.storyPromptText}>
+                <Typography variant="h6" className={classes.storyPromptText}>
                   Description
                 </Typography>
               </Container>
@@ -469,17 +503,20 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
                       description: e.target.value,
                     });
                   }}
-                  variant='filled'
+                  variant="filled"
                 />
               </Container>
               <Container className={classes.addStoryPromptContainer}>
-                <Typography variant='h6' className={classes.storyPromptText}>
+                <Typography variant="h6" className={classes.storyPromptText}>
                   Estimate
                 </Typography>
                 <Container
                   className={classes.largeTextFieldContainer}
-                  style={{ flex: 6, display: 'flex', flexDirection: 'row' }}>
-                  <Typography style={{ marginTop: '1%', marginRight: '1%' }}>$</Typography>
+                  style={{ flex: 6, display: 'flex', flexDirection: 'row' }}
+                >
+                  <Typography style={{ marginTop: '1%', marginRight: '1%' }}>
+                    $
+                  </Typography>
                   <TextField
                     style={{
                       maxWidth: '50%',
@@ -499,7 +536,7 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
                     }}
                   />
                 </Container>
-                <Typography variant='h6' className={classes.storyPromptText}>
+                <Typography variant="h6" className={classes.storyPromptText}>
                   Story Points
                 </Typography>
                 <Container className={classes.smallTextFieldContainer}>
@@ -522,18 +559,19 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
                 </Container>
               </Container>
               <Container style={{ marginTop: '1%', padding: 0, height: 280 }}>
-                <Typography variant='h6'>Subtasks</Typography>
-
+               <Typography variant='h6'>Subtasks</Typography>
                 <Container style={{ width: '90%', padding: 0 }}>
-                  <List className={classes.subtaskList}>{renderSubtasks(newStory)}</List>
+                  <List className={classes.subtaskList}>
+                    {renderSubtasks(newStory)}
+                  </List>
                   {promptSubtask()}
                 </Container>
               </Container>
 
               <Container style={{ padding: 0 }}>
                 <Button
-                  color='primary'
-                  variant='contained'
+                  color="primary"
+                  variant="contained"
                   className={classes.modalButton}
                   onClick={() => {
                     setNewStory(initialNewStory);
@@ -546,20 +584,21 @@ const ProductBacklogListComponent = ({ displayPopup, loggedIn }) => {
                       isEditing: false,
                     });
                   }}
-                  style={{ height: '40%', float: 'left' }}>
+                  style={{ height: '40%', float: 'left' }}
+                >
                   Cancel
                 </Button>
                 <Typography></Typography>
                 <Button
-                  color='primary'
-                  variant='contained'
+                  color="primary"
+                  variant="contained"
                   className={classes.modalButton}
                   onClick={onAddOrUpdateProduct}
                   style={{ height: '40%', float: 'right' }}>
                   {state.isEditing ? 'Update task' : 'Add task'}
                 </Button>
               </Container>
-              <Typography variant='h6' color='secondary' align='center'>
+              <Typography variant="h6" color="secondary" align="center">
                 {state.newStoryError}
               </Typography>
             </CardContent>
