@@ -33,11 +33,7 @@ const useStyles = makeStyles({
   },
 });
 
-const RetrospectiveReport = ({
-  userEmail,
-  saveChangesConnection,
-  refreshUIConnection,
-}) => {
+const RetrospectiveReport = ({ userEmail, saveChangesConnection, refreshUIConnection }) => {
   const classes = useStyles();
 
   const initialState = {
@@ -102,9 +98,7 @@ const RetrospectiveReport = ({
     return sprint?.userStories
       .map((task) => {
         //Find the appropriate subtasks for that user and store it
-        let userTask = task.subtasks.filter(
-          (subtask) => subtask.assigned === userEmail
-        );
+        let userTask = task.subtasks.filter((subtask) => subtask.assigned === userEmail);
 
         //Create a new task if the user was found in the subtasks
         if (userTask.length > 0) {
@@ -146,89 +140,55 @@ const RetrospectiveReport = ({
                 <TableContainer
                   component={Paper}
                   style={{ marginTop: 10, marginBottom: 10 }}
-                  key={taskIndex}
-                >
-                  <Table className={classes.table} aria-label="Table">
+                  key={taskIndex}>
+                  <Table className={classes.table} aria-label='Table'>
                     {/* Print each Task */}
                     <TableHead>
                       <TableCell style={{ width: 400 }}>{task.task}</TableCell>
-                      <TableCell align="center">
-                        Original Hours Estimated
-                      </TableCell>
-                      <TableCell align="center">Past Hours Worked</TableCell>
-                      <TableCell align="center">Hours Worked</TableCell>
-                      <TableCell align="center">Hours Estimated</TableCell>
+                      <TableCell align='center'>Original Hours Estimated</TableCell>
+                      <TableCell align='center'>Past Hours Worked</TableCell>
+                      <TableCell align='center'>Hours Worked</TableCell>
+                      <TableCell align='center'>Hours Estimated</TableCell>
                     </TableHead>
                     <TableBody>
                       {/* Print each subtask */}
                       {task.subtasks.map((subtask, subtaskIndex) => {
                         return (
                           <TableRow key={`${taskIndex}${subtaskIndex}`}>
-                            <TableCell scope="row" align="right">
+                            <TableCell scope='row' align='right'>
                               {subtask.task}
                             </TableCell>
-                            <TableCell align="center">
-                              {subtask.originalHoursEstimated}
-                            </TableCell>
-                            <TableCell align="center">
-                              {subtask.hoursWorked}
-                            </TableCell>
-                            <TableCell align="center">
+                            <TableCell align='center'>{subtask.originalHoursEstimated}</TableCell>
+                            <TableCell align='center'>{subtask.hoursWorked}</TableCell>
+                            <TableCell align='center'>
                               <TextField
-                                variant="filled"
+                                variant='filled'
                                 style={{ maxWidth: 60 }}
-                                value={
-                                  state.tableData[taskIndex][subtaskIndex]
-                                    .hoursWorked
-                                }
+                                value={state.tableData[taskIndex][subtaskIndex].hoursWorked}
                                 error={
-                                  parseFloat(
-                                    state.tableData[taskIndex][subtaskIndex]
-                                      .hoursWorked
-                                  ) < 0 ||
-                                  isNaN(
-                                    state.tableData[taskIndex][subtaskIndex]
-                                      .hoursWorked
-                                  )
+                                  parseFloat(state.tableData[taskIndex][subtaskIndex].hoursWorked) <
+                                    0 || isNaN(state.tableData[taskIndex][subtaskIndex].hoursWorked)
                                 }
-                                onChange={(e) =>
-                                  onHoursWorkedChanged(
-                                    taskIndex,
-                                    subtaskIndex,
-                                    e
-                                  )
-                                }
+                                onChange={(e) => onHoursWorkedChanged(taskIndex, subtaskIndex, e)}
                               />
                             </TableCell>
-                            <TableCell align="center">
+                            <TableCell align='center'>
                               <TextField
-                                variant="filled"
+                                variant='filled'
                                 style={{ maxWidth: 60 }}
                                 value={
-                                  state.tableData[taskIndex][subtaskIndex]
-                                    .hoursEstimated === -1
-                                    ? (state.tableData[taskIndex][
-                                        subtaskIndex
-                                      ].hoursEstimated = 0) //Set a default as this task has never been loaded into a sprint
-                                    : state.tableData[taskIndex][subtaskIndex]
-                                        .hoursEstimated
+                                  state.tableData[taskIndex][subtaskIndex].hoursEstimated === -1
+                                    ? (state.tableData[taskIndex][subtaskIndex].hoursEstimated = 0) //Set a default as this task has never been loaded into a sprint
+                                    : state.tableData[taskIndex][subtaskIndex].hoursEstimated
                                 }
                                 error={
                                   parseFloat(
-                                    state.tableData[taskIndex][subtaskIndex]
-                                      .hoursEstimated
+                                    state.tableData[taskIndex][subtaskIndex].hoursEstimated
                                   ) < 0 ||
-                                  isNaN(
-                                    state.tableData[taskIndex][subtaskIndex]
-                                      .hoursEstimated
-                                  )
+                                  isNaN(state.tableData[taskIndex][subtaskIndex].hoursEstimated)
                                 }
                                 onChange={(e) =>
-                                  onHoursEstimatedChanged(
-                                    taskIndex,
-                                    subtaskIndex,
-                                    e
-                                  )
+                                  onHoursEstimatedChanged(taskIndex, subtaskIndex, e)
                                 }
                               />
                             </TableCell>
@@ -254,11 +214,10 @@ const RetrospectiveReport = ({
         margin: '2%',
         padding: '2%',
         borderRadius: '25px',
-      }}
-    >
+      }}>
       {displayTasks()}
       {!state.tableData?.length && (
-        <Typography variant="h4" align="center">
+        <Typography variant='h4' align='center'>
           No tasks assigned
         </Typography>
       )}

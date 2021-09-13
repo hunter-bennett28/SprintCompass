@@ -123,7 +123,7 @@ const ProjectDetailsComponent = ({ setSelectedProject }) => {
         snackbarOpen: true,
         snackbarMessage: 'Successfully saved project information!',
       });
-      setSelectedProject(state.projectName);
+      await setSelectedProject(state.projectName);
       history.push('/productbacklog');
     } catch (err) {
       setState({

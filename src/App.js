@@ -136,7 +136,8 @@ const App = () => {
     sessionStorage.removeItem('project');
   };
 
-  const setSelectedProject = (selectedProject) => {
+  const setSelectedProject = async (selectedProject) => {
+    await getProjectsList();
     setState({ selectedProject });
   };
 

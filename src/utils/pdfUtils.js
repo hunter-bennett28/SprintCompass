@@ -47,11 +47,11 @@ const generateSprintPDF = (sprint) => {
   // Create postiion consts using doc specs
   const pageWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth();
   const leftIndent = 20;
-  const rightIndent = pageWidth - 20;
-  const workedIndent = pageWidth - 40;
-  const originalEstimateIndent = pageWidth - 65;
-  const percentIndent = pageWidth - 90;
-  const assigneeIndent = pageWidth - 125;
+  const rightIndent = pageWidth - 25;
+  const workedIndent = pageWidth - 45;
+  const originalEstimateIndent = pageWidth - 70;
+  const percentIndent = pageWidth - 95;
+  const assigneeIndent = pageWidth - 130;
 
   // Print logo
   const img = new Image();
@@ -66,7 +66,7 @@ const generateSprintPDF = (sprint) => {
   doc.text(`Project Team Name: ${project.teamName}`, leftIndent + img.width * 0.05, (depth += 8));
 
   // Print Sprint iteration
-  setHeaderFont(doc).text(`Sprint ${sprint.iteration}`, rightIndent, depth, { align: 'right' });
+  setHeaderFont(doc).text(`Sprint ${sprint.iteration}`, rightIndent, depth, { align: 'center' });
 
   // Print column headers
   doc.text('User Stories/Subtasks', leftIndent + 47, (depth += 15));

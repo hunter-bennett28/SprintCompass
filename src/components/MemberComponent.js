@@ -120,8 +120,11 @@ const MemberComponent = ({ displayPopup }) => {
     setState({
       memberList: state.memberList.filter((member) => member !== item),
     });
-    if(sessionStorage.getItem('user') && item.email===(JSON.parse(sessionStorage.getItem('user'))).email){
-      await updateProject(state.memberList.filter((member) => member !== item)) //Force the update as setState wont act immediately
+    if (
+      sessionStorage.getItem('user') &&
+      item.email === JSON.parse(sessionStorage.getItem('user')).email
+    ) {
+      await updateProject(state.memberList.filter((member) => member !== item)); //Force the update as setState wont act immediately
 
       sessionStorage.removeItem('project');
       sessionStorage.removeItem('sprint');
@@ -175,17 +178,19 @@ const MemberComponent = ({ displayPopup }) => {
 
   const renderList = () => {
     if (state.memberList) {
-      return state.memberList.map((item) => (
+      return state.memberList.map((item, index) => (
         <ListItem button onClick={() => onMemberClick(item)} key={item.email}>
           <ListItemText
             primary={`${item.firstName} ${item.lastName} - ${item.email}`}
             style={{ marginRight: '50px' }}
           />
-          <ListItemSecondaryAction>
-            <IconButton edge='end' aria-label='delete' onClick={() => onDeleteItem(item)}>
-              <DeleteIcon />
-            </IconButton>
-          </ListItemSecondaryAction>
+          {index > 0 && (
+            <ListItemSecondaryAction>
+              <IconButton edge='end' aria-label='delete' onClick={() => onDeleteItem(item)}>
+                <DeleteIcon />
+              </IconButton>
+            </ListItemSecondaryAction>
+          )}
         </ListItem>
       ));
     } else {
@@ -227,6 +232,11 @@ const MemberComponent = ({ displayPopup }) => {
     }
   };
 
+  const emailIsValid =
+    newMember.email.indexOf('@') > -1 &&
+    newMember.email.lastIndexOf('.') > newMember.email.indexOf('@') &&
+    newMember.email.lastIndexOf('.') < newMember.email.length - 1;
+
   // Only allow access if logged in
   if (process.env.REACT_APP_USE_AUTH && !sessionStorage.getItem('user')) {
     return <Redirect to='/login' />;
@@ -256,7 +266,7 @@ const MemberComponent = ({ displayPopup }) => {
               addMode: false,
               addSubtask: false,
               newMemberError: '',
-              isEditing:false,
+              isEditing: false,
             });
             setNewMember(initialNewMember);
           }}
@@ -294,8 +304,7 @@ const MemberComponent = ({ displayPopup }) => {
                 </Typography>
                 <Container
                   className={classes.largeTextFieldContainer}
-                  style={{ flex: 6, display: 'flex', flexDirection: 'row' }}
-                >
+                  style={{ flex: 6, display: 'flex', flexDirection: 'row' }}>
                   <TextField
                     style={{
                       maxWidth: '50%',
@@ -328,7 +337,7 @@ const MemberComponent = ({ displayPopup }) => {
                         email: e.target.value,
                       });
                     }}
-                    error={!(newMember.email.indexOf('@') > -1 && newMember.email.lastIndexOf('.')  > newMember.email.indexOf('@'))}
+                    error={!emailIsValid}
                     fullWidth
                   />
                 </Container>
@@ -347,7 +356,7 @@ const MemberComponent = ({ displayPopup }) => {
                       addMode: false,
                       addSubtask: false,
                       newMemberError: '',
-                      isEditing:false,
+                      isEditing: false,
                     });
                   }}
                   style={{ height: '40%', float: 'left' }}>
@@ -359,6 +368,7 @@ const MemberComponent = ({ displayPopup }) => {
                   color='primary'
                   variant='contained'
                   className={classes.modalButton}
+                  disabled={!emailIsValid}
                   onClick={onAddOrUpdateMember}
                   style={{ height: '40%', float: 'right' }}>
                   {state.isEditing ? 'Update member' : 'Add new member'}

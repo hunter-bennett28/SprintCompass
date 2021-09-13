@@ -83,9 +83,7 @@ const SprintSelectionComponent = ({ refreshContentsHook }) => {
     const updatedSprint = state.sprint;
     const updatedProject = state.project;
 
-    updatedSprint.userStories = updatedSprint.userStories.filter(
-      (item) => item !== story
-    );
+    updatedSprint.userStories = updatedSprint.userStories.filter((item) => item !== story);
     updatedProject.productBacklog = [...updatedProject.productBacklog, story];
 
     setState({
@@ -110,36 +108,26 @@ const SprintSelectionComponent = ({ refreshContentsHook }) => {
   };
 
   return (
-    <Container
-      style={{ backgroundColor: '#777', color: 'white', borderRadius: '25px' }}
-    >
-      <Typography style={{ textAlign: 'center' }} variant="h5">
+    <Container style={{ backgroundColor: '#777', color: 'white', borderRadius: '25px' }}>
+      <Typography style={{ textAlign: 'center' }} variant='h5'>
         Sprint {state.sprint.iteration}
       </Typography>
 
       {/* Show user stories and allow them to be added to the sprint*/}
       <Container>
-        <FormControl variant="outlined" className={classes.formControl}>
-          <InputLabel className={classes.inputLabel}>
-            Add From Backlog
-          </InputLabel>
+        <FormControl variant='outlined' className={classes.formControl}>
+          <InputLabel className={classes.inputLabel}>Add From Backlog</InputLabel>
           <Select
             className={classes.userInput}
             value={state.MenuSelection}
             onChange={handleSelection}
-            label="Sprint"
-          >
+            label='Add From Backlog'>
             {state.project.productBacklog &&
               state.project.productBacklog.map((product) => {
                 if (product)
                   return (
-                    <MenuItem
-                      value={product}
-                      key={`${product.storyPoints}${product.task}`}
-                    >
-                      {`${product.storyPoints ? product.storyPoints : '0'} - ${
-                        product.task
-                      }`}
+                    <MenuItem value={product} key={`${product.storyPoints}${product.task}`}>
+                      {`${product.storyPoints ? product.storyPoints : '0'} - ${product.task}`}
                     </MenuItem>
                   );
                 else return null;
@@ -154,21 +142,16 @@ const SprintSelectionComponent = ({ refreshContentsHook }) => {
                 onClick={() => {
                   setState({ openModal: true, selectedStory: story });
                 }}
-                key={`${story.storyPoints}${story.task}`}
-              >
+                key={`${story.storyPoints}${story.task}`}>
                 <ListItemText
                   primary={story.storyPoints}
                   style={{ maxWidth: '10px', marginRight: '8%' }}
                 />
-                <ListItemText
-                  primary={story.task}
-                  style={{ width: '50px', overflow: 'auto' }}
-                />
+                <ListItemText primary={story.task} style={{ width: '50px', overflow: 'auto' }} />
                 <ListItemSecondaryAction
-                  edge="end"
-                  aria-label="delete"
-                  onClick={() => removeTask(story)}
-                >
+                  edge='end'
+                  aria-label='delete'
+                  onClick={() => removeTask(story)}>
                   <RemoveIcon style={{ fill: 'white' }} />
                 </ListItemSecondaryAction>
               </ListItem>
@@ -176,9 +159,7 @@ const SprintSelectionComponent = ({ refreshContentsHook }) => {
         </List>
         <SubtaskMemberSelectionComponent
           openModal={state.openModal}
-          selectedStory={JSON.parse(
-            sessionStorage.getItem('sprint')
-          ).userStories.find(
+          selectedStory={JSON.parse(sessionStorage.getItem('sprint')).userStories.find(
             (story) => story.task === state.selectedStory?.task
           )}
           refreshParent={loadSessionStorage}
@@ -187,11 +168,10 @@ const SprintSelectionComponent = ({ refreshContentsHook }) => {
       </Container>
       <div style={{ textAlign: 'center' }}>
         <Button
-          variant="contained"
-          color="primary"
+          variant='contained'
+          color='primary'
           onClick={() => generateSprintPDF(state.sprint)}
-          style={{ textAlign: 'center' }}
-        >
+          style={{ textAlign: 'center' }}>
           DOWNLOAD PDF
         </Button>
       </div>

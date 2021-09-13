@@ -103,7 +103,7 @@ const SprintSelectionComponent = ({ loggedIn }) => {
           className={classes.userInput}
           value={state.MenuSelection}
           onChange={handleSelectSprint}
-          label='Sprint'>
+          label='Select A Sprint'>
           <MenuItem value={'Add A New Sprint'} key={'add'}>
             Add A New Sprint
           </MenuItem>
