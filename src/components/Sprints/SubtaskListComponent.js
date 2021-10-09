@@ -47,7 +47,7 @@ const SubTaskListComponent = (props) => {
 
     let updatedUserStories = mostRecentSprint.userStories.map((story) => {
       story.subtasks = story.subtasks.map((subTask) => {
-        if (subTask.task === props.subTask.task)
+        if (subTask.task === props.subTask.task && story.task === props.task)
           subTask.assigned = e.target.value;
         return subTask;
       });

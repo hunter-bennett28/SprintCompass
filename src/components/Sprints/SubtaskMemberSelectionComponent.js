@@ -43,7 +43,7 @@ const SubtaskMemberSelectionComponent = ({ openModal, onClose, selectedStory, re
               >{selectedStory.description}</Typography>
               <Typography>Sub Tasks</Typography>
               {selectedStory.subtasks.map((e, index) => (
-                <SubTaskListComponent subTask={e} refreshParent={refreshParent} key={index}/>
+                <SubTaskListComponent subTask={e} task={selectedStory.task} refreshParent={refreshParent} key={index}/>
               ))}
               {selectedStory.subtasks.length===0 && (<Typography style={{textAlign:"center"}}>No subtasks to display!</Typography>)}
   
