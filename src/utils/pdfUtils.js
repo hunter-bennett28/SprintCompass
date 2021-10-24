@@ -82,6 +82,11 @@ const generateSprintPDF = (sprint) => {
 
   // Print each user story and each subtask in sprint
   sprint.userStories?.forEach((story) => {
+    if (depth + 10 + (6 * story.subtasks.length) > 190) {
+      doc.addPage();
+      depth = 10;
+    }
+
     // Print Stories
     setTaskFont(doc).text(abbreviate(story.task, 63), leftIndent, (depth += 10));
     const userStoryDepth = depth;
